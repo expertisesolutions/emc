@@ -1,7 +1,13 @@
 /* http://imgarcade.com */
 collections {
  group {
-    name: "my_group";
+    name: "main";
+    script {
+         public audio_state,
+                video_state,
+                configure_state;
+      }
+        
     //min: 2560 1024;
     //max: 1024 2560;
     
@@ -55,6 +61,8 @@ collections {
             }
          }
 
+
+
          part {
             name: "notification_bar"; // the bar in the top of window, not used yet
             type: RECT;
@@ -81,7 +89,6 @@ collections {
             mouse_events: 1;
             description {
                state: "default" 0.0;
-               //color: 55 50 100 200;
                image.normal: "app_window.jpg";                                
                rel1 {
                   relative: 0.1 0.1 ; to: "background_img";
@@ -92,7 +99,113 @@ collections {
                   offset: 0 -20;
                }
             }
+            description {
+               state: "audio_bt_clicked" 0.0;
+               inherit: "default" 0.0;
+               color: 255 0 0 255;
+            }
+            description {
+               state: "video_bt_clicked" 0.0;
+               inherit: "default" 0.0;
+               color: 0 255 0 255;
+            }
+            description {
+               state: "configure_bt_clicked" 0.0;
+               inherit: "default" 0.0;
+               color: 0 0 255 255;
+            }
+
          }
+///////////////// used to show states  ///////////////////
+         part {
+                name: "button_box";
+                type: RECT;
+                description {
+                    state: "default" 0.0;
+                    color: 200 200 200 255;
+                    rel1 {
+                        to: "app_window";
+                        relative: 0.2 0.2;
+                    }
+                    rel2 {
+                        to: "app_window";
+                        relative: 0.6 0.6;
+                    }                    
+                }
+            }
+
+            part {
+                name: "label";
+                type: TEXT;
+                mouse_events: 0;
+                description {
+                    state: "default" 0.0;
+                    color: 0 0 0 255;
+                    text {
+                        text: "label";
+                        font: "Sans";
+                        size: 14;
+                        align: 0.5 0.5;
+                    }
+                    rel1 {
+                        to: "button_box";
+                        relative: 0.0 0.1;
+                    }
+                    rel2 {
+                        to: "button_box";
+                        relative: 1.0 1.0;
+                    }
+                }
+            }
+
+            part {
+                name: "label_2";
+                type: TEXT;
+                mouse_events: 0;
+                description {
+                    state: "default" 0.0;
+                    color: 0 0 0 255;
+                    text {
+                        text: "label_2";
+                        font: "Sans";
+                        size: 14;
+                        align: 0.5 0.3;
+                    }
+                    rel1 {
+                        to: "button_box";
+                        relative: 0.0 0.5;
+                    }
+                    rel2 {
+                        to: "button_box";
+                        relative: 1.0 1.0;
+                    }
+                }
+            }
+
+            part {
+                name: "label_3";
+                type: TEXT;
+                mouse_events: 0;
+                description {
+                    state: "default" 0.0;
+                    color: 0 0 0 255;
+                    text {
+                        text: "label_3";
+                        font: "Sans";
+                        size: 14;
+                        align: 0.5 0.5;
+                    }
+                    rel1 {
+                        to: "button_box";
+                        relative: 0.0 0.6;
+                    }
+                    rel2 {
+                        to: "button_box";
+                        relative: 1.0 1.0;
+                    }
+                }
+            }
+//////////////// end of show states //////////////
 
          part {
             name: "audio_bt";
@@ -115,6 +228,11 @@ collections {
                   //offset: -15 0;
                 }
             }
+            description {
+               state: "audio_bt_mouse_in" 0.0;
+               inherit: "default" 0.0;
+               color: 200 200 0 255;
+            }
          }
          
          part {
@@ -136,6 +254,12 @@ collections {
                    //offset: -25 0;
                }
          }
+         description {
+               state: "video_bt_mouse_in" 0.0;
+               inherit: "default" 0.0;
+               color: 200 200 0 255;
+            }
+        }
          
          part {
             name: "configure_bt";
@@ -156,6 +280,33 @@ collections {
                   //offset: -15 0;
                 }
             }
+            description {
+               state: "configure_bt_mouse_in" 0.0;
+               inherit: "default" 0.0;
+               color: 200 200 0 255;
+         }
+
+         part {
+            name: "exit_bt";
+            type: IMAGE;
+            mouse_events: 1;
+            description {
+               state: "default" 0.0;
+               image.normal: "exit_icon.png";
+               color: 0 255 0 255;
+               rel1 {
+                  relative: 0.0 0.9 ; to: "background_img";
+                  offset: 5 5;
+               }
+               rel2 {
+                  relative: 0.1 1.0; to: "background_img";
+                  offset: -12 -5;
+               }
+            }
+            description {
+               state: "exit_bt_mouse_in" 0.0;
+               inherit: "default" 0.0;
+               color: 200 0 0 255;
          }
 
          part {
@@ -232,49 +383,178 @@ collections {
             }
          }
 
-         part {
-            name: "exit_bt";
-            type: IMAGE;
-            mouse_events: 1;
-            description {
-               state: "default" 0.0;
-               image.normal: "exit_icon.png";
-               color: 0 255 0 255;
-               rel1 {
-                  relative: 0.0 0.9 ; to: "background_img";
-                  offset: 5 5;
-               }
-               rel2 {
-                  relative: 0.1 1.0; to: "background_img";
-                  offset: -12 -5;
-               }
-            }
-         }
+         
      } /*end parts */
-
-////////////// programs /////////////////
 
      programs {
 
-     /********* _key_down_ *********/
-        program { 
-           name: "main_show_next";
+      program { // fills the global vars and starts audio_state as 
+                // selected by default
+        name: state_fill;
+        signal: "load";
+        source: "";
+        script {
+          set_int(audio_state, 1);
+          set_int(video_state, 0);
+          set_int(configure_state, 0);          
+
+          set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
+          set_state(PART:"video_bt", "default", 0.0);
+          set_state(PART:"configure_bt", "default", 0.0);
+          set_state(PART:"exit_bt", "default", 0.0);
+        }
+        after: "print_states";
+      }
+
+      program {
+           name: "print_states";
+           source: "";
+           script {
+                new buf[32];                
+                
+                snprintf(buf, sizeof(buf), "audio_state = %d", get_int(audio_state));
+                set_text(PART:"label", buf);  
+
+                snprintf(buf, sizeof(buf), "video_state = %d", get_int(video_state));
+                set_text(PART:"label_2", buf);
+
+                snprintf(buf, sizeof(buf), "configure_state = %d", get_int(configure_state));
+                set_text(PART:"label_3", buf);
+           }
+      }
+
+
+      /********* _key_down_ *********/
+      program {
            signal: "main.show.next";
-           source: "";           
-        }
+           source: "*";
+           script {
+                new buf[32];
 
-        program { 
-           name: "main_show_prev";
+                if (get_int(audio_state) == 1)
+                {
+                  set_int(audio_state, 0);
+                  set_int(video_state, 1);
+                  set_int(configure_state, 0);
+
+                  set_state(PART:"audio_bt", "default", 0.0);
+                  set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
+                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"exit_bt", "default", 0.0);
+                }
+
+                else if (get_int(video_state) == 1)
+                {
+                  set_int(audio_state, 0);
+                  set_int(video_state, 0);
+                  set_int(configure_state, 1);
+
+                  set_state(PART:"audio_bt", "default", 0.0);
+                  set_state(PART:"video_bt", "default", 0.0);
+                  set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
+                  set_state(PART:"exit_bt", "default", 0.0);
+                }
+
+                else if (get_int(configure_state) == 1)
+                {
+                  set_int(audio_state, 1);
+                  set_int(video_state, 0);
+                  set_int(configure_state, 0);
+
+                  set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
+                  set_state(PART:"video_bt", "default", 0.0);
+                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"exit_bt", "default", 0.0);
+                }
+                
+                snprintf(buf, sizeof(buf), "audio_state = %d", get_int(audio_state));
+                set_text(PART:"label", buf);  
+
+                snprintf(buf, sizeof(buf), "video_state = %d", get_int(video_state));
+                set_text(PART:"label_2", buf);
+
+                snprintf(buf, sizeof(buf), "configure_state = %d", get_int(configure_state));
+                set_text(PART:"label_3", buf);
+           }
+      }
+
+      program {
            signal: "main.show.prev";
-           source: "";           
+           source: "*";
+           script {
+                new buf[32]; 
+                
+                if (get_int(audio_state) == 1)
+                {
+                  set_int(audio_state, 0);
+                  set_int(video_state, 0);
+                  set_int(configure_state, 1);
+
+                  set_state(PART:"audio_bt", "default", 0.0);
+                  set_state(PART:"video_bt", "default", 0.0);
+                  set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
+                  set_state(PART:"exit_bt", "default", 0.0); 
+                }
+
+                else if (get_int(video_state) == 1)
+                {
+                  set_int(audio_state, 1);
+                  set_int(video_state, 0);
+                  set_int(configure_state, 0);
+
+                  set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
+                  set_state(PART:"video_bt", "default", 0.0);
+                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"exit_bt", "default", 0.0);
+                }
+
+                else if (get_int(configure_state) == 1)
+                {
+                  set_int(audio_state, 0);
+                  set_int(video_state, 1);
+                  set_int(configure_state, 0);
+
+                  set_state(PART:"audio_bt", "default", 0.0);
+                  set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
+                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"exit_bt", "default", 0.0);
+                }
+                
+                snprintf(buf, sizeof(buf), "audio_state = %d", get_int(audio_state));
+                set_text(PART:"label", buf);  
+
+                snprintf(buf, sizeof(buf), "video_state = %d", get_int(video_state));
+                set_text(PART:"label_2", buf);
+
+                snprintf(buf, sizeof(buf), "configure_state = %d", get_int(configure_state));
+                set_text(PART:"label_3", buf);
+           }
+      }
+
+      program {
+        signal: "main.show.enter";
+        source: "*";
+        script {
+           new buf[32]; 
+                
+           if (get_int(audio_state) == 1)
+            {
+              snprintf(buf, sizeof(buf), "show audio_state" );
+              set_text(PART:"label", buf);
+           }
+           else if (get_int(video_state) == 1)
+            {
+              snprintf(buf, sizeof(buf), "show video_state" );
+              set_text(PART:"label_2", buf);
+           }
+           else if (get_int(configure_state) == 1)
+            {
+              snprintf(buf, sizeof(buf), "show configure_state" );
+              set_text(PART:"label_3", buf);
+           }
         }
-
-        program { 
-           name: "main_show_enter";
-           signal: "main.show.enter";
-           source: "";           
-
-        }/********* end _keyboard_down_ *********/
+      }
+      /********* end _keyboard_down_ *********/
 
         
         /******** audio_bt ********/
@@ -288,27 +568,52 @@ collections {
         program { 
            name: "main_show_audio";
            signal: "main.show.audio";
-           source: "audio_bt";
-           action: STATE_SET "audio_bt_mouse_in" 0.0;
-           target: "app_window";
-           transition: LINEAR 0.1;
+           source: "*";
+           script {
+              set_int(audio_state, 1);
+              set_int(video_state, 0);
+              set_int(configure_state, 0);
+
+              set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
+              set_state(PART:"video_bt", "default", 0.0);
+              set_state(PART:"configure_bt", "default", 0.0);
+              set_state(PART:"exit_bt", "default", 0.0);
+
+              // just print the states, you can delete without problems
+              new buf[32];
+              snprintf(buf, sizeof(buf), "audio_state = %d", get_int(audio_state));
+              set_text(PART:"label", buf);  
+
+              snprintf(buf, sizeof(buf), "video_state = %d", get_int(video_state));
+              set_text(PART:"label_2", buf);
+
+              snprintf(buf, sizeof(buf), "configure_state = %d", get_int(configure_state));
+              set_text(PART:"label_3", buf);
+            }
         }
 
         program { 
            name: "audio_bt_mouse_clicked";
            signal: "mouse,clicked,*";
            source: "audio_bt";
-           action: SIGNAL_EMIT "main.selected.audio" "audio_bt";
+           action: SIGNAL_EMIT "main.selected.audio" "audio_bt";        
         }
 
-        program { 
+         program {
            name: "main_selected_audio";
            signal: "main.selected.audio";
            source: "audio_bt";
            action: STATE_SET "audio_bt_clicked" 0.0;
            target: "app_window";
-           transition: LINEAR 0.1;
+           transition: LINEAR 0.1;          
+        }
 
+        program { //just used for example, you can delete without problems
+           signal: "main.selected.audio";
+           source: "*";
+           action: STATE_SET "audio_bt_clicked" 0.0;
+           target: "app_window";
+           transition: LINEAR 0.1;          
         }/******** end audio_bt ********/
 
 
@@ -323,27 +628,44 @@ collections {
         program { 
            name: "main_show_video";
            signal: "main.show.video"; 
-           source: "audio_bt";
-           action: STATE_SET "video_bt_in" 0.0;
-           target: "app_window";
-           transition: LINEAR 0.1;
-        }
+           source: "*";
+           script {
+              set_int(audio_state, 0);
+              set_int(video_state, 1);
+              set_int(configure_state, 0);
 
+              set_state(PART:"audio_bt", "default", 0.0);
+              set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
+              set_state(PART:"configure_bt", "default", 0.0);
+              set_state(PART:"exit_bt", "default", 0.0);
+
+              // just print the states, you can delete without problems
+              new buf[32];
+              snprintf(buf, sizeof(buf), "audio_state = %d", get_int(audio_state));
+              set_text(PART:"label", buf);  
+
+              snprintf(buf, sizeof(buf), "video_state = %d", get_int(video_state));
+              set_text(PART:"label_2", buf);
+
+              snprintf(buf, sizeof(buf), "configure_state = %d", get_int(configure_state));
+              set_text(PART:"label_3", buf);
+            }
+        }
+        
         program { 
            name: "video_bt_mouse_clicked";
            signal: "mouse,clicked,*";
            source: "video_bt";
-           action: SIGNAL_EMIT "main.selected.video" "video_bt";
+           action: SIGNAL_EMIT "main.selected.video" "video_bt";        
         }
 
-        program { 
-           name: "main_selected_video";
+        program { //just used for example, you can delete without problems
            signal: "main.selected.video";
-           source: "video_bt";
+           source: "*";
            action: STATE_SET "video_bt_clicked" 0.0;
            target: "app_window";
            transition: LINEAR 0.1;
-                
+           
         }/******** end video_bt ********/
 
         
@@ -358,27 +680,44 @@ collections {
         program { 
            name: "main_show_configure";
            signal: "main.show.configure";
-           source: "configure_bt";
-           action: STATE_SET "configure_bt_mouse_in" 0.0;
-           target: "app_window";
-           transition: LINEAR 0.1;
+           source: "*";
+           script {
+              set_int(audio_state, 0);
+              set_int(video_state, 0);
+              set_int(configure_state, 1);
+
+              set_state(PART:"audio_bt", "default", 0.0);
+              set_state(PART:"video_bt", "default", 0.0);
+              set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
+              set_state(PART:"exit_bt", "default", 0.0);
+
+              // just print the states, you can delete without problems
+              new buf[32];
+              snprintf(buf, sizeof(buf), "audio_state = %d", get_int(audio_state));
+              set_text(PART:"label", buf);  
+
+              snprintf(buf, sizeof(buf), "video_state = %d", get_int(video_state));
+              set_text(PART:"label_2", buf);
+
+              snprintf(buf, sizeof(buf), "configure_state = %d", get_int(configure_state));
+              set_text(PART:"label_3", buf);
+            }
         }
 
         program { 
            name: "configure_bt_mouse_clicked";
            signal: "mouse,clicked,*";
            source: "configure_bt";
-           action: SIGNAL_EMIT "main.selected.configure" "configure_bt";
+           action: SIGNAL_EMIT "main.selected.configure" "configure_bt";        
         }
 
-        program { 
-           name: "main_selected_configure";
+        program { //just used for example, you can delete without problems
            signal: "main.selected.configure";
-           source: "configure_bt";
+           source: "*";
            action: STATE_SET "configure_bt_clicked" 0.0;
            target: "app_window";
            transition: LINEAR 0.1;
-
+           
         }/******** end configure_bt ********/
 
         
@@ -394,9 +733,27 @@ collections {
            name: "main_show_exit";
            signal: "main.show.exit";
            source: "exit_bt";
-           action: STATE_SET "exit_bt_mouse_in" 0.0;
-           target: "app_window";
-           transition: LINEAR 0.1;
+           script {
+              set_int(audio_state, 0);
+              set_int(video_state, 0);
+              set_int(configure_state, 0);
+
+              set_state(PART:"audio_bt", "default", 0.0);
+              set_state(PART:"video_bt", "default", 0.0);
+              set_state(PART:"configure_bt", "default", 0.0);
+              set_state(PART:"exit_bt", "exit_bt_mouse_in", 0.0);
+
+              // just print the states, you can delete without problems
+              new buf[32];
+              snprintf(buf, sizeof(buf), "audio_state = %d", get_int(audio_state));
+              set_text(PART:"label", buf);  
+
+              snprintf(buf, sizeof(buf), "video_state = %d", get_int(video_state));
+              set_text(PART:"label_2", buf);
+
+              snprintf(buf, sizeof(buf), "configure_state = %d", get_int(configure_state));
+              set_text(PART:"label_3", buf);              
+            }
         }
 
         program { 
@@ -411,19 +768,22 @@ collections {
            name: "main_selected_exit";
            signal: "main.selected.exit";
            source: "exit_bt";
-           action: STATE_SET "visible" 0.0;
-           target: "confirm_exit_window";
-           target: "yes_bt";
-           target: "no_bt";
-           transition: LINEAR 0.1;
+           script{
+              set_state(PART:"app_window", "default", 0.0);
+              set_state(PART:"audio_bt", "default", 0.0);
+              set_state(PART:"video_bt", "default", 0.0);
+              set_state(PART:"configure_bt", "default", 0.0);
+              set_state(PART:"confirm_exit_window", "visible", 0.0);
+              set_state(PART:"yes_bt", "visible", 0.0);
+              set_state(PART:"no_bt", "visible", 0.0);              
+           }
         }
  
         program { /* this program active the visibility of 
-                   confirm window exit if Escape(Esc) is pressed */
-           
+                   confirm window exit if Escape(Esc) is pressed */           
            name: "escape_down";
            signal: "escape";
-           source: "";
+           source: "*";
            action: STATE_SET "visible" 0.0;
            target: "confirm_exit_window";
            target: "yes_bt";
@@ -446,10 +806,9 @@ collections {
            target: "confirm_exit_window";
            target: "yes_bt";
            target: "no_bt";
-           transition: LINEAR 0.1;
+           transition: LINEAR 0.1;        
         
         }/******** end exit_bt ********/
-      
      } /* end programs */
- } /*end group "my_group" */
+ } /*end group "main" */
 } /* end collections */
