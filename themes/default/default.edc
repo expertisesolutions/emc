@@ -762,7 +762,7 @@ collections {
         program { // this program just works if the confirm exit window is visible
            name: "yes_bt_clicked";
            signal: "mouse,clicked,*";
-           source: "*";
+           source: "yes_bt";
            action: SIGNAL_EMIT "yes_bt,clicked" "yes_bt";
         }
 
