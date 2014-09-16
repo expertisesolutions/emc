@@ -1,39 +1,42 @@
 #include <stdio.h>
+#include <iostream>
 
-#include "emc_avplayer.hh"
+#ifdef HAVE_CONFIG_H
+# include <elementary_config.h>
+#endif
+
+#include <Eo.h>
+#include <Evas.h>
+#include <Elementary.h>
+#include <Eina.hh>
+
+#include <elm_widget.h>
+#include "elm_interface_atspi_accessible.h"
+#include "elm_interface_atspi_accessible.eo.h"
+#include "elm_interface_atspi_widget_action.h"
+#include "elm_interface_atspi_widget_action.eo.h"
+
+#include <elm_win.eo.hh>
+#include <elm_layout.eo.hh>
+
+#include "basectrl.hh"
+#include "mainctrl.hh"
+//#include "emc_avplayer.hh"
+
+#define THEME_PATH "../themes"
 
 EAPI_MAIN int
 elm_main(int argc, char **argv)
 {
-   Eo* test;
-   std::string filename;
+   {
+      ::elm_win win(elm_win_util_standard_add("emc-window","Main EMC Frame"));
+      win.callback_delete_request_add(std::bind([]{elm_exit();}));
 
-   if(argc < 2)
-     {
-        std::cout << "Use: ./" << argv[0]
-            << " <filename>" << std::endl;
-        return 1;
-     }
-
-     {
-        elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
-        ::elm_win win(elm_win_util_standard_add("emc-window","Main EMC Frame"));
-        win.autodel_set(true);
-        emc_avplayer player(win);
-
-        filename = argv[1];
-        player.file_set(filename);
-        player.position_set(0.0);
-        player.volume_set(10.0);
-        player.loop_set(false);
-        player.play_set(true);
-        std::cout << "references to win " << win.ref_get() << std::endl;
-        test = win._eo_ptr();
-        win._release();
-     }
-   std::cout << "references to win " << ::eo_ref_get(test) << std::endl;
-
-   elm_run();
+      std::string filename = THEME_PATH"/default/default.edj";
+      emc::mainctrl mctrl(win, ::elm_layout(efl::eo::parent = win), filename);
+      mctrl.active();
+      elm_run();
+   }
    elm_shutdown();
 
    return 0;
