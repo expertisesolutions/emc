@@ -7,7 +7,6 @@ mainctrl.cc
 
 emc_LIBADD = @EMC_LIBS@
 emc_CFLAGS = @EMC_CFLAGS@
-CC = @CXX@
 
 DEFS = -DEFL_BETA_API_SUPPORT \
 -DELM_INTERNAL_API_ARGESFSDFEFC \
@@ -24,7 +23,7 @@ DEFS = -DEFL_BETA_API_SUPPORT \
 DEFS += -DEMC_DISABLE_EO_CALLBACK
 
 all:
-	$(CC) $(SRCS) -std=c++11 ${emc_LIBADD}  ${emc_CFLAGS} ${DEFS} -o $(PROJ)
+	$(CXX) $(SRCS) -std=c++11 ${emc_LIBADD} ${emc_CFLAGS} ${DEFS} -o $(PROJ)
 
 clean:
 	rm -f emc *.o
