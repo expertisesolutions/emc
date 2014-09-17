@@ -64,3 +64,5 @@ tags
 /ABOUT-NLS
 /config.rpath
 /coverage
+configure.scan
+src/emc
