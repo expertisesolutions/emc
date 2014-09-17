@@ -17,7 +17,7 @@ echo "OLD_PATH=\"$PATH\"" >> config.cache-env.tmp
 echo "OLD_PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\"" >> config.cache-env.tmp
 echo "OLD_LDFLAGS=\"$LDFLAGS\"" >> config.cache-env.tmp
 
-cmp config.cache-env.tmp config.cache-env >& /dev/null
+cmp config.cache-env.tmp config.cache-env 2>&1 > /dev/null
 if [ $? -ne 0 ]; then
    W=1;
 fi
