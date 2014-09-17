@@ -170,7 +170,7 @@ emc_avplayer::file_set(const std::string &filename)
      return EINA_FALSE;
 
    this->av_filename = filename;
-   video.file_set(this->av_filename);
+   video.file_set(this->av_filename, "");
 
    return EINA_TRUE;
 }
