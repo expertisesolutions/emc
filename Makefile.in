@@ -4,6 +4,7 @@ AM_MAKEFLAGS = --no-print-directory
 SUBDIRS = src
 
 all:
+	cd themes/default/ && edje_cc default.edc
 	cd src && make
 
 clean:
