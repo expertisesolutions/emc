@@ -3,8 +3,15 @@
 rm -rf autom4te.cache
 rm -f aclocal.m4 ltmain.sh
 
+# aclocal && autoscan && autoconf
 # autoreconf -vif
-aclocal && autoscan && autoconf
+#echo "Running autopoint..." ; autopoint -f || :
+#echo "Running aclocal..." ; aclocal $ACLOCAL_FLAGS -I m4 || exit 1
+echo "Running aclocal..." ; aclocal $ACLOCAL_FLAGS || exit 1
+echo "Running autoheader..." ; autoheader || exit 1
+echo "Running autoconf..." ; autoconf || exit 1
+echo "Running libtoolize..." ; (libtoolize --copy --automake || glibtoolize --automake) || exit 1
+#echo "Running automake..." ; automake --add-missing --copy --gnu || exit 1
 
 w=0
 
@@ -15,7 +22,7 @@ echo "OLD_PATH=\"$PATH\"" >> config.cache-env.tmp
 echo "OLD_PKG_CONFIG_PATH=\"$PKG_CONFIG_PATH\"" >> config.cache-env.tmp
 echo "OLD_LDFLAGS=\"$LDFLAGS\"" >> config.cache-env.tmp
 
-cmp config.cache-env.tmp config.cache-env >> /dev/null
+cmp config.cache-env.tmp config.cache-env >& /dev/null
 if [ $? -ne 0 ]; then
    W=1;
 fi
