@@ -1,6 +1,9 @@
 ACLOCAL_AMFLAGS = -I m4
 PROJ=emc
-SRCS=*.cc 
+SRCS= \
+basectrl.cc \
+emc_avplayer.cc \
+mainctrl.cc
 
 emc_LIBADD = @EMC_LIBS@
 emc_CFLAGS = @EMC_CFLAGS@
