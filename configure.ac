@@ -23,6 +23,7 @@ PKG_CHECK_MODULES([EMC],
 [
  elementary >= 1.11.0
  eo >= 1.11.0
+ efl-cxx >= 1.11.99
  eo-cxx >= 1.11.0
  eina-cxx >= 1.11.0
  edje-cxx >= 1.11.0
