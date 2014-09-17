@@ -13,7 +13,7 @@ echo "Running autoconf..." ; autoconf || exit 1
 echo "Running libtoolize..." ; (libtoolize --copy --automake || glibtoolize --automake) || exit 1
 #echo "Running automake..." ; automake --add-missing --copy --gnu || exit 1
 
-w=0
+W=0
 
 rm -f config.cache-env.tmp
 echo "OLD_PARM=\"$@\"" >> config.cache-env.tmp
