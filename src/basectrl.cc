@@ -29,16 +29,13 @@ basectrl::basectrl(const ::elm_win &_win, const ::elm_layout &_layout, const std
 bool
 basectrl::active()
 {
-   layout.show();
-   //layout.can_focus_get();
-   evas::object edje = layout.edje_get();
-   edje.focus_set(true);
+   layout.visibility_set(true);
 }
 
 bool
 basectrl::deactive()
 {
-   layout.hide();
+   layout.visibility_set(false);
    deactive_cb();
 }
 
