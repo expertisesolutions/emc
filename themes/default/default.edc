@@ -122,17 +122,17 @@ collections {
                }
             }
             description {
-               state: "audio_bt_clicked" 0.0;
+               state: "show_audio" 0.0;
                inherit: "default" 0.0;
-               color: 255 0 0 255;
+               color: 255 255 0 255;
             }
             description {
-               state: "video_bt_clicked" 0.0;
+               state: "show_video" 0.0;
                inherit: "default" 0.0;
                color: 0 255 0 255;
             }
             description {
-               state: "configure_bt_clicked" 0.0;
+               state: "show_configure" 0.0;
                inherit: "default" 0.0;
                color: 0 0 255 255;
             }
@@ -142,6 +142,7 @@ collections {
          part {
                 name: "button_box";
                 type: RECT;
+                mouse_events: 0;
                 description {
                     state: "default" 0.0;
                     color: 200 200 200 255;
@@ -227,7 +228,6 @@ collections {
                     }
                 }
             }
-
 //////////////// end of show states //////////////
          
          part {
@@ -406,6 +406,7 @@ collections {
           set_int(video_state, 0);
           set_int(configure_state, 0);          
 
+          set_state(PART:"app_window", "show_audio", 0.0);
           set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
           set_state(PART:"video_bt", "default", 0.0);
           set_state(PART:"configure_bt", "default", 0.0);
@@ -427,6 +428,7 @@ collections {
                   set_int(video_state, 1);
                   set_int(configure_state, 0);
 
+                  set_state(PART:"app_window", "show_video", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
                   set_state(PART:"configure_bt", "default", 0.0);
@@ -439,6 +441,7 @@ collections {
                   set_int(video_state, 0);
                   set_int(configure_state, 1);
 
+                  set_state(PART:"app_window", "show_configure", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
                   set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
@@ -451,6 +454,7 @@ collections {
                   set_int(video_state, 0);
                   set_int(configure_state, 0);
 
+                  set_state(PART:"app_window", "show_audio", 0.0);
                   set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
                   set_state(PART:"configure_bt", "default", 0.0);
@@ -463,6 +467,7 @@ collections {
                   set_int(video_state, 0);
                   set_int(configure_state, 0);
 
+                  set_state(PART:"app_window", "show_audio", 0.0);
                   set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
                   set_state(PART:"configure_bt", "default", 0.0);
@@ -483,6 +488,7 @@ collections {
                   set_int(video_state, 0);
                   set_int(configure_state, 1);
 
+                  set_state(PART:"app_window", "show_configure", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
                   set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
@@ -507,6 +513,7 @@ collections {
                   set_int(video_state, 1);
                   set_int(configure_state, 0);
 
+                  set_state(PART:"app_window", "show_video", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
                   set_state(PART:"configure_bt", "default", 0.0);
@@ -519,6 +526,7 @@ collections {
                   set_int(video_state, 0);
                   set_int(configure_state, 1);
 
+                  set_state(PART:"app_window", "show_configure", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
                   set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
@@ -529,29 +537,34 @@ collections {
       }
 
       program {
-        signal: "main.show.enter";
+        name: "main_select_current";
+        signal: "main.select.current";
         source: "*";
         script {
-           new buf[32]; 
-                
+
            if (get_int(audio_state) == 1)
-            {
-              snprintf(buf, sizeof(buf), "show audio_state" );
-              set_text(PART:"label", buf);
+            {              
+              set_text(PART:"label", "selected_audio");
+              emit("main.selected.audio", "");
+              //run_program(PROGRAM:"audio_selected");              
            }
            else if (get_int(video_state) == 1)
             {
-              snprintf(buf, sizeof(buf), "show video_state" );
-              set_text(PART:"label_2", buf);
+              set_text(PART:"label_2", "selected_video");
+              emit("main.selected.video", "");
+              //run_program(PROGRAM:"video_selected");
+              //send_message(MSG_STRING, 0, "main.selected.video");
            }
            else if (get_int(configure_state) == 1)
             {
-              snprintf(buf, sizeof(buf), "show configure_state" );
-              set_text(PART:"label_3", buf);
+              set_text(PART:"label_3", "selected_configure");
+              emit("main.selected.configure", "");
+              //run_program(PROGRAM:"configure_selected");
+              //send_message(MSG_STRING, 0, "main.selected.configure");
            }
         }
       }
-      /********* end _keyboard_down_ *********/
+      /********* end _key_down_ *********/
 
         
         /******** audio_bt ********/
@@ -571,6 +584,7 @@ collections {
               set_int(video_state, 0);
               set_int(configure_state, 0);
 
+              set_state(PART:"app_window", "show_audio", 0.0);
               set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
               set_state(PART:"video_bt", "default", 0.0);
               set_state(PART:"configure_bt", "default", 0.0);
@@ -581,27 +595,11 @@ collections {
         }
 
         program { 
-           name: "audio_bt_mouse_clicked";
+           name: "audio_selected";
            signal: "mouse,clicked,*";
            source: "audio_bt";
            action: SIGNAL_EMIT "main.selected.audio" "audio_bt";        
-        }
-
-         program {
-           name: "main_selected_audio";
-           signal: "main.selected.audio";
-           source: "*";
-           action: STATE_SET "audio_bt_clicked" 0.0;
-           target: "app_window";
-           transition: LINEAR 0.1;          
-        }
-
-        program { //just used for example, you can delete without problems
-           signal: "main.selected.audio";
-           source: "*";
-           action: STATE_SET "audio_bt_clicked" 0.0;
-           target: "app_window";
-           transition: LINEAR 0.1;          
+        
         }/******** end audio_bt ********/
 
 
@@ -622,6 +620,7 @@ collections {
               set_int(video_state, 1);
               set_int(configure_state, 0);
 
+              set_state(PART:"app_window", "show_video", 0.0);
               set_state(PART:"audio_bt", "default", 0.0);
               set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
               set_state(PART:"configure_bt", "default", 0.0);
@@ -632,25 +631,17 @@ collections {
         }
         
         program { 
-           name: "video_bt_mouse_clicked";
+           name: "video_selected";
            signal: "mouse,clicked,*";
            source: "video_bt";
            action: SIGNAL_EMIT "main.selected.video" "video_bt";        
-        }
-
-        program { //just used for example, you can delete without problems
-           signal: "main.selected.video";
-           source: "*";
-           action: STATE_SET "video_bt_clicked" 0.0;
-           target: "app_window";
-           transition: LINEAR 0.1;
-           
+        
         }/******** end video_bt ********/
 
         
         /******** configure_bt ********/
         program { 
-           name: "configure_bt_bt_mouse_in";
+           name: "configure_selected";
            signal: "mouse,in";
            source: "configure_bt";
            action: SIGNAL_EMIT "main.show.configure" "configure_bt";
@@ -665,6 +656,7 @@ collections {
               set_int(video_state, 0);
               set_int(configure_state, 1);
 
+              set_state(PART:"app_window", "show_configure", 0.0);
               set_state(PART:"audio_bt", "default", 0.0);
               set_state(PART:"video_bt", "default", 0.0);
               set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
@@ -679,14 +671,6 @@ collections {
            signal: "mouse,clicked,*";
            source: "configure_bt";
            action: SIGNAL_EMIT "main.selected.configure" "configure_bt";        
-        }
-
-        program { //just used for example, you can delete without problems
-           signal: "main.selected.configure";
-           source: "*";
-           action: STATE_SET "configure_bt_clicked" 0.0;
-           target: "app_window";
-           transition: LINEAR 0.1;
            
         }/******** end configure_bt ********/
 
@@ -710,6 +694,7 @@ collections {
               set_int(video_state, 0);
               set_int(configure_state, 0);
 
+              set_state(PART:"app_window", "default", 0.0);
               set_state(PART:"audio_bt", "default", 0.0);
               set_state(PART:"video_bt", "default", 0.0);
               set_state(PART:"configure_bt", "default", 0.0);
@@ -730,7 +715,7 @@ collections {
            
            name: "main_selected_exit";
            signal: "main.selected.exit";
-           source: "exit_bt";
+           source: "*";
            script{
               set_state(PART:"app_window", "default", 0.0);
               set_state(PART:"audio_bt", "default", 0.0);
@@ -747,7 +732,7 @@ collections {
            name: "escape_down";
            signal: "escape";
            source: "*";
-           script{
+           /*script{
               set_state(PART:"app_window", "default", 0.0);
               set_state(PART:"audio_bt", "default", 0.0);
               set_state(PART:"video_bt", "default", 0.0);
@@ -755,8 +740,9 @@ collections {
               set_state(PART:"configure_bt", "default", 0.0);
               set_state(PART:"confirm_exit_window", "visible", 0.0);
               set_state(PART:"yes_bt", "visible", 0.0);
-              set_state(PART:"no_bt", "visible", 0.0);              
-           }
+              set_state(PART:"no_bt", "visible", 0.0); 
+           }*/
+          after: "main_selected_exit";
         }
 
         program { // this program just works if the confirm exit window is visible
