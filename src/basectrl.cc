@@ -17,39 +17,37 @@
 namespace emc {
 
 //Constructor
-basectrl::basectrl(const ::elm_win &_win, const ::elm_layout &_layout, const std::string &theme, const std::string &_groupname) :
+basectrl::basectrl(const ::elm_layout &_layout, const std::string &_theme, const std::string &_groupname) :
         groupname(_groupname),
         layout(_layout),
-        win(_win),
+        theme(_theme),
         deactive_cb()
 {
-   theme_set(theme);
 }
 
-bool
+void
 basectrl::active()
-{
-   layout.visibility_set(true);
-}
-
-bool
-basectrl::deactive()
-{
-   layout.visibility_set(false);
-   deactive_cb();
-}
-
-bool
-basectrl::theme_set(const std::string &theme)
 {
    layout.file_set(theme, groupname);
 }
 
+void
+basectrl::deactive()
+{
+   deactive_cb();
+}
+
 bool
-basectrl::deactive_cb_set(std::function<void()> &_deactive_cb)
+basectrl::theme_set(const std::string &_theme)
+{
+   theme = _theme;
+   return layout.file_set(theme, groupname);
+}
+
+bool
+basectrl::deactive_cb_set(std::function<void()> _deactive_cb)
 {
    deactive_cb = _deactive_cb;
 }
-
 
 } //emc

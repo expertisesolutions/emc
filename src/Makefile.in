@@ -2,6 +2,9 @@ ACLOCAL_AMFLAGS = -I m4
 PROJ=emc
 SRCS= \
 basectrl.cc \
+audiolist.cc \
+videolist.cc \
+settingsctrl.cc \
 emc_avplayer.cc \
 mainctrl.cc \
 emc.cc

@@ -558,7 +558,7 @@ collections {
            else if (get_int(configure_state) == 1)
             {
               set_text(PART:"label_3", "selected_configure");
-              emit("main.selected.configure", "");
+              emit("main.selected.settings", "");
               //run_program(PROGRAM:"configure_selected");
               //send_message(MSG_STRING, 0, "main.selected.configure");
            }
@@ -644,12 +644,12 @@ collections {
            name: "configure_selected";
            signal: "mouse,in";
            source: "configure_bt";
-           action: SIGNAL_EMIT "main.show.configure" "configure_bt";
+           action: SIGNAL_EMIT "main.show.settings" "configure_bt";
         }
 
         program { 
            name: "main_show_configure";
-           signal: "main.show.configure";
+           signal: "main.show.settings";
            source: "*";
            script {
               set_int(audio_state, 0);
@@ -670,7 +670,7 @@ collections {
            name: "configure_bt_mouse_clicked";
            signal: "mouse,clicked,*";
            source: "configure_bt";
-           action: SIGNAL_EMIT "main.selected.configure" "configure_bt";        
+           action: SIGNAL_EMIT "main.selected.settings" "configure_bt";        
            
         }/******** end configure_bt ********/
 
