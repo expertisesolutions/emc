@@ -21,20 +21,8 @@
 
 namespace emc {
 
-//Constructor
-mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout _layout, const std::string &_theme)
-   : basectrl(_win, _layout, _theme, "main")
-{
-   layout.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   win.resize_object_add(layout);
-   win.size_set(WIDTH, HEIGHT);
-   win.visibility_set(true);
-   win.callback_key_down_add(std::bind([this](void *einfo){key_down_cb(static_cast<Evas_Event_Key_Down *>(einfo)->key);}, std::placeholders::_3));
-   std::cout << "Theme file: " << _theme << std::endl;
-}
-
 void
-mainctrl::key_down_cb(std::string key)
+mainctrl::_on_key_down(std::string key)
 {
    //std::cout << "Main Ctrl Key down "<< key << std::endl;
    if (key == "Right")
@@ -45,6 +33,49 @@ mainctrl::key_down_cb(std::string key)
      layout.signal_emit("main.show.enter", "");
    else if (key == "Esc")
      layout.signal_emit("main.show.exit", "");
+}
+
+//Constructor
+mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout _layout, const std::string &_theme)
+   : basectrl(_win, _layout, _theme, "main")
+{
+   layout.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   win.resize_object_add(layout);
+   win.size_set(WIDTH, HEIGHT);
+   win.visibility_set(true);
+   win.callback_key_down_add(std::bind([this](void *einfo){_on_key_down(static_cast<Evas_Event_Key_Down *>(einfo)->key);}, std::placeholders::_3));
+
+   //add signal callbacks
+   layout.signal_callback_add("main.selected.audio", "*",
+      std::bind([]
+        {
+          std::cout << "audio selected cb" << std::endl;
+        }
+      ));
+
+   layout.signal_callback_add("main.selected.video", "*",
+      std::bind([]
+        {
+          std::cout << "video selected cb" << std::endl;
+        }
+      ));
+
+   layout.signal_callback_add("main.selected.settings", "*",
+      std::bind([]
+        {
+          std::cout << "settings selected cb" << std::endl;
+        }
+      ));
+
+   layout.signal_callback_add("main.selected.exit", "*",
+      std::bind([]
+        {
+          std::cout << "exit selected cb" << std::endl;
+        }
+      ));
+
+
+   std::cout << "Theme file: " << _theme << std::endl;
 }
 
 } //emc

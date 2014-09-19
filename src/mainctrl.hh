@@ -9,9 +9,9 @@
 namespace emc {
 
 class mainctrl
-:public basectrl
+ : public basectrl
 {
-   void key_down_cb(std::string key);
+   void _on_key_down(std::string key);
    //::EModel model;
    public:
      mainctrl(const ::elm_win &win, ::elm_layout layout, const std::string &theme);
