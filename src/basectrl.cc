@@ -23,6 +23,12 @@ basectrl::basectrl(const ::elm_layout &_layout, const std::string &_theme, const
         theme(_theme),
         deactive_cb()
 {
+   layout.signal_callback_add(groupname+".selected.back", "*",
+      std::bind([this]
+        {
+          deactive();
+        }
+      ));
 }
 
 void
