@@ -1,0 +1,140 @@
+collections {
+ group {
+    name: "audiolist";
+    images {
+       image: "background.jpg" RAW;
+       image: "audio_icon.png" LOSSY 80;
+       image: "exit_icon.png" LOSSY 80;
+    }
+    min: 800 600;
+    max: 1024 768;
+    parts {
+       part {
+          name: "bg_rect"; //gray retangle that fills the entire window
+          type: RECT;
+          description {
+             state: "default" 0.0;
+             color: 255 255 255 55;
+             rel1 {
+                relative: 0.0 0.0;
+                offset: 0 0;
+             }
+             rel2 {
+                relative: 1.0 1.0;
+                offset: 0 0;
+             }
+          }
+       }
+       part {
+          name: "background_img" ;
+          type: IMAGE;
+          mouse_events: 0;
+          description {
+              state: "default" 0.0;
+              rel1 {
+                 relative: 0.0 0.0; 
+                 offset: 10 10;
+              }
+              rel2 {
+                 relative: 1.0 1.0;
+                 offset: -10 -10;
+              }
+              image {
+                normal: "background.jpg";
+              }
+          }
+       }
+       part {
+          name: "notification_bar"; // the bar in the top of window, not used yet
+          type: RECT;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             color: 125 0 125 255;
+             rel1 {
+                relative: 0.0 0.0 ; to: "background_img";
+                offset: 2 2;
+             }
+             rel2 {
+                relative: 1.0 0.1; to: "background_img";
+                offset: -2 -10;
+             }
+          }
+       }
+       part {
+          name: "audio_icon";
+          type: IMAGE;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             image {
+                normal: "audio_icon.png";
+             }
+             color: 0 255 0 255;
+             rel1 {
+                relative: 0.1 0.1 ; to: "background_img";
+             }
+             rel2 {
+                relative: 0.3 0.2; to: "background_img";
+             }
+          }
+       }
+       part {
+          name: "backbt";
+          type: IMAGE;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             image.normal: "exit_icon.png";
+             color: 0 255 0 255;
+             rel1 {
+                relative: 0.0 0.9 ; to: "background_img";
+                offset: 5 5;
+             }
+             rel2 {
+                relative: 0.1 1.0; to: "background_img";
+                offset: -12 -5;
+             }
+          }
+          description {
+             state: "backbt_focused" 0.0;
+             inherit: "default" 0.0;
+             color: 200 0 0 255;
+          }
+       }
+    } /*end parts */
+
+    programs {
+/* Signals */
+      program {
+         name: "audiolist_next";
+         signal: "audiolist.show.next";
+         source: "*";
+      }
+      program {
+         name: "audiolist_prev";
+         signal: "audiolist.show.prev";
+         source: "*";
+      }
+      program {
+         name: "audiolist_select_current";
+         signal: "audiolist.select.current";
+         source: "*";
+      }
+/* Signals End */
+      program {
+         name: "backbt_mouse_in";
+         signal: "mouse,in";
+         source: "backbt";
+         action: STATE_SET "backbt_focused" 0.0;
+         target: "backbt";
+      }
+      program {
+         name: "backbt_mouse_clicked";
+         signal: "mouse,clicked,*";
+         source: "backbt";
+         action: SIGNAL_EMIT "audiolist.selected.back" "backbt";
+      }
+    } /* end programs */
+  } /*end group "audiolist" */
+} /* end collections */ 
