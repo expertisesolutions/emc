@@ -21,6 +21,7 @@ AC_CHECK_FUNCS([memset])
 # Check for EFL
 PKG_CHECK_MODULES([EMC],
 [
+ elementary-cxx >= 1.11.0
  elementary >= 1.11.0
  eo >= 1.11.0
  efl-cxx >= 1.11.99
