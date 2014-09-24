@@ -10,11 +10,11 @@ namespace emc {
 
 class basectrl
 {
-   std::string groupname;
    std::string theme;
    std::function<void()> deactive_cb;
 
    protected:
+     std::string groupname;
      ::elm_layout layout;
 
    public:

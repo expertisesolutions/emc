@@ -63,6 +63,21 @@ collections {
           }
        }
        part {
+          name: "videolist/list";
+          type: SWALLOW;
+          description {
+             state: "default" 0.0;
+             rel1 {
+                relative: 0.1 0.1 ; to: "background_img";
+                offset: 0 15;
+             }
+             rel2 {
+                relative: 0.9 0.8; to: "background_img";
+                offset: 0 -20;
+             }
+          }
+       }
+       part {
           name: "video_icon";
           type: IMAGE;
           mouse_events: 1;
