@@ -18,26 +18,16 @@ collections {
     script {
        public audio_state, // 0 == not show | 1 == show
               video_state,
-              configure_state;
-
-       public print_states() {
-          new buf[32];
-          snprintf(buf, sizeof(buf), "audio_state = %d", get_int(audio_state));
-          set_text(PART:"label", buf);  
-
-          snprintf(buf, sizeof(buf), "video_state = %d", get_int(video_state));
-          set_text(PART:"label_2", buf);
-
-          snprintf(buf, sizeof(buf), "configure_state = %d", get_int(configure_state));
-          set_text(PART:"label_3", buf);
-       }
+              settings_state,
+              exit_window_state;
     }
     images {
        image: "background.jpg" RAW;
        image: "app_window.jpg" RAW;
        image: "audio_icon.png" LOSSY 80;
        image: "video_icon.png" LOSSY 80;
-       image: "configure_icon.png" LOSSY 80;
+       image: "settings_icon.png" LOSSY 80;
+       image: "return_icon.png" LOSSY 80;
        image: "confirm_exit_window.png" RAW;
        image: "yes_bt.jpg" LOSSY 90;
        image: "no_bt.jpg" LOSSY 90;
@@ -124,102 +114,14 @@ collections {
           description {
              state: "show_video" 0.0;
              inherit: "default" 0.0;
-             color: 0 255 0 255;
+             color: 180 125 0 255;
           }
           description {
-             state: "show_configure" 0.0;
+             state: "show_settings" 0.0;
              inherit: "default" 0.0;
              color: 0 0 255 255;
           }
        }
-/////////////// used to show states  ///////////////////
-       part {
-          name: "button_box";
-          type: RECT;
-          mouse_events: 0;
-          description {
-              state: "default" 0.0;
-              color: 200 200 200 255;
-              rel1 {
-                  to: "app_window";
-                  relative: 0.2 0.2;
-              }
-              rel2 {
-                  to: "app_window";
-                  relative: 0.6 0.6;
-              }
-          }
-       }
-       part {
-          name: "label";
-          type: TEXT;
-          mouse_events: 0;
-          description {
-              state: "default" 0.0;
-              color: 0 0 0 255;
-              text {
-                  text: "label";
-                  font: "Sans";
-                  size: 14;
-                  align: 0.5 0.5;
-              }
-              rel1 {
-                  to: "button_box";
-                  relative: 0.0 0.1;
-              }
-              rel2 {
-                  to: "button_box";
-                  relative: 1.0 1.0;
-              }
-          }
-       }
-       part {
-          name: "label_2";
-          type: TEXT;
-          mouse_events: 0;
-          description {
-              state: "default" 0.0;
-              color: 0 0 0 255;
-              text {
-                  text: "label_2";
-                  font: "Sans";
-                  size: 14;
-                  align: 0.5 0.3;
-              }
-              rel1 {
-                  to: "button_box";
-                  relative: 0.0 0.5;
-              }
-              rel2 {
-                  to: "button_box";
-                  relative: 1.0 1.0;
-              }
-          }
-       }
-       part {
-          name: "label_3";
-          type: TEXT;
-          mouse_events: 0;
-          description {
-              state: "default" 0.0;
-              color: 0 0 0 255;
-              text {
-                  text: "label_3";
-                  font: "Sans";
-                  size: 14;
-                  align: 0.5 0.5;
-              }
-              rel1 {
-                  to: "button_box";
-                  relative: 0.0 0.6;
-              }
-              rel2 {
-                  to: "button_box";
-                  relative: 1.0 1.0;
-              }
-          }
-       }
-////////////// end of show states //////////////
        part {
           name: "audio_bt";
           type: IMAGE;
@@ -267,13 +169,13 @@ collections {
           }
        }
        part {
-          name: "configure_bt";
+          name: "settings_bt";
           type: IMAGE;
           mouse_events: 1;
           description {
               state: "default" 0.0;
               image {
-                 normal: "configure_icon.png";
+                 normal: "settings_icon.png";
               }
               color: 0 255 0 255;
               rel1 {
@@ -284,7 +186,7 @@ collections {
               }
           }
           description {
-             state: "configure_bt_mouse_in" 0.0;
+             state: "settings_bt_mouse_in" 0.0;
              inherit: "default" 0.0;
              color: 200 200 0 255;
           }
@@ -380,7 +282,7 @@ collections {
     } /*end parts */
 
     programs {
-      program { // fills the global vars(audio_state,video_state,configure_state)
+      program { // fills the global vars(audio_state,video_state,settings_state)
                 // and starts audio_state as 'show' by default
         name: state_fill;
         signal: "load";
@@ -388,124 +290,161 @@ collections {
         script {
           set_int(audio_state, 1);
           set_int(video_state, 0);
-          set_int(configure_state, 0);
+          set_int(settings_state, 0);
+          set_int(exit_window_state, 0);
+
+          send_message(MSG_STRING, 0, "AUDIO_STATE IN");
 
           set_state(PART:"app_window", "show_audio", 0.0);
           set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
           set_state(PART:"video_bt", "default", 0.0);
-          set_state(PART:"configure_bt", "default", 0.0);
+          set_state(PART:"settings_bt", "default", 0.0);
           set_state(PART:"exit_bt", "default", 0.0);
+          set_state(PART:"confirm_exit_window", "default", 0.0);
+          set_state(PART:"yes_bt", "default", 0.0);
+          set_state(PART:"no_bt", "default", 0.0);
 
-          print_states();
         }
       }
       program {
            signal: "main.show.next";
            source: "*";
            script {
+
+            set_state(PART:"confirm_exit_window", "default", 0.0);
+            set_state(PART:"yes_bt", "default", 0.0);
+            set_state(PART:"no_bt", "default", 0.0);
+
                 if (get_int(audio_state) == 1)
                 {
                   set_int(audio_state, 0);
                   set_int(video_state, 1);
-                  set_int(configure_state, 0);
+                  set_int(settings_state, 0);
+                  set_int(exit_window_state, 0);
+
+                  send_message(MSG_STRING, 0, "VIDEO_STATE IN");
 
                   set_state(PART:"app_window", "show_video", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
-                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"settings_bt", "default", 0.0);
                   set_state(PART:"exit_bt", "default", 0.0);
                 }
                 else if (get_int(video_state) == 1)
                 {
                   set_int(audio_state, 0);
                   set_int(video_state, 0);
-                  set_int(configure_state, 1);
+                  set_int(settings_state, 1);
+                  set_int(exit_window_state, 0);
 
-                  set_state(PART:"app_window", "show_configure", 0.0);
+                  send_message(MSG_STRING, 0, "settings_STATE IN");
+
+                  set_state(PART:"app_window", "show_settings", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
-                  set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
+                  set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
                   set_state(PART:"exit_bt", "default", 0.0);
                 }
-                else if (get_int(configure_state) == 1)
+                else if (get_int(settings_state) == 1)
                 {
                   set_int(audio_state, 1);
                   set_int(video_state, 0);
-                  set_int(configure_state, 0);
+                  set_int(settings_state, 0);
+                  set_int(exit_window_state, 0);
+
+                  send_message(MSG_STRING, 0, "AUDIO_STATE IN");
 
                   set_state(PART:"app_window", "show_audio", 0.0);
                   set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
-                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"settings_bt", "default", 0.0);
                   set_state(PART:"exit_bt", "default", 0.0);
                 }
                 else { // if exit_bt state == in and Right is pressed,
                        // by default exit_bt == out and audio_state == in 
                   set_int(audio_state, 1);
                   set_int(video_state, 0);
-                  set_int(configure_state, 0);
+                  set_int(settings_state, 0);
+                  set_int(exit_window_state, 0);
+
+                  send_message(MSG_STRING, 0, "AUDIO_STATE IN");
 
                   set_state(PART:"app_window", "show_audio", 0.0);
                   set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
-                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"settings_bt", "default", 0.0);
                   set_state(PART:"exit_bt", "default", 0.0);
                 }
-                print_states();
            }
       }
       program {
            signal: "main.show.prev";
            source: "*";
            script {
+
+            set_state(PART:"confirm_exit_window", "default", 0.0);
+            set_state(PART:"yes_bt", "default", 0.0);
+            set_state(PART:"no_bt", "default", 0.0);
+
                 if (get_int(audio_state) == 1)
                 {
                   set_int(audio_state, 0);
                   set_int(video_state, 0);
-                  set_int(configure_state, 1);
+                  set_int(settings_state, 1);
+                  set_int(exit_window_state, 0);
 
-                  set_state(PART:"app_window", "show_configure", 0.0);
+                  send_message(MSG_STRING, 0, "settings_STATE IN");
+
+                  set_state(PART:"app_window", "show_settings", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
-                  set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
+                  set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
                   set_state(PART:"exit_bt", "default", 0.0); 
                 }
                 else if (get_int(video_state) == 1)
                 {
                   set_int(audio_state, 1);
                   set_int(video_state, 0);
-                  set_int(configure_state, 0);
+                  set_int(settings_state, 0);
+                  set_int(exit_window_state, 0);
+
+                  send_message(MSG_STRING, 0, "AUDIO_STATE IN");
 
                   set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
-                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"settings_bt", "default", 0.0);
                   set_state(PART:"exit_bt", "default", 0.0);
                 }
-                else if (get_int(configure_state) == 1)
+                else if (get_int(settings_state) == 1)
                 {
                   set_int(audio_state, 0);
                   set_int(video_state, 1);
-                  set_int(configure_state, 0);
+                  set_int(settings_state, 0);
+                  set_int(exit_window_state, 0);
+
+                  send_message(MSG_STRING, 0, "VIDEO_STATE IN");
 
                   set_state(PART:"app_window", "show_video", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
-                  set_state(PART:"configure_bt", "default", 0.0);
+                  set_state(PART:"settings_bt", "default", 0.0);
                   set_state(PART:"exit_bt", "default", 0.0);
                 }
                 else { // if exit_bt state == in and Right is pressed,
-                       // by default exit_bt == out and configure_state == in 
+                       // by default exit_bt == out and settings_state == in 
                   set_int(audio_state, 0);
                   set_int(video_state, 0);
-                  set_int(configure_state, 1);
+                  set_int(settings_state, 1);
+                  set_int(exit_window_state, 0);
 
-                  set_state(PART:"app_window", "show_configure", 0.0);
+                  send_message(MSG_STRING, 0, "settings_STATE IN");
+
+                  set_state(PART:"app_window", "show_settings", 0.0);
                   set_state(PART:"audio_bt", "default", 0.0);
                   set_state(PART:"video_bt", "default", 0.0);
-                  set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
+                  set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
                   set_state(PART:"exit_bt", "default", 0.0);
                 }
-                print_states();
            }
       }
       program {
@@ -514,29 +453,71 @@ collections {
         source: "*";
         script {
 
-           if (get_int(audio_state) == 1)
+           if (get_int(audio_state) == 1 && get_int(exit_window_state) == 0)
             {
-              set_text(PART:"label", "selected_audio");
-              emit("main.selected.audio", "");
-              //run_program(PROGRAM:"audio_selected");
+              emit("main.show.audio", "");
            }
-           else if (get_int(video_state) == 1)
+           else if (get_int(video_state) == 1 && get_int(exit_window_state) == 0)
             {
-              set_text(PART:"label_2", "selected_video");
               emit("main.selected.video", "");
-              //run_program(PROGRAM:"video_selected");
-              //send_message(MSG_STRING, 0, "main.selected.video");
            }
-           else if (get_int(configure_state) == 1)
+           else if (get_int(settings_state) == 1 && get_int(exit_window_state) == 0)
             {
-              set_text(PART:"label_3", "selected_configure");
               emit("main.selected.settings", "");
-              //run_program(PROGRAM:"configure_selected");
-              //send_message(MSG_STRING, 0, "main.selected.configure");
            }
+          else if (get_int(exit_window_state) == 1)
+            {
+              emit("main.selected.exit", "");
+              send_message(MSG_STRING, 0, "EXIT NOW!");
+           } 
         }
       }
-        /******** audio_bt ********/
+      program {
+        name: "main_select_back";
+        signal: "main.select.back";
+        source: "*";
+        script {
+          if (get_int(exit_window_state) == 0)
+           {
+            set_int(exit_window_state, 1);
+            send_message(MSG_STRING, 0, "exit_window_state == 1");
+
+            set_state(PART:"audio_bt", "default", 0.0);
+            set_state(PART:"video_bt", "default", 0.0);
+            set_state(PART:"settings_bt", "default", 0.0);
+            set_state(PART:"confirm_exit_window", "visible", 0.0);
+            set_state(PART:"yes_bt", "visible", 0.0);
+            set_state(PART:"no_bt", "visible", 0.0);
+            set_state(PART:"exit_bt", "exit_bt_mouse_in", 0.0);
+           }
+
+          else if (get_int(exit_window_state) == 1)
+          {
+            set_int(exit_window_state, 0);
+            send_message(MSG_STRING, 0, "exit_window_state == 0");
+            set_state(PART:"audio_bt", "default", 0.0);
+            set_state(PART:"video_bt", "default", 0.0);
+            set_state(PART:"settings_bt", "default", 0.0);
+            set_state(PART:"confirm_exit_window", "default", 0.0);
+            set_state(PART:"yes_bt", "default", 0.0);
+            set_state(PART:"no_bt", "default", 0.0);
+            
+            if (get_int(audio_state) == 1)
+             {
+              emit("main.show.audio", "");
+            } 
+            else if (get_int(video_state) == 1)
+             {
+              emit("main.show.video", "");
+            }
+            else if (get_int(settings_state) == 1)
+             {
+              emit("main.show.settings", "");
+            }
+          }            
+        }
+      }
+      /******** audio_bt ********/
       program {
          name: "audio_bt_mouse_in";
          signal: "mouse,in";
@@ -550,15 +531,17 @@ collections {
          script {
             set_int(audio_state, 1);
             set_int(video_state, 0);
-            set_int(configure_state, 0);
+            set_int(settings_state, 0);
+            set_int(exit_window_state, 0);
 
             set_state(PART:"app_window", "show_audio", 0.0);
             set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
             set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"configure_bt", "default", 0.0);
+            set_state(PART:"settings_bt", "default", 0.0);
+            set_state(PART:"confirm_exit_window", "default", 0.0);
+            set_state(PART:"yes_bt", "default", 0.0);
+            set_state(PART:"no_bt", "default", 0.0);
             set_state(PART:"exit_bt", "default", 0.0);
-
-            print_states();
           }
       }
       program {
@@ -581,15 +564,17 @@ collections {
          script {
             set_int(audio_state, 0);
             set_int(video_state, 1);
-            set_int(configure_state, 0);
+            set_int(settings_state, 0);
+            set_int(exit_window_state, 0);
 
             set_state(PART:"app_window", "show_video", 0.0);
             set_state(PART:"audio_bt", "default", 0.0);
             set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
-            set_state(PART:"configure_bt", "default", 0.0);
+            set_state(PART:"settings_bt", "default", 0.0);
+            set_state(PART:"confirm_exit_window", "default", 0.0);
+            set_state(PART:"yes_bt", "default", 0.0);
+            set_state(PART:"no_bt", "default", 0.0);
             set_state(PART:"exit_bt", "default", 0.0);
-
-            print_states();
           }
       }
       program {
@@ -598,119 +583,87 @@ collections {
          source: "video_bt";
          action: SIGNAL_EMIT "main.selected.video" "video_bt";
       }/******** end video_bt ********/
-      /******** configure_bt ********/
+      /******** settings_bt ********/
       program {
-         name: "configure_selected";
+         name: "settings_selected";
          signal: "mouse,in";
-         source: "configure_bt";
-         action: SIGNAL_EMIT "main.show.settings" "configure_bt";
+         source: "settings_bt";
+         action: SIGNAL_EMIT "main.show.settings" "settings_bt";
       }
       program {
-         name: "main_show_configure";
+         name: "main_show_settings";
          signal: "main.show.settings";
          source: "*";
          script {
             set_int(audio_state, 0);
             set_int(video_state, 0);
-            set_int(configure_state, 1);
+            set_int(settings_state, 1);
+            set_int(exit_window_state, 0);
 
-            set_state(PART:"app_window", "show_configure", 0.0);
+            set_state(PART:"app_window", "show_settings", 0.0);
             set_state(PART:"audio_bt", "default", 0.0);
             set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"configure_bt", "configure_bt_mouse_in", 0.0);
+            set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
+            set_state(PART:"confirm_exit_window", "default", 0.0);
+            set_state(PART:"yes_bt", "default", 0.0);
+            set_state(PART:"no_bt", "default", 0.0);
             set_state(PART:"exit_bt", "default", 0.0);
-
-            print_states();
           }
       }
       program {
-         name: "configure_bt_mouse_clicked";
+         name: "settings_bt_mouse_clicked";
          signal: "mouse,clicked,*";
-         source: "configure_bt";
-         action: SIGNAL_EMIT "main.selected.settings" "configure_bt";
-      }/******** end configure_bt ********/
+         source: "settings_bt";
+         action: SIGNAL_EMIT "main.selected.settings" "settings_bt";
+      }/******** end settings_bt ********/
       program {
          name: "exit_bt_mouse_in";
          signal: "mouse,in";
          source: "exit_bt";
-         action: SIGNAL_EMIT "main.show.exit" "exit_bt";
-      }
-      program {
-         name: "main_show_exit";
-         signal: "main.show.exit";
-         source: "*";
-
-         script { // if exit_bt state == in, all other states
-                  // will set to default (not mouse_in)
-            set_int(audio_state, 0);
-            set_int(video_state, 0);
-            set_int(configure_state, 0);
-
-            set_state(PART:"app_window", "default", 0.0);
+         script {
             set_state(PART:"audio_bt", "default", 0.0);
             set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"configure_bt", "default", 0.0);
+            set_state(PART:"settings_bt", "default", 0.0);
             set_state(PART:"exit_bt", "exit_bt_mouse_in", 0.0);
-
-            print_states();
-          }
+            set_state(PART:"confirm_exit_window", "default", 0.0);
+            set_state(PART:"yes_bt", "default", 0.0);
+            set_state(PART:"no_bt", "default", 0.0);
+         }
       }
       program {
          name: "exit_bt_mouse_clicked";
          signal: "mouse,clicked,*";
          source: "exit_bt";
-         action: SIGNAL_EMIT "main.selected.exit" "exit_bt";
-      }
-      program { // this program active the visibility of confirm exit window
-         name: "main_selected_exit";
-         signal: "main.selected.exit";
-         source: "*";
-         script{
-            set_state(PART:"app_window", "default", 0.0);
-            set_state(PART:"audio_bt", "default", 0.0);
-            set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"configure_bt", "default", 0.0);
-            set_state(PART:"confirm_exit_window", "visible", 0.0);
-            set_state(PART:"yes_bt", "visible", 0.0);
-            set_state(PART:"no_bt", "visible", 0.0);
-         }
-      }
-      program { // this program active the visibility of
-                // confirm window exit if Escape(Esc) is pressed
-         name: "escape_down";
-         signal: "escape";
-         source: "*";
-         /*script{
-            set_state(PART:"app_window", "default", 0.0);
-            set_state(PART:"audio_bt", "default", 0.0);
-            set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"exit_bt", "exit_bt_mouse_in", 0.0);
-            set_state(PART:"configure_bt", "default", 0.0);
-            set_state(PART:"confirm_exit_window", "visible", 0.0);
-            set_state(PART:"yes_bt", "visible", 0.0);
-            set_state(PART:"no_bt", "visible", 0.0);
-         }*/
-        after: "main_selected_exit";
+         action: SIGNAL_EMIT "main.select.back" "";
       }
       program { // this program just works if the confirm exit window is visible
          name: "yes_bt_clicked";
          signal: "mouse,clicked,*";
          source: "yes_bt";
-         action: SIGNAL_EMIT "yes_bt,clicked" "yes_bt";
+         action: SIGNAL_EMIT "main_selected_exit" "";
       }
       program { // this program just works if the confirm exit window is visible
          name: "no_bt_clicked";
          signal: "mouse,clicked,*";
          source: "no_bt";
          script{
-            set_state(PART:"app_window", "default", 0.0);
-            set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
-            set_state(PART:"video_bt", "default", 0.0);
             set_state(PART:"exit_bt", "default", 0.0);
-            set_state(PART:"configure_bt", "default", 0.0);
             set_state(PART:"confirm_exit_window", "default", 0.0);
             set_state(PART:"yes_bt", "default", 0.0);
             set_state(PART:"no_bt", "default", 0.0);
+
+            if (get_int(audio_state) == 1)
+             {
+              emit("main.show.audio", "");
+            } 
+            else if (get_int(video_state) == 1)
+             {
+              emit("main.show.video", "");
+            }
+            else if (get_int(settings_state) == 1)
+             {
+              emit("main.show.settings", "");
+            }            
          }
       }/******** end exit_bt ********/
    } /* end programs */

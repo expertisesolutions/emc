@@ -4,7 +4,7 @@ collections {
            
     images {
        image: "background.jpg" RAW;
-       image: "configure_icon.png" LOSSY 80;
+       image: "settings_icon.png" LOSSY 80;
        image: "exit_icon.png" LOSSY 80;
     }
     min: 800 600;
@@ -63,13 +63,13 @@ collections {
           }
        }
        part {
-          name: "configure_icon";
+          name: "settings_icon";
           type: IMAGE;
           mouse_events: 1;
           description {
              state: "default" 0.0;
              image {
-                normal: "configure_icon.png";
+                normal: "settings_icon.png";
              }
              color: 0 255 0 255;
              rel1 {
