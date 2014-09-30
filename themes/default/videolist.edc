@@ -5,10 +5,12 @@ collections {
     images {
        image: "background.jpg" RAW;
        image: "video_icon.png" LOSSY 80;
-       image: "exit_icon.png" LOSSY 80;
-    }
+       image: "return_icon.png" LOSSY 80;
+       image: "play_icon.png" LOSSY 80;
+    }    
     min: 800 600;
     max: 1024 768;
+
     parts {
        part {
           name: "bg_rect"; //gray retangle that fills the entire window
@@ -68,15 +70,15 @@ collections {
           description {
              state: "default" 0.0;
              rel1 {
-                relative: 0.1 0.1 ; to: "background_img";
-                offset: 0 15;
+                relative: 0.15 0.1 ; to: "background_img";
+                //offset: 0 15;
              }
              rel2 {
-                relative: 0.9 0.8; to: "background_img";
-                offset: 0 -20;
+                relative: 0.95 0.95; to: "background_img";
+                //offset: 0 -20;
              }
           }
-       }
+       }       
        part {
           name: "video_icon";
           type: IMAGE;
@@ -88,11 +90,34 @@ collections {
              }
              color: 0 255 0 255;
              rel1 {
-                relative: 0.1 0.1 ; to: "background_img";
+                relative: 0.02 0.1 ; to: "background_img";
              }
              rel2 {
-                relative: 0.3 0.2; to: "background_img";
+                relative: 0.12 0.2; to: "background_img";
              }
+          }
+       }
+       part {
+          name: "play_bt";
+          type: IMAGE;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             image {
+                normal: "play_icon.png";
+             }
+             color: 0 255 0 255;
+             rel1 {
+                relative: 0.02 0.65 ; to: "background_img";
+             }
+             rel2 {
+                relative: 0.12 0.75; to: "background_img";
+             }
+          }
+          description {
+             state: "play_bt_focused" 0.0;
+             inherit: "default" 0.0;
+             color: 200 200 0 255;
           }
        }
        part {
@@ -101,15 +126,15 @@ collections {
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             image.normal: "exit_icon.png";
+             image.normal: "return_icon.png";
              color: 0 255 0 255;
              rel1 {
-                relative: 0.0 0.9 ; to: "background_img";
-                offset: 5 5;
+                relative: 0.02 0.85 ; to: "background_img";
+                //offset: 5 5;
              }
              rel2 {
-                relative: 0.1 1.0; to: "background_img";
-                offset: -12 -5;
+                relative: 0.12 0.95; to: "background_img";
+                //offset: -12 -5;
              }
           }
           description {
@@ -139,6 +164,27 @@ collections {
       }
 /* Signals End */
       program {
+         name: "play_bt_mouse_in";
+         signal: "mouse,in";
+         source: "play_bt";
+         action: STATE_SET "play_bt_focused" 0.0;
+         target: "play_bt";
+      }
+      program {
+         name: "play_bt_mouse_out";
+         signal: "mouse,out";
+         source: "play_bt";
+         action: STATE_SET "default" 0.0;
+         target: "play_bt";
+      }
+      program {
+         name: "play_bt_mouse_clicked";
+         signal: "mouse,clicked,*";
+         source: "play_bt";
+         action: SIGNAL_EMIT "videolist.selected.play_bt" "play_bt";
+         target: "backbt";
+      }
+      program {
          name: "backbt_mouse_in";
          signal: "mouse,in";
          source: "backbt";
@@ -146,11 +192,18 @@ collections {
          target: "backbt";
       }
       program {
+         name: "backbt_mouse_out";
+         signal: "mouse,out";
+         source: "backbt";
+         action: STATE_SET "default" 0.0;
+         target: "backbt";
+      }
+      program {
          name: "backbt_mouse_clicked";
          signal: "mouse,clicked,*";
          source: "backbt";
          action: SIGNAL_EMIT "videolist.selected.back" "backbt";
-      }
+      }    
     } /* end programs */
   } /*end group "videolist" */
 } /* end collections */ 
