@@ -36,10 +36,10 @@ mainctrl::_on_key_down(std::string key)
 }
 
 //Constructor
-mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout _layout, const std::string &_theme)
+mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout &_layout, const std::string &_theme)
    : basectrl(_layout, _theme, "main"),
      audio(_layout, _theme),
-     video(_layout, _theme),
+     video(_layout, _theme, "/home/larry/"),
      settings(_layout, _theme),
      win(_win)
 {

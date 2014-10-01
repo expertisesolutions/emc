@@ -22,7 +22,7 @@ class mainctrl
    void _on_key_down(std::string key);
 
    public:
-     mainctrl(const ::elm_win &win, ::elm_layout layout, const std::string &theme);
+     mainctrl(const ::elm_win &win, ::elm_layout &layout, const std::string &theme);
      ~mainctrl() {}
 };
 

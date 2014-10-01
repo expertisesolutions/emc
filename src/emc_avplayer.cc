@@ -58,7 +58,7 @@ emc_avplayer::emc_avplayer(::elm_win &_win) :
    ctrlbox.pack_end(volslider);
 
    // Mute checkbox
-   volmute.state_pointer_set(&mutestate);
+   //volmute.state_pointer_set(&mutestate);
    volmute.visibility_set(true);
    volmute.text_set("elm.text", "mute");
    ctrlbox.pack_end(volmute);

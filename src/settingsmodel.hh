@@ -2,6 +2,8 @@
 #define _SETTINGS_MODEL_HH
 
 #include <iostream>
+#include "Emodel.h"
+#include "Emodel.hh"
 
 namespace emc {
 

@@ -32,6 +32,8 @@ PKG_CHECK_MODULES([EMC],
  ecore-cxx >= 1.11.0
  edje-cxx >= 1.11.0
  eolian-cxx >= 1.11.0
+ emodel-cxx >= 1.11.0
+ eio-cxx >= 1.11.0
 ])
 
 # Checks for header files.

@@ -20,8 +20,8 @@ class basectrl
    public:
      basectrl(const ::elm_layout &layout, const std::string &theme, const std::string &groupname);
      ~basectrl() {};
-     void active();
-     void deactive();
+     virtual void active();
+     virtual void deactive();
      bool theme_set(const std::string &theme);
      bool deactive_cb_set(std::function<void()> deactive_cb);
 };
