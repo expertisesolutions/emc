@@ -22,7 +22,9 @@ class videolist
 {
    void _on_key_down(std::string key);
    ::elm_view_list view;
+   ::elm_genlist list;
    std::string videopath;
+   std::string currentfile;
 
    //::EModel model;
    public:

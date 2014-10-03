@@ -80,7 +80,7 @@ mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout &_layout, const std::stri
         }
       ));
 
-   layout.signal_callback_add("main.selected.exit", "*", 
+   layout.signal_callback_add("main.selected.exit", "*",
       std::bind([this]
         {
           deactive();
