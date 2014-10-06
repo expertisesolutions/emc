@@ -24,7 +24,7 @@ class videolist
    ::elm_view_list view;
    ::elm_genlist list;
    std::string videopath;
-   std::string currentfile;
+   eio::model selected;
 
    //::EModel model;
    public:

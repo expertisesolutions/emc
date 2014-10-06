@@ -181,7 +181,7 @@ collections {
          name: "play_bt_mouse_clicked";
          signal: "mouse,clicked,*";
          source: "play_bt";
-         action: SIGNAL_EMIT "videolist.selected.play_bt" "play_bt";
+         action: SIGNAL_EMIT "videolist.selected.play" "play_bt";
          target: "backbt";
       }
       program {

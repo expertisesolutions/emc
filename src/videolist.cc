@@ -26,12 +26,15 @@ videolist::videolist(const ::elm_layout &_layout, const std::string &_theme, con
    : basectrl(_layout, _theme, "videolist"),
         videopath(_videopath),
         list(efl::eo::parent = layout),
-        view(nullptr)
+        view(nullptr),
+        selected(nullptr)
 {
    layout.signal_callback_add(groupname+".selected.play", "*",
       std::bind([this]{
           //videoplay.active();
-          std::cout << "video play file:" << currentfile << std::endl;
+          Eina_Value value;
+          selected.property_get("filename", &value);
+          std::cout << "video play file: " << eina_value_to_string(&value) << std::endl;
         }
       ));
 }
@@ -42,19 +45,34 @@ videolist::active()
    std::cout << "Video list Active" << std::endl;
    basectrl::active();
    eio::model model(videopath);
+   efreet_mime_init();
+   model.children_filter_set(
+     std::bind([this](const Eina_File_Direct_Info *info)
+       {
+          if (info->path[info->name_start] == '.' )
+            return false;
+
+          if (info->type == EINA_FILE_DIR)
+            return true;
+
+          const char *mime = efreet_mime_type_get(info->path);
+          if (mime && std::string(mime).compare(0, 5, "video") == 0)
+            {
+               std::cout << "file:" << info->path << " type:"<< mime << std::endl;
+               return true;
+            }
+
+          return false;
+       }
+     , std::placeholders::_2));
    model.load();
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
    view.model_set(model);
    view.property_connect("filename", "elm.text");
 
-   view.callback_model_selected_add(std::bind([this]
-       (void *eo)
-       {
-          Eina_Value value;
-//          eio::model selec(static_cast<Eo *>(eo));
-//          select.property_get("filename", &value);
-          std::cout << "model selected file:" << std::endl;
-       }, std::placeholders::_3));
+   view.callback_model_selected_add(std::bind([this](void *eo)
+       { selected = eio::model(static_cast<Eo *>(eo)); }
+                , std::placeholders::_3));
 
    layout.content_set(groupname+"/list", list);
    list.show();
@@ -64,8 +82,9 @@ void
 videolist::deactive()
 {
    std::cout << "Video List deactive" << std::endl;
+   efreet_mime_shutdown();
    layout.content_unset(groupname+"/list");
-
+   selected = eio::model(nullptr);
    view._reset();
    basectrl::deactive();
    list.hide();
