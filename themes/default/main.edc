@@ -246,13 +246,12 @@ collections {
              image.normal: "confirm_exit_window.png";
              rel1 {
                 relative: 0.05 0.1 ; to: "background_img";
-                //offset: 0 0;
              }
              rel2 {
                 relative: 0.95 0.8; to: "background_img";
-                //offset: 0 0;
              }
-          }          description {
+          }
+          description {
              state: "visible" 0.0;
              inherit: "default" 0.0;
              visible: 1;
@@ -324,7 +323,6 @@ collections {
           set_state(PART:"confirm_exit_window", "default", 0.0);
           set_state(PART:"yes_bt", "default", 0.0);
           set_state(PART:"no_bt", "default", 0.0);
-
         }
       }
       program {
