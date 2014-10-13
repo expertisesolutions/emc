@@ -31,10 +31,31 @@ videolist::videolist(const ::elm_layout &_layout, const std::string &_theme, con
 {
    layout.signal_callback_add(groupname+".selected.play", "*",
       std::bind([this]{
-          //videoplay.active();
           Eina_Value value;
+          char *filename = NULL;
           selected.property_get("filename", &value);
-          std::cout << "video play file: " << eina_value_to_string(&value) << std::endl;
+          if (eina_value_get(&value, &filename) == EINA_FALSE || filename == NULL)
+            {
+               std::cout << "ERROR: in video list get filename from model or eina_value" << std::endl;
+               return;
+            }
+          std::string path(filename);
+          std::cout << "video list open file: " << path << std::endl;
+
+/*          int is_dir = 0;
+          selected.property_get("is_dir", &value);
+          eina_value_get(&value, &is_dir);
+          if (is_dir == EINA_TRUE)
+            {
+               eio::model model(path);
+               model.load();
+               eina_value_flush(&value);
+               view.model_set(model);
+               return;
+            }
+*/
+          eina_value_flush(&value);
+          //videoplay.active();
         }
       ));
 }
@@ -52,8 +73,8 @@ videolist::active()
           if (info->path[info->name_start] == '.' )
             return false;
 
-          if (info->type == EINA_FILE_DIR)
-            return true;
+          //if (info->type == EINA_FILE_DIR)
+          //  return true;
 
           const char *mime = efreet_mime_type_get(info->path);
           if (mime && std::string(mime).compare(0, 5, "video") == 0)
@@ -69,6 +90,7 @@ videolist::active()
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
    view.model_set(model);
    view.property_connect("filename", "elm.text");
+   view.property_connect("path", "elm.text.sub");
 
    view.callback_model_selected_add(std::bind([this](void *eo)
        { selected = eio::model(static_cast<Eo *>(eo)); }
