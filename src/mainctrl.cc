@@ -38,9 +38,10 @@ mainctrl::_on_key_down(std::string key)
 //Constructor
 mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout &_layout, const std::string &_theme)
    : basectrl(_layout, _theme, "main"),
-     audio(_layout, _theme),
-     video(_layout, _theme, "/home/larry/"),
-     settings(_layout, _theme),
+     set_model(),
+     settings(_layout, _theme, set_model),
+     audio(_layout, _theme, set_model),
+     video(_layout, _theme, set_model),
      win(_win)
 {
    layout.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);

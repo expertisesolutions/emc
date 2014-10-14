@@ -13,7 +13,6 @@
 #include "elm_interface_atspi_widget_action.eo.h"
 
 #include "videolist.hh"
-#include "settingsmodel.hh"
 
 namespace emc {
 
@@ -22,9 +21,9 @@ videolist::_on_key_down(std::string key)
 {
 }
 
-videolist::videolist(const ::elm_layout &_layout, const std::string &_theme, const std::string &_videopath)
+videolist::videolist(const ::elm_layout &_layout, const std::string &_theme, settingsmodel &_settings)
    : basectrl(_layout, _theme, "videolist"),
-        videopath(_videopath),
+        settings(_settings),
         list(efl::eo::parent = layout),
         view(nullptr),
         selected(nullptr)
@@ -65,7 +64,7 @@ videolist::active()
 {
    std::cout << "Video list Active" << std::endl;
    basectrl::active();
-   eio::model model(videopath);
+   eio::model model(settings.video_rootpath_get());
    efreet_mime_init();
    model.children_filter_set(
      std::bind([this](const Eina_File_Direct_Info *info)
@@ -86,6 +85,7 @@ videolist::active()
           return false;
        }
      , std::placeholders::_2));
+   model.callback_load_status_add(std::bind([this]{std::cout << "load status change" << std::endl;}));
    model.load();
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
    view.model_set(model);

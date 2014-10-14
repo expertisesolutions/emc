@@ -5,34 +5,37 @@
 
 #include "settingsmodel.hh"
 
-#define VIDEODIR "~/Videos/"
-#define AUDIODIR "~/Music/"
-#define PICTUREDIR "~/Pictures/"
+#define VIDEODIR "/Videos"
+#define AUDIODIR "/Music"
+#define PICTUREDIR "/Pictures"
 
 namespace emc {
 
-settingsmodel::settingsmodel() :
-        video_dir(VIDEODIR),
-        audio_dir(AUDIODIR)
+settingsmodel::settingsmodel()
 {
-}
+   std::cout << "IN" << std::endl;
+   std::string homepath(".");
+   char *tmp = getenv("HOME");
+   std::cout << tmp << std::endl;
 
-settingsmodel&
-settingsmodel::get()
-{
-   static settingsmodel settings;
-   return settings;
+   if(tmp) homepath = std::string(tmp);
+
+   video_dir = std::string(homepath + VIDEODIR);
+   audio_dir = std::string(homepath + AUDIODIR);
+   std::cout << "OUT" << std::endl;
 }
 
 std::string
-settingsmodel::videopath_get()
+settingsmodel::video_rootpath_get()
 {
+   std::cout << __FUNCTION__ << std::endl;
    return video_dir;
 }
 
 std::string
-settingsmodel::audiopath_get()
+settingsmodel::audio_rootpath_get()
 {
+   std::cout << __FUNCTION__ << std::endl;
    return audio_dir;
 }
 

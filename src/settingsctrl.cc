@@ -21,8 +21,9 @@ settingsctrl::_on_key_down(std::string key)
 {
 }
 
-settingsctrl::settingsctrl(const ::elm_layout &_layout, const std::string &_theme)
-   : basectrl(_layout, _theme, "settings")
+settingsctrl::settingsctrl(const ::elm_layout &_layout, const std::string &_theme, settingsmodel &_settings)
+   : basectrl(_layout, _theme, "settings"),
+        settings(_settings)
 {
 }
 

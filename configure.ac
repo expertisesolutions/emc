@@ -34,6 +34,9 @@ PKG_CHECK_MODULES([EMC],
  eolian-cxx >= 1.11.0
  emodel-cxx >= 1.11.0
  eio-cxx >= 1.11.0
+ esskyuehl >= 1.0.0
+ esskyuehl-cxx >= 1.0.0
+ sqlite3 >= 1.0.0
 ])
 
 # Checks for header files.

@@ -10,15 +10,14 @@ namespace emc {
 //TODO: SqlModel
 class settingsmodel
 {
-   settingsmodel();
    std::string video_dir;
    std::string audio_dir;
 
    public:
-     static settingsmodel& get();
+     settingsmodel();
      ~settingsmodel() {}
-     std::string videopath_get();
-     std::string audiopath_get();
+     std::string video_rootpath_get();
+     std::string audio_rootpath_get();
 };
 
 } //emc

@@ -8,6 +8,7 @@
 #include "audiolist.hh"
 #include "videolist.hh"
 #include "settingsctrl.hh"
+#include "settingsmodel.hh"
 
 namespace emc {
 
@@ -15,6 +16,7 @@ class mainctrl
  : public basectrl
 {
    ::elm_win win;
+   settingsmodel set_model;
    audiolist audio;
    videolist video;
    settingsctrl settings;

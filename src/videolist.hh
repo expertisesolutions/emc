@@ -5,6 +5,7 @@
 #include <Elementary.h>
 
 #include "basectrl.hh"
+#include "settingsmodel.hh"
 
 #include "elm_interface_scrollable.h"
 #include "elm_genlist.eo.hh"
@@ -23,12 +24,12 @@ class videolist
    void _on_key_down(std::string key);
    ::elm_view_list view;
    ::elm_genlist list;
-   std::string videopath;
    eio::model selected;
+   settingsmodel settings;
 
    //::EModel model;
    public:
-     videolist(const ::elm_layout &layout, const std::string &theme, const std::string &videopath);
+     videolist(const ::elm_layout &layout, const std::string &theme, settingsmodel &settings);
      ~videolist() {}
      void active();
      void deactive();
