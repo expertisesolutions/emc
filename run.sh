@@ -1,1 +1,1 @@
-LD_LIBRARY_PATH=${HOME}/.dev/lib/ src/emc $*
+cd src && LD_LIBRARY_PATH=${HOME}/.dev/lib/ ./emc $*
