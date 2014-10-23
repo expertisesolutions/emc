@@ -4,10 +4,16 @@ collections {
     images {
        image: "background.jpg" RAW;
        image: "audio_icon.png" LOSSY 80;
-       image: "return_icon.png" LOSSY 80;
+       image: "rewind_icon.png" LOSSY 80;
+       image: "play_pause_icon.png" LOSSY 80;
+       image: "forward_icon.png" LOSSY 80;
+       image: "shuffle_icon.png" LOSSY 80;
+       image: "repeat_icon.png" LOSSY 80;
+       image: "repeat_one_icon.png" LOSSY 80;
+       image: "home_icon.png" LOSSY 80;
     }
-    min: 800 600;
-    max: 1024 768;
+   // min: 800 600;
+   //  max: 1024 768;
     parts {
        part {
           name: "bg_rect"; //gray retangle that fills the entire window
@@ -61,12 +67,426 @@ collections {
              }
           }
        }
+       /*part{  //PERGUNTAR SE A DATA E' RELEVANTE
+        name: "date";
+        type: TEXT;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 255 255 255 255;
+          rel1 {
+                relative: 0.0 0.25 ; 
+                to:"notification_bar";
+                offset: 10 0;
+          }
+          rel2 {
+                relative: 0.5 0.75; 
+                to:"notification_bar";
+          }
+          text {
+            text: "01/01/1975";
+            size: 14;
+            font: "sans:style=Bold";
+            min: 1 1;
+            ellipsis: -1;
+          }
+        }
+       }*/
+       part{
+        name: "time";
+        type: TEXT;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 255 255 255 255;
+          rel1 {
+                relative: 1.0 0.25 ; 
+                to: "notification_bar";
+                offset: 10 0;
+          }
+          rel2 {
+                relative: 0.9 0.75; 
+                to: "notification_bar";
+          }
+          text {
+            text: "12:40";
+            size: 1;
+            fit: 0 1;
+            font: "sans:style=Bold";
+            min: 1 1;
+            ellipsis: -1;
+          }
+        }
+       }
+       part{
+        name: "artists_button";
+        type: TEXT;
+        mouse_events: 1;
+        effect: SOFT_SHADOW;
+        description {
+          state: "default" 0.0;
+          color: 0 180 0 200;
+          rel1 {
+                relative: 0.1 1.0 ; 
+                to_y: "notification_bar";
+          }
+          rel2 {
+                relative: 0.3 0.0;
+                to: "genlist_swallow";
+          }
+          text {
+            text: "Artists";
+            size: 1;
+            fit: 0 1;
+            font: "sans";
+            min: 1 1;
+            ellipsis: -1;
+          }          
+        }
+        description {
+          state: "artists_button_focused" 0.0;
+          inherit: "default" 0.0;
+          text.ellipsis: -1;
+          color: 255 255 0 220;
+          color3: 255 0 0 255;
+        }
+       }
+       part{
+        name: "albums_button";
+        type: TEXT;
+        effect: OUTLINE_SHADOW;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 0 180 0 200;
+          rel1 {
+                relative: 0.4 1.0 ; to: "notification_bar";
+          }
+          rel2 {
+                relative: 0.6 0.0;
+                to: "genlist_swallow";
+          }
+          text {
+            text: "Albums";
+            size: 1;
+            fit: 0 1;
+            font: "sans";
+            min: 1 1;
+            ellipsis: -1;
+          }
+        }
+        description {
+          state: "albums_button_focused" 0.0;
+          inherit: "default" 0.0;
+          text.ellipsis: -1;
+          color: 255 255 0 220;
+          color2: 0 255 0 255;
+          color3: 0 255 0 255;
+        }
+       }
+       part{
+        name: "playlist_button";
+        type: TEXT;
+        effect: OUTLINE;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 0 180 0 200;
+          rel1 {
+                relative: 0.7 1.0 ; to: "notification_bar";
+          }
+          rel2 {
+                relative: 0.9 0.0;
+                to: "genlist_swallow";
+          }
+          text {
+            text: "Playlist";
+            size: 1;
+            fit: 0 1;
+            font: "sans";
+            min: 1 1;
+            ellipsis: -1;
+          }
+        }
+        description {
+          state: "playlist_button_focused" 0.0;
+          inherit: "default" 0.0;
+          text.font: "Sans:style=Italic";
+          text.ellipsis: -1;
+          color: 255 255 0 220;
+          color2: 0 255 0 255;
+          color3: 0 255 0 255;
+        }
+       }
+       part{
+        name: "down_part";
+        type: RECT;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 0 0 0 100;
+          rel1 {
+                relative: 0.0 0.9 ; 
+                to_x: "background_img";
+                offset: 5 5;
+          }
+          rel2 {
+                relative: 1.0 1.0; to: "background_img";
+                offset: -5 -5;
+          }
+        }
+        description {
+          state: "down_part_clicked" 0.0;
+          inherit: "default" 0.0;
+          rel1 {
+                relative: 0.0 1.0;
+                offset: 5 5;
+          }
+          rel2 {
+                relative: 1.0 1.1; to: "background_img";
+                offset: -5 -5;
+          }
+        }
+       }
+       part{
+        name: "rewind_button";
+        type: IMAGE;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 100 255 150 255;
+          rel1 {
+                relative: 0.01 0.25 ; 
+                to: "down_part";
+          }
+          rel2 {
+                relative: 0.06 0.75; 
+                to: "down_part";
+          }
+          image {
+            normal: "rewind_icon.png";
+          }
+        }
+        description {
+          state: "rewind_button_focused" 0.0;
+          inherit: "default" 0.0;
+          color: 255 255 0 220;
+        }
+       }
+       part{
+        name: "play_pause_button";
+        type: IMAGE;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 100 255 150 255;
+          rel1 {
+                relative: 0.07 0.25 ; 
+                to: "down_part";
+                offset: 5 0;
+          }
+          rel2 {
+                relative: 0.12 0.75; 
+                to: "down_part";
+          }
+          image {
+            normal: "play_pause_icon.png";
+          }
+        }
+        description {
+          state: "play_pause_button_focused" 0.0;
+          inherit: "default" 0.0;
+          color: 255 255 0 220;
+        }
+       }
+       part{
+        name: "forward_button";
+        type: IMAGE;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 100 255 150 255;
+          rel1 {
+                relative: 0.13 0.25 ; 
+                to: "down_part";
+          }
+          rel2 {
+                relative: 0.18 0.75;  
+                to: "down_part";
+          }
+          image {
+            normal: "forward_icon.png";
+          }
+        }
+        description {
+          state: "forward_button_focused" 0.0;
+          inherit: "default" 0.0;
+          color: 255 255 0 220;
+        }
+       }
+       part{
+        name: "music_temp_restante";
+        type: TEXT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 100 255 150 255;
+          rel1 {
+                relative: 0.2 0.25 ; 
+                to_y: "down_part";
+                to_x: "forward_button";
+                offset: 10 0;
+          }
+          rel2 {
+                relative: 0.3 0.75; 
+                to: "down_part";
+          }
+          text {
+            text: "10:54";
+            //size: 14;
+            fit: 0 1;
+            font: "sans:style=Bold";
+            min: 1 1;
+            max: 1 1;
+            ellipsis: -1;
+          }
+        }
+       }       
+       part{
+        name: "music_temp_swallow";
+        type: RECT;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 100 255 150 150;
+          rel1 {
+                relative: 1.1 0.1 ; 
+                to_y: "down_part";
+                to_x: "music_temp_restante";
+                offset: 5 0;
+          }
+          rel2 {
+                relative: 0.82 0.9;
+                to: "down_part";
+          }
+        }
+       }
+       part{
+        name: "music_temp_total";
+        type: TEXT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 100 255 150 255;
+          rel1 {
+                relative: 1.0 0.25 ; 
+                to_y: "down_part";
+                to_x: "music_temp_swallow";
+                offset: 10 0;
+          }
+          rel2 {
+                relative: 0.9 0.75; 
+                to: "down_part";
+          }
+          text {
+            text: "32:00";
+            fit: 0 1;
+            //size: 14;
+            font: "sans:style=Bold";
+            min: 1 1;
+            ellipsis: -1;
+          }
+        }        
+       }
+       part{
+        name: "repeat_button";
+        type: IMAGE;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 100 255 150 255;
+          rel1 {
+                relative: 0.908 0.25 ; 
+                to: "down_part";
+          }
+          rel2 {
+                relative: 0.94 0.75;
+                to: "down_part";
+          }
+          image {
+            normal: "repeat_icon.png";
+          }
+        }
+        description {
+          state: "repeat_button_focused" 0.0;
+          inherit: "default" 0.0;
+          color: 255 255 0 220;
+        }
+       }
+       part{
+        name: "shuffle_button";
+        type: IMAGE;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 100 255 150 255;
+          rel1 {
+                relative: 0.95 0.25 ; 
+                to: "down_part";
+                offset: 5 0;
+          }
+          rel2 {
+                relative: 0.99 0.75;
+                to: "down_part";
+          }
+          image {
+            normal: "shuffle_icon.png";
+          }
+        }
+        description {
+          state: "shuffle_button_focused" 0.0;
+          inherit: "default" 0.0;
+          color: 255 255 0 220;
+        }
+       }
+       part{
+        name: "genlist_swallow";
+        type: RECT;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 100 140 150 155;
+          rel1 {
+                relative: 0.0 0.15 ; 
+                to: "background_img";
+                //to_y: "albums_button";
+                offset: 5 5;
+          }
+          rel2 {
+                relative: 1.0 0.0;
+                to_x: "background_img";
+                to_y: "down_part";
+                offset: -5 -5;
+          }
+        }
+        description {
+          state: "down_part_clicked" 0.0;
+          inherit: "default" 0.0;
+          rel2 {
+                relative: 1.0 0.0;
+                to_x: "background_img";
+                to_y: "down_part";
+                offset: -5 -20;
+          }
+        }
+       }       
        part {
           name: "audio_icon";
           type: IMAGE;
           mouse_events: 1;
           description {
              state: "default" 0.0;
+             visible: 0;
              image {
                 normal: "audio_icon.png";
              }
@@ -85,21 +505,22 @@ collections {
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             image.normal: "return_icon.png";
-             color: 0 255 0 255;
+             image.normal: "home_icon.png";
+             color: 0 255 255 220;
              rel1 {
-                relative: 0.02 0.85 ; to: "background_img";
-                //offset: 5 5;
+                relative: 0.0 0.1 ; 
+                to: "notification_bar";
+                offset: 10 0;
              }
              rel2 {
-                relative: 0.12 0.95; to: "background_img";
-                //offset: -12 -5;
+                relative: 0.1 0.9; 
+                to: "notification_bar";
              }
           }
           description {
              state: "backbt_focused" 0.0;
              inherit: "default" 0.0;
-             color: 200 0 0 255;
+             color: 255 255 0 255;
           }
        }
     } /*end parts */
@@ -123,11 +544,155 @@ collections {
       }
 /* Signals End */
       program {
+         name: "artists_mouse_in";
+         signal: "mouse,in";
+         source: "artists_button";
+         action: STATE_SET "artists_button_focused" 0.0;
+         target: "artists_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "artists_mouse_out";
+         signal: "mouse,out";
+         source: "artists_button";
+         action: STATE_SET "default" 0.0;
+         target: "artists_button";
+      }
+      program {
+         name: "albums_mouse_in";
+         signal: "mouse,in";
+         source: "albums_button";
+         action: STATE_SET "albums_button_focused" 0.0;
+         target: "albums_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "albums_mouse_out";
+         signal: "mouse,out";
+         source: "albums_button";
+         action: STATE_SET "default" 0.0;
+         target: "albums_button";
+      }
+      program {
+         name: "playlist_mouse_in";
+         signal: "mouse,in";
+         source: "playlist_button";
+         action: STATE_SET "playlist_button_focused" 0.0;
+         target: "playlist_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "playlist_mouse_out";
+         signal: "mouse,out";
+         source: "playlist_button";
+         action: STATE_SET "default" 0.0;
+         target: "playlist_button";
+      }
+      program {
+         name: "rewind_button_mouse_in";
+         signal: "mouse,in";
+         source: "rewind_button";
+         action: STATE_SET "rewind_button_focused" 0.0;
+         target: "rewind_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "rewind_button_mouse_out";
+         signal: "mouse,out";
+         source: "rewind_button";
+         action: STATE_SET "default" 0.0;
+         target: "rewind_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "play_pause_mouse_in";
+         signal: "mouse,in";
+         source: "play_pause_button";
+         action: STATE_SET "play_pause_button_focused" 0.0;
+         target: "play_pause_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "play_pause_mouse_out";
+         signal: "mouse,out";
+         source: "play_pause_button";
+         action: STATE_SET "default" 0.0;
+         target: "play_pause_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "forward_mouse_in";
+         signal: "mouse,in";
+         source: "forward_button";
+         action: STATE_SET "forward_button_focused" 0.0;
+         target: "forward_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "forward_mouse_out";
+         signal: "mouse,out";
+         source: "forward_button";
+         action: STATE_SET "default" 0.0;
+         target: "forward_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "repeat_mouse_in";
+         signal: "mouse,in";
+         source: "repeat_button";
+         action: STATE_SET "repeat_button_focused" 0.0;
+         target: "repeat_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "repeat_mouse_out";
+         signal: "mouse,out";
+         source: "repeat_button";
+         action: STATE_SET "default" 0.0;
+         target: "repeat_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "shuffle_mouse_in";
+         signal: "mouse,in";
+         source: "shuffle_button";
+         action: STATE_SET "shuffle_button_focused" 0.0;
+         target: "shuffle_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         name: "shuffle_mouse_out";
+         signal: "mouse,out";
+         source: "shuffle_button";
+         action: STATE_SET "default" 0.0;
+         target: "shuffle_button";
+         transition: LINEAR 0.1;
+      }
+      program {
+         //name: "down_part_clicked";
+         signal: "mouse,clicked,*";
+         source: "down_part";
+         action: STATE_SET "down_part_clicked" 0.0;
+         target: "down_part";
+         target: "genlist_swallow";
+         transition: LINEAR 0.3;
+      }
+      program {
+         //name: "genlist_swallow_clicked";
+         signal: "mouse,clicked,*";
+         source: "genlist_swallow";
+         action: STATE_SET "default" 0.0;
+         target: "down_part";
+         target: "genlist_swallow";
+         transition: LINEAR 0.3;
+      }
+      program {
          name: "backbt_mouse_in";
          signal: "mouse,in";
          source: "backbt";
          action: STATE_SET "backbt_focused" 0.0;
          target: "backbt";
+         transition: LINEAR 0.1;
       }
       program {
          name: "backbt_mouse_out";
@@ -142,6 +707,7 @@ collections {
          source: "backbt";
          action: SIGNAL_EMIT "audiolist.selected.back" "backbt";
       }
+
     } /* end programs */
   } /*end group "audiolist" */
 } /* end collections */ 

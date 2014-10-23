@@ -7,8 +7,8 @@ collections {
        image: "settings_icon.png" LOSSY 80;
        image: "return_icon.png" LOSSY 80;
     }
-    min: 800 600;
-    max: 1024 768;
+   // min: 800 600;
+   // max: 1024 768;
     parts {
        part {
           name: "bg_rect"; //gray retangle that fills the entire window
