@@ -32,7 +32,7 @@ mainctrl::_on_key_down(std::string key)
    else if (key == "Left")
      layout.signal_emit("main.show.prev", "");
    else if (key == "Escape")
-     layout.signal_emit("main.show.exit", "");
+     layout.signal_emit("main.select.back", "");
 }
 
 //Constructor

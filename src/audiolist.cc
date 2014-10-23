@@ -47,7 +47,7 @@ audiolist::active()
         view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
         view.model_set(artists);
         view.property_connect("name", "elm.text");
-        layout.content_set(groupname+"/artists", list);
+        layout.content_set(groupname+"/list", list);
         list.show();
       });
 }
@@ -55,7 +55,7 @@ audiolist::active()
 void
 audiolist::deactive()
 {
-   layout.content_unset(groupname+"/artist");
+   layout.content_unset(groupname+"/list");
    view._reset();
    basectrl::deactive();
    list.hide();
