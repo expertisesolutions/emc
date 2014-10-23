@@ -6,19 +6,13 @@
 
 #include "basectrl.hh"
 #include "settingsmodel.hh"
+#include "audiolistmodel.hh"
 
 #include "elm_interface_scrollable.h"
 #include "elm_genlist.eo.hh"
 #include <elm_slider.eo.hh>
 #include <elm_layout.eo.hh>
 #include "elm_view_list.eo.hh"
-
-extern "C"
-{
-#include <Esskyuehl.h>
-#include "Esql_Model.h"
-}
-#include "Esql_Model.eo.hh"
 
 namespace emc {
 
@@ -28,7 +22,7 @@ class audiolist
    void _on_key_down(std::string key);
    ::elm_genlist list;
    ::elm_view_list view;
-   esql::model modelDB;
+   audiolistmodel model;
    settingsmodel settings;
 
    public:

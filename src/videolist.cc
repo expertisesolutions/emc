@@ -85,8 +85,8 @@ videolist::active()
           return false;
        }
      , std::placeholders::_2));
-   model.callback_load_status_add(std::bind([this]{std::cout << "load status change" << std::endl;}));
-   model.load();
+//   model.callback_load_status_add(std::bind([this]{std::cout << "video load status change" << std::endl;}));
+//   model.callback_children_count_changed_add(std::bind([this]{std::cout << "video children count change" << std::endl;}));
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
    view.model_set(model);
    view.property_connect("filename", "elm.text");
@@ -96,6 +96,7 @@ videolist::active()
        { selected = eio::model(static_cast<Eo *>(eo)); }
                 , std::placeholders::_3));
 
+   model.load();
    layout.content_set(groupname+"/list", list);
    list.show();
 }

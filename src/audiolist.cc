@@ -26,27 +26,39 @@ audiolist::audiolist(const ::elm_layout &_layout, const std::string &_theme, set
         settings(_settings),
         list(efl::eo::parent = layout),
         view(nullptr),
-        modelDB(nullptr)
+        model()
 {
-   esql_init();
-   modelDB = esql::model("./emc.db", "emc_user", "pass123", "audioList");
-   modelDB.load();
 }
 
 void
 audiolist::active()
 {
-   Eina_Accessor *accessor;
+   Eina_Accessor *accessor = NULL;
+   Eina_Value value_prop;
+   Eo *child;
+   unsigned int i = 0;
 
-   std::cout << "Audio list Active" << std::endl;
    basectrl::active();
-   modelDB.children_slice_get(0, 0, &accessor);
-   view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
+
+   model.tracks_get([this](efl::eo::base artists)
+      {
+        std::cout << "artist get" << std::endl;
+        list.visibility_set(true);
+        view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
+        view.model_set(artists);
+        view.property_connect("name", "elm.text");
+        layout.content_set(groupname+"/artists", list);
+        list.show();
+      });
 }
 
 void
 audiolist::deactive()
 {
+   layout.content_unset(groupname+"/artist");
+   view._reset();
    basectrl::deactive();
+   list.hide();
 }
+
 } //emc
