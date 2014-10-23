@@ -132,7 +132,7 @@ collections {
           }
           rel2 {
                 relative: 0.3 0.0;
-                to: "genlist_swallow";
+                to: "audiolist/list";
           }
           text {
             text: "Artists";
@@ -164,7 +164,7 @@ collections {
           }
           rel2 {
                 relative: 0.6 0.0;
-                to: "genlist_swallow";
+                to: "audiolist/list";
           }
           text {
             text: "Albums";
@@ -197,7 +197,7 @@ collections {
           }
           rel2 {
                 relative: 0.9 0.0;
-                to: "genlist_swallow";
+                to: "audiolist/list";
           }
           text {
             text: "Playlist";
@@ -450,12 +450,10 @@ collections {
         }
        }
        part{
-        name: "genlist_swallow";
-        type: RECT;
-        mouse_events: 1;
+        name: "audiolist/list";
+        type: SWALLOW;
         description {
           state: "default" 0.0;
-          color: 100 140 150 155;
           rel1 {
                 relative: 0.0 0.15 ; 
                 to: "background_img";
@@ -674,16 +672,16 @@ collections {
          source: "down_part";
          action: STATE_SET "down_part_clicked" 0.0;
          target: "down_part";
-         target: "genlist_swallow";
+         target: "audiolist/list";
          transition: LINEAR 0.3;
       }
       program {
-         //name: "genlist_swallow_clicked";
+         //name: "audiolist/list_clicked";
          signal: "mouse,clicked,*";
-         source: "genlist_swallow";
+         source: "audiolist/list";
          action: STATE_SET "default" 0.0;
          target: "down_part";
-         target: "genlist_swallow";
+         target: "audiolist/list";
          transition: LINEAR 0.3;
       }
       program {
