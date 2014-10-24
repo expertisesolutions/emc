@@ -66,6 +66,8 @@ audiolist::active()
 
    list.visibility_set(true);
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
+   elm_theme_overlay_add(NULL, "./genlist_simple_overlay.edj");
+
    view.callback_model_selected_add(std::bind([this](void *eo)
       {
          esql::model_row m(static_cast<Eo *>(eo));
@@ -84,6 +86,7 @@ audiolist::active()
 
    view.model_set(model.artists_get());
    view.property_connect("name", "elm.text");
+   view.property_connect("name", "elm.text.sub");
 }
 
 void
