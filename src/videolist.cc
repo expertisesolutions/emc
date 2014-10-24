@@ -89,6 +89,9 @@ videolist::active()
 //   model.callback_load_status_add(std::bind([this]{std::cout << "video load status change" << std::endl;}));
 //   model.callback_children_count_changed_add(std::bind([this]{std::cout << "video children count change" << std::endl;}));
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
+
+   elm_theme_overlay_add(NULL, "./theme_overlay.edj");
+
    view.model_set(model);
    view.property_connect("filename", "elm.text");
    view.property_connect("path", "elm.text.sub");
