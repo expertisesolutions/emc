@@ -99,6 +99,7 @@ collections {
         description {
           state: "default" 0.0;
           color: 255 255 255 255;
+          fixed: 1 1;
           rel1 {
                 relative: 1.0 0.25 ; 
                 to: "notification_bar";
@@ -126,6 +127,7 @@ collections {
         description {
           state: "default" 0.0;
           color: 0 180 0 200;
+          fixed: 1 1;
           rel1 {
                 relative: 0.1 1.0 ; 
                 to_y: "notification_bar";
@@ -159,6 +161,7 @@ collections {
         description {
           state: "default" 0.0;
           color: 0 180 0 200;
+          fixed: 1 1;
           rel1 {
                 relative: 0.4 1.0 ; to: "notification_bar";
           }
@@ -192,6 +195,7 @@ collections {
         description {
           state: "default" 0.0;
           color: 0 180 0 200;
+          fixed: 1 1;
           rel1 {
                 relative: 0.7 1.0 ; to: "notification_bar";
           }
@@ -331,6 +335,7 @@ collections {
         description {
           state: "default" 0.0;
           color: 100 255 150 255;
+          fixed: 1 1;
           rel1 {
                 relative: 0.2 0.25 ; 
                 to_y: "down_part";
@@ -378,6 +383,7 @@ collections {
         description {
           state: "default" 0.0;
           color: 100 255 150 255;
+          fixed: 1 1;
           rel1 {
                 relative: 1.0 0.25 ; 
                 to_y: "down_part";
