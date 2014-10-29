@@ -71,3 +71,4 @@ config.h
 config.h.in
 config.log
 config.status
+autoscan.log

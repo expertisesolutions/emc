@@ -32,5 +32,8 @@ DEFS += -DEMC_DISABLE_EO_CALLBACK
 all:
 	$(CXX) $(SRCS) -std=c++11 ${emc_LIBADD} ${emc_CFLAGS} ${DEFS} -o $(PROJ)
 
+debug:
+	$(CXX) $(SRCS) -std=c++11 ${emc_LIBADD} -g -Og ${emc_CFLAGS} ${DEFS} -o $(PROJ)
+
 clean:
 	rm -f emc *.o
