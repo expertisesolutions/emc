@@ -20,10 +20,14 @@ class audiolist
  : public basectrl
 {
    void _on_key_down(std::string key);
+   std::function<void(esql::model_table&)> _model_set;
    ::elm_genlist list;
    ::elm_view_list view;
    audiolistmodel model;
    settingsmodel settings;
+   void artists_show(esql::model_table& model);
+   void albums_show(esql::model_table& model);
+   void playlists_show(esql::model_table& model);
 
    public:
      audiolist(const ::elm_layout &layout, const std::string &theme, settingsmodel &settings);

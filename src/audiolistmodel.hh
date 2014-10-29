@@ -24,7 +24,6 @@ class audiolistmodel
    esql::model_table albums;
    esql::model_table tracks;
    std::function<void()> loaded;
-   void model_get(std::function<void(efl::eo::base&)> func, esql::model_table& model);
    int is_load;
 
    bool load_tables();
@@ -32,12 +31,12 @@ class audiolistmodel
    public:
      audiolistmodel();
      ~audiolistmodel() {}
-     void artists_get(std::function<void(efl::eo::base&)> func);
-     void albums_get(std::function<void(efl::eo::base&)> func);
-     void tracks_get(std::function<void(efl::eo::base&)> func);
-     void artist_albums_get(efl::eo::base &artist, std::function<void(efl::eo::base&)> func);
-     void artist_tracks_get(efl::eo::base &artist, std::function<void(efl::eo::base&)> func);
-     void albums_tracks_get(efl::eo::base &album, std::function<void(efl::eo::base&)> func);
+     esql::model_table& artists_get();
+     esql::model_table& albums_get();
+     esql::model_table& tracks_get();
+     esql::model_table& artist_albums_get(esql::model_row& artist);
+     esql::model_table& artist_tracks_get(esql::model_row& artist);
+     esql::model_table& album_tracks_get(esql::model_row& album);
 };
 
 } //emc

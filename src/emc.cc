@@ -36,7 +36,9 @@ elm_main(int argc, char **argv)
       std::string filename = THEME_PATH"/default/default.edj";
       emc::mainctrl mctrl(win, layout, filename);
       mctrl.active();
+
       elm_run();
+      eo_unref(layout._eo_ptr());
    }
    elm_shutdown();
 

@@ -64,7 +64,8 @@ videolist::active()
 {
    std::cout << "Video list Active" << std::endl;
    basectrl::active();
-   eio::model model(settings.video_rootpath_get());
+   eio::model model;
+   model.path_set(settings.video_rootpath_get());
    efreet_mime_init();
    model.children_filter_set(
      std::bind([this](const Eina_File_Direct_Info *info)
@@ -99,6 +100,8 @@ videolist::active()
    model.load();
    layout.content_set(groupname+"/list", list);
    list.show();
+   eo_unref(list._eo_ptr());
+   eo_unref(list._eo_ptr());
 }
 
 void

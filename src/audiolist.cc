@@ -28,6 +28,30 @@ audiolist::audiolist(const ::elm_layout &_layout, const std::string &_theme, set
         view(nullptr),
         model()
 {
+        layout.signal_callback_add("audiolist.selected.artists", "*",
+           std::bind([this]
+              {
+                std::cout << "artists selected cb" << std::endl;
+                view.model_set(model.artists_get());
+              }
+           ));
+
+        layout.signal_callback_add("audiolist.selected.albums", "*",
+           std::bind([this]
+              {
+                std::cout << "albums selected cb" << std::endl;
+                view.model_set(model.albums_get());
+              }
+           ));
+
+        layout.signal_callback_add("audiolist.selected.playlist", "*",
+           std::bind([this]
+              {
+                std::cout << "playlist selected cb" << std::endl;
+              }
+           ));
+
+
 }
 
 void
@@ -40,16 +64,26 @@ audiolist::active()
 
    basectrl::active();
 
-   model.tracks_get([this](efl::eo::base artists)
+   list.visibility_set(true);
+   view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
+   view.callback_model_selected_add(std::bind([this](void *eo)
       {
-        std::cout << "artist get" << std::endl;
-        list.visibility_set(true);
-        view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
-        view.model_set(artists);
-        view.property_connect("name", "elm.text");
-        layout.content_set(groupname+"/list", list);
-        list.show();
-      });
+         esql::model_row m(static_cast<Eo *>(eo));
+         std::string tablename = m.tablename_get();
+         std::cout << tablename << std::endl;
+         if (tablename == "artists")
+            view.model_set(model.artist_albums_get(m));
+         else if (tablename == "albums")
+            view.model_set(model.album_tracks_get(m));
+      }, std::placeholders::_3));
+
+   layout.content_set(groupname+"/list", list);
+   list.show();
+   eo_unref(list._eo_ptr());
+   eo_unref(list._eo_ptr());
+
+   view.model_set(model.artists_get());
+   view.property_connect("name", "elm.text");
 }
 
 void
@@ -60,5 +94,20 @@ audiolist::deactive()
    basectrl::deactive();
    list.hide();
 }
+
+void
+audiolist::artists_show(esql::model_table& model)
+{}
+
+void
+audiolist::albums_show(esql::model_table& model)
+{}
+
+void
+audiolist::playlists_show(esql::model_table& model)
+{}
+
+
+
 
 } //emc

@@ -557,12 +557,24 @@ collections {
          target: "artists_button";
       }
       program {
+         name: "artists_mouse_click";
+         signal: "mouse,clicked,1";
+         source: "artists_button";
+         action: SIGNAL_EMIT "audiolist.selected.artists" "artists_button";
+      }
+      program {
          name: "albums_mouse_in";
          signal: "mouse,in";
          source: "albums_button";
          action: STATE_SET "albums_button_focused" 0.0;
          target: "albums_button";
          transition: LINEAR 0.1;
+      }
+      program {
+         name: "albums_mouse_click";
+         signal: "mouse,clicked,1";
+         source: "albums_button";
+         action: SIGNAL_EMIT "audiolist.selected.albums" "albums_button";
       }
       program {
          name: "albums_mouse_out";
@@ -585,6 +597,12 @@ collections {
          source: "playlist_button";
          action: STATE_SET "default" 0.0;
          target: "playlist_button";
+      }
+      program {
+         name: "playlists_mouse_click";
+         signal: "mouse,clicked,1";
+         source: "playlists_button";
+         action: SIGNAL_EMIT "audiolist.selected.playlist" "playlists_button";
       }
       program {
          name: "rewind_button_mouse_in";

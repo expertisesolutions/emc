@@ -58,86 +58,88 @@ audiolistmodel::audiolistmodel()
               eina_value_flush(&value_prop);
               free(tablename);
            }
+
          is_load = true;
-         loaded();
-
          return EINA_FALSE;
+      }, std::placeholders::_3));
+
+   database.load();
+}
+
+esql::model_table&
+audiolistmodel::artists_get()
+{
+    artists.filter_set("");
+    artists.load();
+    return artists;
+}
+
+esql::model_table&
+audiolistmodel::albums_get()
+{
+    albums.filter_set("");
+    albums.load();
+    return albums;
+}
+
+esql::model_table&
+audiolistmodel::tracks_get()
+{
+    tracks.filter_set("");
+    tracks.load();
+    return tracks;
+}
+
+esql::model_table&
+audiolistmodel::artist_albums_get(esql::model_row& artist)
+{
+    Eina_Value value;
+    char *id_artist = NULL;
+
+    artist.property_get("id", &value);
+    id_artist = eina_value_to_string(&value);
+    if (id_artist)
+      {
+         std::string f("id_artist=");
+         albums.filter_set(f += id_artist);
+         return albums;
       }
-     , std::placeholders::_3));
+    albums.load();
+    return albums;
 }
 
-void
-audiolistmodel::artists_get(std::function<void(efl::eo::base&)> func)
+esql::model_table&
+audiolistmodel::artist_tracks_get(esql::model_row& artist)
 {
-   if (is_load)
-     {
-        artists.load();
-        func(artists);
-     }
-   else
-     {
-        loaded = std::bind([this](std::function<void(efl::eo::base&)> func)
-                   {
-                      artists.load();
-                      func(artists);
-                   }, func);
-        database.load();
-     }
+    Eina_Value value;
+    char *id_artist = NULL;
+
+    artist.property_get("id", &value);
+    id_artist = eina_value_to_string(&value);
+    if (id_artist)
+      {
+         std::string f("id_artist=");
+         tracks.filter_set( f + id_artist);
+      }
+    tracks.load();
+    return tracks;
 }
 
-void
-audiolistmodel::albums_get(std::function<void(efl::eo::base&)> func)
+esql::model_table&
+audiolistmodel::album_tracks_get(esql::model_row& album)
 {
-   if (is_load)
-     {
-        albums.load();
-        func(albums);
-     }
-   else
-     {
-        loaded = std::bind([this](std::function<void(efl::eo::base&)> func)
-                   {
-                      albums.load();
-                      func(albums);
-                   }, func);
+    Eina_Value value;
+    char *id_album = NULL;
 
-        database.load();
-     }
-}
-
-void
-audiolistmodel::tracks_get(std::function<void(efl::eo::base&)> func)
-{
-   if (is_load)
-     {
-        tracks.load();
-        func(tracks);
-     }
-   else
-     {
-        loaded = std::bind([this](std::function<void(efl::eo::base&)> func)
-                   {
-                      tracks.load();
-                      func(tracks);
-                   }, func);
-
-        database.load();
-     }
-}
-
-void
-audiolistmodel::artist_albums_get(efl::eo::base &artist, std::function<void(efl::eo::base&)> func)
-{
-}
-
-void
-audiolistmodel::artist_tracks_get(efl::eo::base &artist, std::function<void(efl::eo::base&)> func)
-{
-}
-
-void
-audiolistmodel::albums_tracks_get(efl::eo::base &album, std::function<void(efl::eo::base&)> func)
-{
+    album.property_get("id", &value);
+    id_album = eina_value_to_string(&value);
+    if (id_album)
+      {
+         std::string f("id_album=");
+         tracks.filter_set(f + id_album);
+      }
+    tracks.load();
+    return tracks;
 }
 
 } //emc
