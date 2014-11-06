@@ -25,6 +25,7 @@ class audiolist
    ::elm_genlist list;
    ::elm_view_list view;
    ::elm_video player;
+   esql::model_row row_selected;
    audiolistmodel model;
    settingsmodel settings;
    void artists_show(esql::model_table& model);
@@ -38,6 +39,7 @@ class audiolist
      void deactive();
      void player_playback_finished_cb();
      void player_fame_decode_cb();
+     void list_activated_cb();
 };
 
 } //emc
