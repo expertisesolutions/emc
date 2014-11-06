@@ -90,7 +90,7 @@ videolist::active()
 
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
 
-   elm_theme_overlay_add(NULL, "../theme/default/theme_overlay.edj"); //XXX FIXME path
+   elm_theme_overlay_add(NULL, "../themes/default/theme_overlay.edj"); //XXX FIXME path
 
    view.model_set(model);
    view.property_connect("filename", "elm.text");

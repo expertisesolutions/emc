@@ -1,16 +1,24 @@
 collections {
  group {
     name: "audiolist";
+    script {
+       public repeat_state, // 0 == not show | 1 == show
+              shuffle_state,
+              play_button_state;
+    }
     images {
        image: "background.jpg" RAW;
+       image: "notification_icon.png" RAW;
        image: "audio_icon.png" LOSSY 80;
        image: "rewind_icon.png" LOSSY 80;
        image: "play_icon.png" LOSSY 80;
+       image: "play_pause_icon.png" LOSSY 80;
+       image: "pause_icon.png" LOSSY 80;
        image: "forward_icon.png" LOSSY 80;
        image: "shuffle_icon.png" LOSSY 80;
        image: "repeat_icon.png" LOSSY 80;
+       image: "repeat_all_icon.png" LOSSY 80;
        image: "repeat_one_icon.png" LOSSY 80;
-       image: "home_icon.png" LOSSY 80;
     }
    // min: 800 600;
    //  max: 1024 768;
@@ -52,11 +60,12 @@ collections {
        }
        part {
           name: "notification_bar"; // the bar in the top of window, not used yet
-          type: RECT;
+          type: IMAGE;//RECT;
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             color: 125 0 125 255;
+             image.normal: "notification_icon.png";
+             color: 80 80 80 150;//color: 125 0 125 255;
              rel1 {
                 relative: 0.0 0.0 ; to: "background_img";
                 offset: 2 2;
@@ -93,9 +102,37 @@ collections {
         }
        }*/
        part{
+        name: "window_name";
+        type: TEXT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 255 255 255 255;
+          fixed: 1 1;
+          rel1 {
+                relative: 0.1 0.25 ; 
+                to: "notification_bar";
+                offset: 10 0;
+          }
+          rel2 {
+                relative: 0.9 0.75; 
+                to: "notification_bar";
+          }
+          text {
+            text: "Audiolist";
+            size: 1;
+            fit: 0 1;
+            font: "sans:style=Italic";
+            min: 1 1;
+            align: 0.5 0.5;
+            ellipsis: -1;
+          }
+        }
+       }
+       part{
         name: "time";
         type: TEXT;
-        mouse_events: 1;
+        mouse_events: 0;
         description {
           state: "default" 0.0;
           color: 255 255 255 255;
@@ -123,7 +160,7 @@ collections {
         name: "artists_button";
         type: TEXT;
         mouse_events: 1;
-        effect: SOFT_SHADOW;
+        effect: OUTLINE_SHADOW;//SOFT_SHADOW;
         description {
           state: "default" 0.0;
           color: 0 180 0 200;
@@ -149,8 +186,10 @@ collections {
           state: "artists_button_focused" 0.0;
           inherit: "default" 0.0;
           text.ellipsis: -1;
-          color: 255 255 0 220;
-          color3: 255 0 0 255;
+          //text.font: "Sans:style=Bold";
+          color: 0 0 250 255;
+          color2: 0 255 255 120;
+          color3: 255 255 255 55;
         }
        }
        part{
@@ -260,11 +299,11 @@ collections {
           state: "default" 0.0;
           color: 100 255 150 255;
           rel1 {
-                relative: 0.01 0.25 ; 
+                relative: 0.02 0.25 ; 
                 to: "down_part";
           }
           rel2 {
-                relative: 0.06 0.75; 
+                relative: 0.05 0.75; 
                 to: "down_part";
           }
           image {
@@ -285,7 +324,7 @@ collections {
           state: "default" 0.0;
           color: 100 255 150 255;
           rel1 {
-                relative: 0.07 0.25 ; 
+                relative: 0.07 0.2 ; 
                 to: "down_part";
                 offset: 5 -5;
           }
@@ -303,7 +342,28 @@ collections {
           inherit: "default" 0.0;
           color: 255 255 0 220;
         }
-       }
+        description {
+          state: "play_pause_button_pause" 0.0;
+          inherit: "default" 0.0;
+          color: 100 255 150 255;
+          image.normal: "pause_icon.png";
+          rel1 {
+                relative: 0.07 0.2 ; 
+                to: "down_part";
+                offset: 5 -5;
+          }
+          rel2 {
+                relative: 0.12 0.75; 
+                to: "down_part";
+                offset: 0 5;
+          }
+        }
+        description {
+          state: "play_pause_button_pause_focused" 0.0;
+          inherit: "play_pause_button_pause" 0.0;
+          color: 255 255 0 220;
+          image.normal: "pause_icon.png";
+        }
        part{
         name: "forward_button";
         type: IMAGE;
@@ -312,7 +372,7 @@ collections {
           state: "default" 0.0;
           color: 100 255 150 255;
           rel1 {
-                relative: 0.13 0.25 ; 
+                relative: 0.1517 0.25 ; 
                 to: "down_part";
           }
           rel2 {
@@ -348,8 +408,7 @@ collections {
                 to: "down_part";
           }
           text {
-            text: "10:54";
-            //size: 14;
+            text: "--:--";
             fit: 0 1;
             font: "sans:style=Bold";
             min: 1 1;
@@ -396,9 +455,8 @@ collections {
                 to: "down_part";
           }
           text {
-            text: "32:00";
+            text: "--:--";
             fit: 0 1;
-            //size: 14;
             font: "sans:style=Bold";
             min: 1 1;
             ellipsis: -1;
@@ -413,11 +471,11 @@ collections {
           state: "default" 0.0;
           color: 100 255 150 255;
           rel1 {
-                relative: 0.908 0.25 ; 
+                relative: 0.908 0.27 ; 
                 to: "down_part";
           }
           rel2 {
-                relative: 0.94 0.75;
+                relative: 0.94 0.72;
                 to: "down_part";
           }
           image {
@@ -425,10 +483,64 @@ collections {
           }
         }
         description {
-          state: "repeat_button_focused" 0.0;
+          state: "repeat_button_default_focused" 0.0;
           inherit: "default" 0.0;
-          color: 255 255 0 220;
+          rel1 {
+                relative: 0.908 0.23 ; 
+                to: "down_part";
+          }
+          rel2 {
+                relative: 0.94 0.77;
+                to: "down_part";
+          }
         }
+        description {
+          state: "repeat_all" 0.0;
+          inherit: "default" 0.0;
+          image {
+            normal: "repeat_all_icon.png";
+          }
+          color: 255 255 0 220;
+       }
+       description {
+          state: "repeat_all_focused" 0.0;
+          inherit: "repeat_all" 0.0;
+          rel1 {
+                relative: 0.908 0.23 ; 
+                to: "down_part";
+          }
+          rel2 {
+                relative: 0.94 0.77;
+                to: "down_part";
+          }
+          image {
+            normal: "repeat_all_icon.png";
+          }
+          color: 255 255 0 220;
+       }
+        description {
+          state: "repeat_one" 0.0;
+          inherit: "default" 0.0;
+          image {
+            normal: "repeat_one_icon.png";
+          }
+          color: 255 255 0 220;
+       }
+       description {
+          state: "repeat_one_focused" 0.0;
+          inherit: "repeat_one" 0.0;
+          rel1 {
+                relative: 0.908 0.23 ; 
+                to: "down_part";
+          }
+          rel2 {
+                relative: 0.94 0.77;
+                to: "down_part";
+          }
+          image {
+            normal: "repeat_one_icon.png";
+          }
+          color: 255 255 0 220;
        }
        part{
         name: "shuffle_button";
@@ -451,10 +563,35 @@ collections {
           }
         }
         description {
-          state: "shuffle_button_focused" 0.0;
-          inherit: "default" 0.0;
+          state: "shuffle_button_off_focused" 0.0;
+          inherit: "default";
+          rel1 {
+                relative: 0.95 0.20 ; 
+                to: "down_part";
+                offset: 5 0;
+          }
+          rel2 {
+                relative: 0.99 0.80;
+                to: "down_part";
+          }
+        }
+        description {
+          state: "shuffle_button_on" 0.0;
+          inherit: "default";
           color: 255 255 0 220;
         }
+        description {
+          state: "shuffle_button_on_focused" 0.0;
+          inherit: "shuffle_button_on";
+          rel1 {
+                relative: 0.95 0.20 ; 
+                to: "down_part";
+                offset: 5 0;
+          }
+          rel2 {
+                relative: 0.99 0.80;
+                to: "down_part";
+          }
        }
        part{
         name: "audiolist/list";
@@ -506,20 +643,28 @@ collections {
        }
        part {
           name: "backbt";
-          type: IMAGE;
+          type: TEXT;
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             image.normal: "home_icon.png";
              color: 0 255 255 220;
+             fixed: 1 1;
              rel1 {
-                relative: 0.0 0.1 ; 
+                relative: 0.0 0.25 ; 
                 to: "notification_bar";
-                offset: 10 0;
              }
              rel2 {
-                relative: 0.1 0.9; 
+                relative: 0.04 0.75; 
                 to: "notification_bar";
+             }
+             text {
+              text: "...";
+              fit: 1 1;
+              size: 16;
+              //fit: 1 1;
+              font: "sans:style=Bold";
+              min: 1 1;
+              ellipsis: -1;
              }
           }
           description {
@@ -549,7 +694,7 @@ collections {
       }
 /* Signals End */
       program {
-         name: "artists_mouse_in";
+         name: "artists_focused";
          signal: "mouse,in";
          source: "artists_button";
          action: STATE_SET "artists_button_focused" 0.0;
@@ -571,6 +716,7 @@ collections {
       }
       program {
          name: "albums_mouse_in";
+         name: "albums_focused";
          signal: "mouse,in";
          source: "albums_button";
          action: STATE_SET "albums_button_focused" 0.0;
@@ -591,7 +737,7 @@ collections {
          target: "albums_button";
       }
       program {
-         name: "playlist_mouse_in";
+         name: "playlist_focused";
          signal: "mouse,in";
          source: "playlist_button";
          action: STATE_SET "playlist_button_focused" 0.0;
@@ -613,6 +759,7 @@ collections {
       }
       program {
          name: "rewind_button_mouse_in";
+         name: "rewind_button_focused";
          signal: "mouse,in";
          source: "rewind_button";
          action: STATE_SET "rewind_button_focused" 0.0;
@@ -628,28 +775,110 @@ collections {
          transition: LINEAR 0.1;
       }
       program {
-         name: "play_pause_mouse_in";
+         name: "play_pause_focused";
          signal: "mouse,in";
          source: "play_pause_button";
-         action: STATE_SET "play_pause_button_focused" 0.0;
-         target: "play_pause_button";
-         transition: LINEAR 0.1;
+         script {
+          if (get_int(play_button_state) == 0){
+             emit("play.mouse.in", "");
+             send_message(MSG_STRING, 0, "return to play");
+          }
+          else if(get_int(play_button_state) == 1){
+             emit("pause.mouse.in", "");
+             send_message(MSG_STRING, 0, "return to pause");
+           }
+         }
+         //action: STATE_SET "play_pause_button_focused" 0.0;
+         //target: "play_pause_button";
+         //transition: LINEAR 0.1;
+      }
+      program {
+        name: "play_mouse_in";
+        signal: "play.mouse.in";
+        action: STATE_SET "play_pause_button_focused" 0.0;
+        target: "play_pause_button";
+        transition: SINUSOIDAL 0.1;
+      }
+      program {
+        name: "pause_mouse_in";
+        signal: "pause.mouse.in";
+        action: STATE_SET "play_pause_button_pause_focused" 0.0;
+        target: "play_pause_button";
+        transition: SINUSOIDAL 0.1;
       }
       program {
          name: "play_pause_mouse_out";
          signal: "mouse,out";
          source: "play_pause_button";
-         action: STATE_SET "default" 0.0;
-         target: "play_pause_button";
-         transition: LINEAR 0.1;
+         script {
+          if (get_int(play_button_state) == 0){
+             emit("play.mouse.out", "");
+             send_message(MSG_STRING, 0, "return to play");
+          }
+          else if(get_int(play_button_state) == 1){
+             emit("pause.mouse.out", "");
+             send_message(MSG_STRING, 0, "return to pause");
+           }
+         }
+         //action: STATE_SET "default" 0.0;
+         //target: "play_pause_button";
+         //transition: LINEAR 0.1;
       }
       program {
-         name: "forward_mouse_in";
+        name: "play_mouse_out";
+        signal: "play.mouse.out";
+        action: STATE_SET "default" 0.0;
+        target: "play_pause_button";
+        transition: SINUSOIDAL 0.2;
+      }
+      program {
+        name: "pause_mouse_out";
+        signal: "pause.mouse.out";
+        action: STATE_SET "play_pause_button_pause" 0.0;
+        target: "play_pause_button";
+        transition: SINUSOIDAL 0.1;
+      }
+      program {
+         name: "play_pause_mouse_clicked";
+         signal: "mouse,clicked,*";
+         source: "play_pause_button";
+         action: STATE_SET "play_pause_button_pause" 0.0;
+         target: "play_pause_button";
+         //transition: SINUSOIDAL 0.2;
+         script{
+          if (get_int(play_button_state) == 0){
+             set_int(play_button_state, 1);
+             emit("pause.on", "");
+             send_message(MSG_STRING, 0, "pause.on");
+          }
+          else if(get_int(play_button_state) == 1){
+             set_int(play_button_state, 0);
+             emit("play.on", "");
+             send_message(MSG_STRING, 0, "play.on");
+           }
+         }
+      }
+      program {
+        name: "play_on";
+        signal: "play.on";
+        action: STATE_SET "play_pause_button_focused" 0.0;
+        target: "play_pause_button";
+        //transition: SINUSOIDAL 0.2;
+      }
+      program {
+        name: "pause.on";
+        signal: "pause.on";
+        action: STATE_SET "play_pause_button_pause_focused" 0.0;
+        target: "play_pause_button";
+        //transition: SINUSOIDAL 0.0;
+      }
+      program {
+         name: "forward_focused";
          signal: "mouse,in";
          source: "forward_button";
          action: STATE_SET "forward_button_focused" 0.0;
          target: "forward_button";
-         transition: LINEAR 0.1;
+         transition: LINEAR 0.0;
       }
       program {
          name: "forward_mouse_out";
@@ -660,36 +889,186 @@ collections {
          transition: LINEAR 0.1;
       }
       program {
-         name: "repeat_mouse_in";
+         name: "repeat_focused";
          signal: "mouse,in";
          source: "repeat_button";
-         action: STATE_SET "repeat_button_focused" 0.0;
+         script {
+          if (get_int(repeat_state) == 0){
+             emit("repeat.off.focused", "");
+             send_message(MSG_STRING, 0, "repeat_off");
+          }
+          else if (get_int(repeat_state) == 1){
+             emit("repeat.all.focused", "");
+             send_message(MSG_STRING, 0, "repeat_all");
+          }
+          else if (get_int(repeat_state) == 2){
+             emit("repeat.one.focused", "");
+             send_message(MSG_STRING, 0, "repeat_one");
+          }
+        }
+      }
+      program {
+         name: "repeat_off_focused";
+         signal: "repeat.off.focused";
+         source: "*";
+         action: STATE_SET "default" 0.0;
          target: "repeat_button";
-         transition: LINEAR 0.1;
+         transition: SINUSOIDAL 0.2;
+         after: "repeat_off_focused_s";
+      }
+      program {
+         name: "repeat_off_focused_s";
+         action: STATE_SET "repeat_button_default_focused" 0.0;
+         target: "repeat_button";
+         transition: SINUSOIDAL 0.2;
+         after: "repeat_off_focused";
+      }
+      program {
+         name: "repeat_all_focused";
+         signal: "repeat.all.focused";
+         source: "*";
+         action: STATE_SET "repeat_all" 0.0;
+         target: "repeat_button";
+         transition: SINUSOIDAL 0.2;
+         after: "repeat_all_focused_s";
+      }
+      program {
+         name: "repeat_all_focused_s";
+         action: STATE_SET "repeat_all_focused" 0.0;
+         target: "repeat_button";
+         transition: SINUSOIDAL 0.2;
+         after: "repeat_all_focused";
+      }
+      program {
+         name: "repeat_one_focused";
+         signal: "repeat.one.focused";
+         source: "*";
+         action: STATE_SET "repeat_one" 0.0;
+         target: "repeat_button";
+         transition: SINUSOIDAL 0.2;
+         after: "repeat_one_focused_s";
+      }
+      program {
+         name: "repeat_one_focused_s";
+         action: STATE_SET "repeat_one_focused" 0.0;
+         target: "repeat_button";
+         transition: SINUSOIDAL 0.2;
+         after: "repeat_one_focused";
       }
       program {
          name: "repeat_mouse_out";
          signal: "mouse,out";
          source: "repeat_button";
-         action: STATE_SET "default" 0.0;
-         target: "repeat_button";
-         transition: LINEAR 0.1;
+         script {
+          if (get_int(repeat_state) == 0){
+             set_state(PART:"repeat_button", "default", 0.0);
+             send_message(MSG_STRING, 0, "repeat_off");
+          }
+          else if (get_int(repeat_state) == 1){
+             set_state(PART:"repeat_button", "repeat_all", 0.0);
+             send_message(MSG_STRING, 0, "repeat_all");
+          }
+          else if (get_int(repeat_state) == 2){
+             set_state(PART:"repeat_button", "repeat_one", 0.0);
+             send_message(MSG_STRING, 0, "repeat_one");
+          }
+        }
       }
       program {
-         name: "shuffle_mouse_in";
+        name: "repeat_clicked";
+        signal: "mouse,clicked,*";
+        source: "repeat_button";
+        script {
+          if (get_int(repeat_state) == 0){
+             set_int(repeat_state, 1);
+             set_state(PART:"repeat_button", "repeat_all", 0.0);
+             send_message(MSG_STRING, 0, "repeat_all");
+          }
+          else if (get_int(repeat_state) == 1){
+             set_int(repeat_state, 2);
+             set_state(PART:"repeat_button", "repeat_one", 0.0);
+             send_message(MSG_STRING, 0, "repeat_one");
+          }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+          else if (get_int(repeat_state) == 2){
+             set_int(repeat_state, 0);
+             set_state(PART:"repeat_button", "default", 0.0);
+             send_message(MSG_STRING, 0, "repeat_off");
+          }
+        }
+      }   
+      program {
+         name: "shuffle_focused";
          signal: "mouse,in";
          source: "shuffle_button";
-         action: STATE_SET "shuffle_button_focused" 0.0;
+         script {
+          if (get_int(shuffle_state) == 1){
+            emit("shuffle.button.on.focused", "");
+          }
+          else if (get_int(shuffle_state) == 0)
+            emit("shuffle.button.off.focused", "");
+          }
+         }
+       }
+       program {
+         name: "shuffle_on_focused";
+         signal: "shuffle.button.on.focused";
+         source: "*";
+         action: STATE_SET "shuffle_button_on" 0.0;//_focused" 0.0;
          target: "shuffle_button";
-         transition: LINEAR 0.1;
-      }
+         transition: SINUSOIDAL 0.2;
+         after: "shuffle_on_focused_s";
+       }
+       program {
+         name: "shuffle_on_focused_s";
+         action: STATE_SET "shuffle_button_on_focused" 0.0;
+         target: "shuffle_button";
+         transition: SINUSOIDAL 0.2;
+         after: "shuffle_on_focused";
+       }
+       program {
+         name: "shuffle_off_focused";
+         signal: "shuffle.button.off.focused";
+         source: "*";
+         action: STATE_SET "shuffle_button_off_focused" 0.0;
+         target: "shuffle_button";
+         transition: SINUSOIDAL 0.2;
+         after: "shuffle_off_focused_s";
+       }
+       program {
+         name: "shuffle_off_focused_s";
+         action: STATE_SET "default" 0.0;
+         target: "shuffle_button";
+         transition: SINUSOIDAL 0.2;
+         after: "shuffle_off_focused";
+       }
       program {
          name: "shuffle_mouse_out";
          signal: "mouse,out";
          source: "shuffle_button";
-         action: STATE_SET "default" 0.0;
-         target: "shuffle_button";
-         transition: LINEAR 0.1;
+         script {
+          if (get_int(shuffle_state) == 1){
+            set_state(PART:"shuffle_button", "shuffle_button_on", 0.0);
+          }
+          else if (get_int(shuffle_state) == 0)
+            set_state(PART:"shuffle_button", "default", 0.0);
+         }
+      }
+      program {
+        name: "shuffle_clicked";
+        signal: "mouse,clicked,*";
+        source: "shuffle_button";
+        script {
+          if (get_int(shuffle_state) == 0){
+             set_int(shuffle_state, 1);
+             set_state(PART:"shuffle_button", "shuffle_button_on", 0.0);
+             send_message(MSG_STRING, 0, "shuffle_button_on");
+          }
+          else if (get_int(shuffle_state) == 1){
+             set_int(shuffle_state, 0);
+             set_state(PART:"shuffle_button", "default", 0.0);
+             send_message(MSG_STRING, 0, "shuffle_off");
+          }
+        }
       }
       program {
          //name: "down_part_clicked";
@@ -710,7 +1089,7 @@ collections {
          transition: LINEAR 0.3;
       }
       program {
-         name: "backbt_mouse_in";
+         name: "backbt_focused";
          signal: "mouse,in";
          source: "backbt";
          action: STATE_SET "backbt_focused" 0.0;
@@ -730,7 +1109,8 @@ collections {
          source: "backbt";
          action: SIGNAL_EMIT "audiolist.selected.back" "backbt";
       }
-
     } /* end programs */
-  } /*end group "audiolist" */
-} /* end collections */ 
+   } 
+  } 
+ }/*end group "audiolist" */
+}/* end collections */ 

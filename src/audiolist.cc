@@ -179,7 +179,7 @@ audiolist::active()
    basectrl::active();
 
    list.visibility_set(true);
-//   elm_theme_overlay_add(NULL, "../themes/default/genlist_simple_overlay.edj");
+//   elm_theme_overlay_add(NULL, "../themes/default/theme_overlay.edj");
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
 
    view.callback_model_selected_add(std::bind([this](void *eo)
