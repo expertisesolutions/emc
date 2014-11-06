@@ -28,7 +28,7 @@ videolist::videolist(const ::elm_layout &_layout, const std::string &_theme, set
         view(nullptr),
         selected(nullptr)
 {
-   layout.signal_callback_add(groupname+".selected.play", "*",
+/*   layout.signal_callback_add(groupname+".selected.play", "*",
       std::bind([this]{
           Eina_Value value;
           char *filename = NULL;
@@ -41,7 +41,7 @@ videolist::videolist(const ::elm_layout &_layout, const std::string &_theme, set
           std::string path(filename);
           std::cout << "video list open file: " << path << std::endl;
 
-/*          int is_dir = 0;
+          int is_dir = 0;
           selected.property_get("is_dir", &value);
           eina_value_get(&value, &is_dir);
           if (is_dir == EINA_TRUE)
@@ -52,11 +52,11 @@ videolist::videolist(const ::elm_layout &_layout, const std::string &_theme, set
                view.model_set(model);
                return;
             }
-*/
           eina_value_flush(&value);
           //videoplay.active();
         }
       ));
+*/
 }
 
 void
@@ -66,6 +66,7 @@ videolist::active()
    basectrl::active();
    eio::model model;
    model.path_set(settings.video_rootpath_get());
+   model.load();
    efreet_mime_init();
    model.children_filter_set(
      std::bind([this](const Eina_File_Direct_Info *info)
@@ -86,21 +87,20 @@ videolist::active()
           return false;
        }
      , std::placeholders::_2));
-//   model.callback_load_status_add(std::bind([this]{std::cout << "video load status change" << std::endl;}));
-//   model.callback_children_count_changed_add(std::bind([this]{std::cout << "video children count change" << std::endl;}));
+
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
 
-   elm_theme_overlay_add(NULL, "./theme_overlay.edj");
+   elm_theme_overlay_add(NULL, "../theme/default/theme_overlay.edj"); //XXX FIXME path
 
    view.model_set(model);
    view.property_connect("filename", "elm.text");
-   view.property_connect("path", "elm.text.sub");
+   view.property_connect("size", "elm.text.sub");
 
    view.callback_model_selected_add(std::bind([this](void *eo)
-       { selected = eio::model(static_cast<Eo *>(eo)); }
-                , std::placeholders::_3));
+       {
+         selected = eio::model(static_cast<Eo *>(eo));
+       }, std::placeholders::_3));
 
-   model.load();
    layout.content_set(groupname+"/list", list);
    list.show();
    eo_unref(list._eo_ptr());

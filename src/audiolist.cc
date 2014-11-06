@@ -13,6 +13,8 @@
 #include <elm_layout.eo.hh>
 
 #include "audiolist.hh"
+#include <Ecore.hh>
+#include <thread>
 
 namespace emc {
 
@@ -21,10 +23,38 @@ audiolist::_on_key_down(std::string key)
 {
 }
 
+static void
+playback_finished_cb(void *data, Evas_Object *obj, void *event_info)
+{
+   audiolist *t = static_cast<audiolist*>(data);
+   if(!t)
+     {
+        std::string errmsg("Invalid Data\n");
+        std::cerr << "Error: " << errmsg;
+        return;
+     }
+   efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::player_playback_finished_cb, t));
+}
+
+static void
+frame_decode_cb(void *data, Evas_Object *obj, void *event_info)
+{
+   audiolist *t = static_cast<audiolist*>(data);
+   if(!t)
+     {
+        std::string errmsg("Invalid Data\n");
+        std::cerr << "Error: " << errmsg;
+        return;
+     }
+
+   efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::player_fame_decode_cb, t));
+}
+
 audiolist::audiolist(const ::elm_layout &_layout, const std::string &_theme, settingsmodel &_settings)
    : basectrl(_layout, _theme, "audiolist"),
         settings(_settings),
         list(efl::eo::parent = layout),
+        player(efl::eo::parent = layout),
         view(nullptr),
         model()
 {
@@ -51,7 +81,48 @@ audiolist::audiolist(const ::elm_layout &_layout, const std::string &_theme, set
               }
            ));
 
+        evas::object emotion = player.emotion_get();
+        evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", playback_finished_cb, this);
+        evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", frame_decode_cb, this);
+}
 
+void
+audiolist::player_playback_finished_cb()
+{
+    Elm_Object_Item* i = list.selected_item_get();
+    if (!i) return;
+
+    if (player.is_playing_get())
+            std::cout << "PORRA" << std::endl;
+    Elm_Object_Item* next = elm_genlist_item_next_get(i);
+    if (!next) return;
+
+    elm_genlist_item_selected_set(next, EINA_TRUE);
+}
+
+void
+audiolist::player_fame_decode_cb()
+{
+   std::ostringstream label_total, label_pos;
+   int h, m, s;
+
+   double pos = player.play_position_get();
+   double len = player.play_length_get();
+
+   h = pos / 3600;
+   m = pos / 60 - (h * 60);
+   s = pos - (h * 3600) - (m * 60);
+
+   label_pos << m << ":" << s;
+
+   h = len / 3600;
+   m = len / 60 - (h * 60);
+   s = len - (h * 3600) - (m * 60);
+
+   label_total << m << ":" << s;
+
+   layout.text_set("music_temp_restante", label_pos.str());
+   layout.text_set("music_temp_total", label_total.str());
 }
 
 void
@@ -77,12 +148,27 @@ audiolist::active()
             view.model_set(model.artist_albums_get(m));
          else if (tablename == "albums")
             view.model_set(model.album_tracks_get(m));
+         else if (tablename == "tracks") {
+            Eina_Value v;
+            m.property_get("file", &v);
+            char *path = eina_value_to_string(&v);
+            if (path) {
+              std::cout << std::this_thread::get_id() << std::endl;
+              player.stop();
+              player.file_set(path, "");
+              player.play();
+              player.file_set(path, "");
+              player.play();
+              printf("FILE PATH: %s SIZE:%f\n", path, player.play_length_get());
+            }
+            free(path);
+         }
       }, std::placeholders::_3));
 
    layout.content_set(groupname+"/list", list);
    list.show();
-   eo_unref(list._eo_ptr());
-   eo_unref(list._eo_ptr());
+   eo_unref(list._eo_ptr()); //XXX
+   eo_unref(list._eo_ptr()); //XXX
 
    view.model_set(model.artists_get());
    view.property_connect("name", "elm.text");

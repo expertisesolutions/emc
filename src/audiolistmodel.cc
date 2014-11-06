@@ -136,7 +136,7 @@ audiolistmodel::album_tracks_get(esql::model_row& album)
     if (id_album)
       {
          std::string f("id_album=");
-         tracks.filter_set(f + id_album);
+         tracks.filter_set(f + id_album + " ORDER BY track");
       }
     tracks.load();
     return tracks;

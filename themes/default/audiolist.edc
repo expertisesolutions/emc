@@ -5,7 +5,7 @@ collections {
        image: "background.jpg" RAW;
        image: "audio_icon.png" LOSSY 80;
        image: "rewind_icon.png" LOSSY 80;
-       image: "play_pause_icon.png" LOSSY 80;
+       image: "play_icon.png" LOSSY 80;
        image: "forward_icon.png" LOSSY 80;
        image: "shuffle_icon.png" LOSSY 80;
        image: "repeat_icon.png" LOSSY 80;
@@ -287,14 +287,15 @@ collections {
           rel1 {
                 relative: 0.07 0.25 ; 
                 to: "down_part";
-                offset: 5 0;
+                offset: 5 -5;
           }
           rel2 {
                 relative: 0.12 0.75; 
                 to: "down_part";
+                offset: 0 5;
           }
           image {
-            normal: "play_pause_icon.png";
+            normal: "play_icon.png";
           }
         }
         description {
