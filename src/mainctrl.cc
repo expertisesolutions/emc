@@ -16,8 +16,8 @@
 
 #include "mainctrl.hh"
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1280
+#define HEIGHT 720
 
 namespace emc {
 

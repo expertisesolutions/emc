@@ -1,18 +1,14 @@
 collections {
  group {
     name: "settings";
-           
     images {
        image: "background.jpg" RAW;
-       image: "notification_icon.png" RAW;
-       image: "settings_icon.png" LOSSY 80;
-       //image: "return_icon.png" LOSSY 80;
     }
    // min: 800 600;
    // max: 1024 768;
     parts {
        part {
-          name: "bg_rect"; //gray retangle that fills the entire window
+          name: "bg_rect";
           type: RECT;
           description {
              state: "default" 0.0;
@@ -35,108 +31,20 @@ collections {
               state: "default" 0.0;
               rel1 {
                  relative: 0.0 0.0; 
-                 offset: 10 10;
+                 offset: 0 0;
               }
               rel2 {
                  relative: 1.0 1.0;
-                 offset: -10 -10;
+                 offset: -1 -1;
               }
               image {
                 normal: "background.jpg";
               }
           }
        }
-       part {
-          name: "notification_bar"; // the bar in the top of window, not used yet
-          type: IMAGE;//RECT;
-          mouse_events: 1;
-          description {
-             state: "default" 0.0;
-             image.normal: "notification_icon.png";
-             color: 80 80 80 150;//color: 125 0 125 255;
-             rel1 {
-                relative: 0.0 0.0 ; to: "background_img";
-                offset: 2 2;
-             }
-             rel2 {
-                relative: 1.0 0.1; to: "background_img";
-                offset: -2 -10;
-             }
-          }
-       }
-       part{
-        name: "window_name";
-        type: TEXT;
-        mouse_events: 0;
-        description {
-          state: "default" 0.0;
-          color: 255 255 255 255;
-          fixed: 1 1;
-          rel1 {
-                relative: 0.1 0.25 ; 
-                to: "notification_bar";
-                offset: 10 0;
-          }
-          rel2 {
-                relative: 0.9 0.75; 
-                to: "notification_bar";
-          }
-          text {
-            text: "Settings";
-            size: 1;
-            fit: 0 1;
-            font: "sans:style=Italic";
-            min: 1 1;
-            align: 0.5 0.5;
-            ellipsis: -1;
-          }
-        }
-       }
-       part{
-        name: "time";
-        type: TEXT;
-        mouse_events: 0;
-        description {
-          state: "default" 0.0;
-          color: 255 255 255 255;
-          fixed: 1 1;
-          rel1 {
-                relative: 1.0 0.25 ; 
-                to: "notification_bar";
-                offset: 10 0;
-          }
-          rel2 {
-                relative: 0.9 0.75; 
-                to: "notification_bar";
-          }
-          text {
-            text: "12:40";
-            size: 1;
-            fit: 0 1;
-            font: "sans:style=Bold";
-            min: 1 1;
-            ellipsis: -1;
-          }
-        }
-       }
-       part {
-          name: "settings_icon";
-          type: IMAGE;
-          mouse_events: 1;
-          description {
-             state: "default" 0.0;
-             image {
-                normal: "settings_icon.png";
-             }
-             color: 0 255 0 255;
-             rel1 {
-                relative: 0.1 0.1 ; to: "background_img";
-             }
-             rel2 {
-                relative: 0.3 0.2; to: "background_img";
-             }
-          }
-       }
+
+       ADD_STATUS_BAR("EMC - SETTINGS");
+
        part {
           name: "backbt";
           type: TEXT;
@@ -147,11 +55,11 @@ collections {
              fixed: 1 1;
              rel1 {
                 relative: 0.0 0.25 ; 
-                to: "notification_bar";
+                to: "status_bar";
              }
              rel2 {
                 relative: 0.04 0.75; 
-                to: "notification_bar";
+                to: "status_bar";
              }
              text {
               text: "...";
