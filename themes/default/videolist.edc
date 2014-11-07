@@ -5,6 +5,9 @@ collections {
     images {
        image: "background.jpg" RAW;
        image: "notification_icon.png" RAW;
+       //image: "video_icon.png" LOSSY 80;
+       //image: "return_icon.png" LOSSY 80;
+       //image: "play_icon.png" LOSSY 80;
     }    
     min: 800 600;
     max: 1024 768;
@@ -133,6 +136,47 @@ collections {
              }
           }
        }       
+       /*part {
+          name: "video_icon";
+          type: IMAGE;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             image {
+                normal: "video_icon.png";
+             }
+             color: 0 255 0 255;
+             rel1 {
+                relative: 0.02 0.1 ; to: "background_img";
+             }
+             rel2 {
+                relative: 0.12 0.2; to: "background_img";
+             }
+          }
+       }
+       part {
+          name: "play_bt";
+          type: IMAGE;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             image {
+                normal: "play_icon.png";
+             }
+             color: 0 255 0 255;
+             rel1 {
+                relative: 0.02 0.65 ; to: "background_img";
+             }
+             rel2 {
+                relative: 0.12 0.75; to: "background_img";
+             }
+          }
+          description {
+             state: "play_bt_focused" 0.0;
+             inherit: "default" 0.0;
+             color: 200 200 0 255;
+          }
+       }*/
        part {
           name: "backbt";
           type: TEXT;
@@ -185,6 +229,27 @@ collections {
          source: "*";
       }
 /* Signals End */
+      /*program {
+         name: "play_bt_mouse_in";
+         signal: "mouse,in";
+         source: "play_bt";
+         action: STATE_SET "play_bt_focused" 0.0;
+         target: "play_bt";
+      }
+      program {
+         name: "play_bt_mouse_out";
+         signal: "mouse,out";
+         source: "play_bt";
+         action: STATE_SET "default" 0.0;
+         target: "play_bt";
+      }
+      program {
+         name: "play_bt_mouse_clicked";
+         signal: "mouse,clicked,*";
+         source: "play_bt";
+         action: SIGNAL_EMIT "videolist.selected.play" "play_bt";
+         target: "backbt";
+      }*/
       program {
          name: "backbt_mouse_in";
          signal: "mouse,in";

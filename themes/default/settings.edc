@@ -5,6 +5,8 @@ collections {
     images {
        image: "background.jpg" RAW;
        image: "notification_icon.png" RAW;
+       image: "settings_icon.png" LOSSY 80;
+       //image: "return_icon.png" LOSSY 80;
     }
    // min: 800 600;
    // max: 1024 768;
@@ -116,6 +118,24 @@ collections {
             ellipsis: -1;
           }
         }
+       }
+       part {
+          name: "settings_icon";
+          type: IMAGE;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             image {
+                normal: "settings_icon.png";
+             }
+             color: 0 255 0 255;
+             rel1 {
+                relative: 0.1 0.1 ; to: "background_img";
+             }
+             rel2 {
+                relative: 0.3 0.2; to: "background_img";
+             }
+          }
        }
        part {
           name: "backbt";

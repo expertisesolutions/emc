@@ -24,14 +24,17 @@ collections {
     images {
        image: "background.jpg" RAW;
        image: "app_window.jpg" RAW;
+       image: "notification_icon.png" RAW;
        image: "audio_icon.png" LOSSY 80;
        image: "video_icon.png" LOSSY 80;
        image: "settings_icon.png" LOSSY 80;
-       image: "return_icon.png" LOSSY 80;
+       //image: "return_icon.png" LOSSY 80;
        image: "confirm_exit_window.png" RAW;
        image: "yes_bt.png" LOSSY 90;
        image: "no_bt.png" LOSSY 90;
-       image: "exit_icon.png" LOSSY 80;
+       //image: "exit_icon.png" LOSSY 80;
+       image: "btn_round_1.png" RAW;
+       image: "btn_round_2.png" RAW;
     }
     //min: 800 600;
    // max: 1024 768;
@@ -73,11 +76,12 @@ collections {
        }
        part {
           name: "notification_bar"; // the bar in the top of window, not used yet
-          type: RECT;
+          type: IMAGE;//RECT;
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             color: 125 0 125 255;
+             image.normal: "notification_icon.png";
+             color: 80 80 80 150;//color: 125 0 125 255;
              rel1 {
                 relative: 0.0 0.0 ; to: "background_img";
                 offset: 2 2;
@@ -125,12 +129,12 @@ collections {
              state: "default" 0.0;
              image.normal: "app_window.jpg";                                
              rel1 {
-                relative: 0.1 0.1 ; to: "background_img";
-                offset: 0 15;
+                relative: 0.0 0.0 ; to: "background_img";
+                //offset: 0 15;
              }
              rel2 {
-                relative: 0.9 0.8; to: "background_img";
-                offset: 0 -20;
+                relative: 1.0 1.0; to: "background_img";
+                //offset: 0 -20;
              }
           }
           description {
@@ -151,13 +155,13 @@ collections {
        }
        part {
           name: "audio_bt";
-          type: IMAGE;
+          type: TEXT;//IMAGE;
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             image {
+             /*image {
                 normal: "audio_icon.png";
-             }
+             }*/
              color: 0 255 0 255;
              rel1 {
                 relative: 0.1 0.8 ; to: "background_img";
@@ -165,7 +169,16 @@ collections {
              rel2 {
                 relative: 0.3 0.9; to: "background_img";
              }
+             text {
+             text: "MUSIC";
+             size: 1;
+             fit: 0 1;
+             font: "sans";
+             min: 1 1;
+             ellipsis: -1;
+             }
           }
+          
           description {
              state: "audio_bt_mouse_in" 0.0;
              inherit: "default" 0.0;
@@ -174,19 +187,27 @@ collections {
        }
        part {
           name: "video_bt";
-          type: IMAGE;
+          type: TEXT;//IMAGE;
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             image {
+             /*image {
                 normal: "video_icon.png";
-             }
+             }*/
              color: 0 255 0 255;
              rel1 {
                 relative: 0.4 0.8 ; to: "background_img";
              }
              rel2 {
                 relative: 0.6 0.9; to: "background_img";
+             }
+             text {
+             text: "VIDEO";
+             size: 1;
+             fit: 0 1;
+             font: "sans";
+             min: 1 1;
+             ellipsis: -1;
              }
           }
           description {
@@ -197,13 +218,13 @@ collections {
        }
        part {
           name: "settings_bt";
-          type: IMAGE;
+          type: TEXT;//IMAGE;
           mouse_events: 1;
           description {
               state: "default" 0.0;
-              image {
+              /*image {
                  normal: "settings_icon.png";
-              }
+              }*/
               color: 0 255 0 255;
               rel1 {
                 relative: 0.7 0.8 ; to: "background_img";
@@ -211,6 +232,14 @@ collections {
               rel2 {
                 relative: 0.9 0.9; to: "background_img";
               }
+              text {
+             text: "CONFIG";
+             size: 1;
+             fit: 0 1;
+             font: "sans";
+             min: 1 1;
+             ellipsis: -1;
+             }
           }
           description {
              state: "settings_bt_mouse_in" 0.0;
@@ -249,8 +278,8 @@ collections {
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             image.normal: "exit_icon.png";
-             color: 0 255 0 255;
+             image.normal: "btn_round_1.png";//"exit_icon.png";
+             //color: 0 255 0 255;
              rel1 {
                 relative: 0.0 0.9 ; to: "background_img";
                 offset: 5 5;
@@ -263,7 +292,8 @@ collections {
           description {
              state: "exit_bt_mouse_in" 0.0;
              inherit: "default" 0.0;
-             color: 200 0 0 255;
+             //color: 200 0 0 255;
+             image.normal: "btn_round_2.png";
           }
        }
        part { //used to confirm if you want to exit or not

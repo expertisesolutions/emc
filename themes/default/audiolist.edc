@@ -10,15 +10,20 @@ collections {
        image: "background.jpg" RAW;
        image: "notification_icon.png" RAW;
        image: "audio_icon.png" LOSSY 80;
-       image: "rewind_icon.png" LOSSY 80;
-       image: "play_icon.png" LOSSY 80;
-       image: "play_pause_icon.png" LOSSY 80;
+       image: "prev_icon.png" LOSSY 80;
+       image: "prev_focused_icon.png" LOSSY 80;
+       image: "play_icon.png" RAW;
+       image: "play_focused_icon.png" RAW;
        image: "pause_icon.png" LOSSY 80;
-       image: "forward_icon.png" LOSSY 80;
-       image: "shuffle_icon.png" LOSSY 80;
+       image: "pause_icon_focused.png" LOSSY 80;
+       image: "next_icon.png" LOSSY 80;
+       image: "next_focused_icon.png" LOSSY 80;
+       image: "shuffle_icon_off.png" LOSSY 80;
+       image: "shuffle_icon_on.png" LOSSY 80;
        image: "repeat_icon.png" LOSSY 80;
        image: "repeat_all_icon.png" LOSSY 80;
        image: "repeat_one_icon.png" LOSSY 80;
+       
     }
    // min: 800 600;
    //  max: 1024 768;
@@ -292,28 +297,29 @@ collections {
         }
        }
        part{
-        name: "rewind_button";
+        name: "prev_button";
         type: IMAGE;
         mouse_events: 1;
         description {
           state: "default" 0.0;
-          color: 100 255 150 255;
+          //color: 100 255 150 255;
           rel1 {
-                relative: 0.02 0.25 ; 
+                relative: 0.01 0.25 ; 
                 to: "down_part";
           }
           rel2 {
-                relative: 0.05 0.75; 
+                relative: 0.06 0.75; 
                 to: "down_part";
           }
           image {
-            normal: "rewind_icon.png";
+            normal: "prev_icon.png";
           }
         }
         description {
-          state: "rewind_button_focused" 0.0;
+          state: "prev_button_focused" 0.0;
           inherit: "default" 0.0;
-          color: 255 255 0 220;
+          image.normal: "prev_focused_icon.png";
+          //color: 255 255 0 220;
         }
        }
        part{
@@ -322,57 +328,57 @@ collections {
         mouse_events: 1;
         description {
           state: "default" 0.0;
-          color: 100 255 150 255;
+          //color: 100 255 150 255;
           rel1 {
                 relative: 0.07 0.2 ; 
                 to: "down_part";
-                offset: 5 -5;
+                offset: 5 0;
           }
           rel2 {
                 relative: 0.12 0.75; 
                 to: "down_part";
-                offset: 0 5;
           }
           image {
-            normal: "play_icon.png";
+            normal: "play_icon.png";//"play_pause_icon.png";
           }
         }
         description {
           state: "play_pause_button_focused" 0.0;
           inherit: "default" 0.0;
-          color: 255 255 0 220;
+          image.normal: "play_focused_icon.png";
+          //color: 255 255 0 220;
         }
         description {
           state: "play_pause_button_pause" 0.0;
           inherit: "default" 0.0;
-          color: 100 255 150 255;
+          //color: 100 255 150 255;
           image.normal: "pause_icon.png";
           rel1 {
-                relative: 0.07 0.2 ; 
+                relative: 0.07 0.25 ; 
                 to: "down_part";
-                offset: 5 -5;
+                //offset: 12 0;
           }
           rel2 {
-                relative: 0.12 0.75; 
+                relative: 0.117 0.75; 
                 to: "down_part";
-                offset: 0 5;
+                //offset: -12 0;
           }
         }
         description {
           state: "play_pause_button_pause_focused" 0.0;
           inherit: "play_pause_button_pause" 0.0;
-          color: 255 255 0 220;
-          image.normal: "pause_icon.png";
+          //color: 255 255 0 220;
+          image.normal: "pause_icon_focused.png";
         }
        part{
-        name: "forward_button";
+        name: "next_button";
         type: IMAGE;
         mouse_events: 1;
         description {
           state: "default" 0.0;
-          color: 100 255 150 255;
+          //color: 100 255 150 255;
           rel1 {
-                relative: 0.1517 0.25 ; 
+                relative: 0.13 0.25 ; 
                 to: "down_part";
           }
           rel2 {
@@ -380,13 +386,14 @@ collections {
                 to: "down_part";
           }
           image {
-            normal: "forward_icon.png";
+            normal: "next_icon.png";
           }
         }
         description {
-          state: "forward_button_focused" 0.0;
+          state: "next_button_focused" 0.0;
           inherit: "default" 0.0;
-          color: 255 255 0 220;
+          image.normal: "next_focused_icon.png";
+          //color: 255 255 0 220;
         }
        }
        part{
@@ -395,12 +402,12 @@ collections {
         mouse_events: 0;
         description {
           state: "default" 0.0;
-          color: 100 255 150 255;
+          color: 255 255 255 255;
           fixed: 1 1;
           rel1 {
                 relative: 0.2 0.25 ; 
                 to_y: "down_part";
-                to_x: "forward_button";
+                to_x: "next_button";
                 offset: 10 0;
           }
           rel2 {
@@ -442,7 +449,7 @@ collections {
         mouse_events: 0;
         description {
           state: "default" 0.0;
-          color: 100 255 150 255;
+          color: 255 255 255 255;
           fixed: 1 1;
           rel1 {
                 relative: 1.0 0.25 ; 
@@ -469,7 +476,7 @@ collections {
         mouse_events: 1;
         description {
           state: "default" 0.0;
-          color: 100 255 150 255;
+          //color: 100 255 150 255;
           rel1 {
                 relative: 0.908 0.27 ; 
                 to: "down_part";
@@ -500,7 +507,7 @@ collections {
           image {
             normal: "repeat_all_icon.png";
           }
-          color: 255 255 0 220;
+          //color: 255 255 0 220;
        }
        description {
           state: "repeat_all_focused" 0.0;
@@ -516,7 +523,7 @@ collections {
           image {
             normal: "repeat_all_icon.png";
           }
-          color: 255 255 0 220;
+          //color: 255 255 0 220;
        }
         description {
           state: "repeat_one" 0.0;
@@ -524,7 +531,7 @@ collections {
           image {
             normal: "repeat_one_icon.png";
           }
-          color: 255 255 0 220;
+          //color: 255 255 0 220;
        }
        description {
           state: "repeat_one_focused" 0.0;
@@ -540,7 +547,7 @@ collections {
           image {
             normal: "repeat_one_icon.png";
           }
-          color: 255 255 0 220;
+          //color: 255 255 0 220;
        }
        part{
         name: "shuffle_button";
@@ -548,7 +555,7 @@ collections {
         mouse_events: 1;
         description {
           state: "default" 0.0;
-          color: 100 255 150 255;
+          //color: 100 255 150 255;
           rel1 {
                 relative: 0.95 0.25 ; 
                 to: "down_part";
@@ -559,7 +566,7 @@ collections {
                 to: "down_part";
           }
           image {
-            normal: "shuffle_icon.png";
+            normal: "shuffle_icon_off.png";
           }
         }
         description {
@@ -578,7 +585,8 @@ collections {
         description {
           state: "shuffle_button_on" 0.0;
           inherit: "default";
-          color: 255 255 0 220;
+          image.normal: "shuffle_icon_on.png";
+          //color: 255 255 0 220;
         }
         description {
           state: "shuffle_button_on_focused" 0.0;
@@ -709,25 +717,12 @@ collections {
          target: "artists_button";
       }
       program {
-         name: "artists_mouse_click";
-         signal: "mouse,clicked,1";
-         source: "artists_button";
-         action: SIGNAL_EMIT "audiolist.selected.artists" "artists_button";
-      }
-      program {
-         name: "albums_mouse_in";
          name: "albums_focused";
          signal: "mouse,in";
          source: "albums_button";
          action: STATE_SET "albums_button_focused" 0.0;
          target: "albums_button";
          transition: LINEAR 0.1;
-      }
-      program {
-         name: "albums_mouse_click";
-         signal: "mouse,clicked,1";
-         source: "albums_button";
-         action: SIGNAL_EMIT "audiolist.selected.albums" "albums_button";
       }
       program {
          name: "albums_mouse_out";
@@ -752,26 +747,19 @@ collections {
          target: "playlist_button";
       }
       program {
-         name: "playlists_mouse_click";
-         signal: "mouse,clicked,1";
-         source: "playlists_button";
-         action: SIGNAL_EMIT "audiolist.selected.playlist" "playlists_button";
-      }
-      program {
-         name: "rewind_button_mouse_in";
-         name: "rewind_button_focused";
+         name: "prev_button_focused";
          signal: "mouse,in";
-         source: "rewind_button";
-         action: STATE_SET "rewind_button_focused" 0.0;
-         target: "rewind_button";
+         source: "prev_button";
+         action: STATE_SET "prev_button_focused" 0.0;
+         target: "prev_button";
          transition: LINEAR 0.1;
       }
       program {
-         name: "rewind_button_mouse_out";
+         name: "prev_button_mouse_out";
          signal: "mouse,out";
-         source: "rewind_button";
+         source: "prev_button";
          action: STATE_SET "default" 0.0;
-         target: "rewind_button";
+         target: "prev_button";
          transition: LINEAR 0.1;
       }
       program {
@@ -863,29 +851,29 @@ collections {
         signal: "play.on";
         action: STATE_SET "play_pause_button_focused" 0.0;
         target: "play_pause_button";
-        //transition: SINUSOIDAL 0.2;
+        transition: SINUSOIDAL 0.2;
       }
       program {
         name: "pause.on";
         signal: "pause.on";
         action: STATE_SET "play_pause_button_pause_focused" 0.0;
         target: "play_pause_button";
-        //transition: SINUSOIDAL 0.0;
+        transition: SINUSOIDAL 0.1;
       }
       program {
-         name: "forward_focused";
+         name: "next_focused";
          signal: "mouse,in";
-         source: "forward_button";
-         action: STATE_SET "forward_button_focused" 0.0;
-         target: "forward_button";
-         transition: LINEAR 0.0;
+         source: "next_button";
+         action: STATE_SET "next_button_focused" 0.0;
+         target: "next_button";
+         transition: LINEAR 0.1;
       }
       program {
-         name: "forward_mouse_out";
+         name: "next_mouse_out";
          signal: "mouse,out";
-         source: "forward_button";
+         source: "next_button";
          action: STATE_SET "default" 0.0;
-         target: "forward_button";
+         target: "next_button";
          transition: LINEAR 0.1;
       }
       program {
