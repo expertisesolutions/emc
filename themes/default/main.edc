@@ -337,44 +337,21 @@ collections {
            signal: "main.show.next";
            source: "*";
            script {
-
                 if (get_int(exit_window_state) == 1)
                 {
                   return;
                 }
-
                 if (get_int(audio_state) == 1)
                 {
-                  set_int(audio_state, 0);
-                  set_int(video_state, 1);
-
-                  send_message(MSG_STRING, 0, "VIDEO_STATE IN");
-
-                  set_state(PART:"app_window", "show_video", 0.0);
-                  set_state(PART:"audio_bt", "default", 0.0);
-                  set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
+                  emit("main.show.video", "");
                 }
                 else if (get_int(video_state) == 1)
                 {
-                  set_int(video_state, 0);
-                  set_int(settings_state, 1);
-
-                  send_message(MSG_STRING, 0, "settings_STATE IN");
-
-                  set_state(PART:"app_window", "show_settings", 0.0);
-                  set_state(PART:"video_bt", "default", 0.0);
-                  set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
+                  emit("main.show.settings", "");
                 }
                 else if (get_int(settings_state) == 1)
                 {
-                  set_int(audio_state, 1);
-                  set_int(settings_state, 0);
-
-                  send_message(MSG_STRING, 0, "AUDIO_STATE IN");
-
-                  set_state(PART:"app_window", "show_audio", 0.0);
-                  set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
-                  set_state(PART:"settings_bt", "default", 0.0);
+                  emit("main.show.audio", "");
                 }
            }
       }
@@ -382,43 +359,21 @@ collections {
            signal: "main.show.prev";
            source: "*";
            script {
-
                 if (get_int(exit_window_state) == 1)
                 {
                   return;
                 }
-
                 if (get_int(audio_state) == 1)
                 {
-                  set_int(audio_state, 0);
-                  set_int(settings_state, 1);
-
-                  send_message(MSG_STRING, 0, "settings_STATE IN");
-
-                  set_state(PART:"app_window", "show_settings", 0.0);
-                  set_state(PART:"audio_bt", "default", 0.0);
-                  set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
+                  emit("main.show.settings", "");
                 }
                 else if (get_int(video_state) == 1)
                 {
-                  set_int(audio_state, 1);
-                  set_int(video_state, 0);
-
-                  send_message(MSG_STRING, 0, "AUDIO_STATE IN");
-
-                  set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
-                  set_state(PART:"video_bt", "default", 0.0);
+                  emit("main.show.audio", "");
                 }
                 else if (get_int(settings_state) == 1)
                 {
-                  set_int(video_state, 1);
-                  set_int(settings_state, 0);
-
-                  send_message(MSG_STRING, 0, "VIDEO_STATE IN");
-
-                  set_state(PART:"app_window", "show_video", 0.0);
-                  set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
-                  set_state(PART:"settings_bt", "default", 0.0);
+                  emit("main.show.video", "");
                 }
            }
       }
@@ -427,7 +382,6 @@ collections {
         signal: "main.select.current";
         source: "*";
         script {
-
            if (get_int(audio_state) == 1 && get_int(exit_window_state) == 0)
             {
               emit("main.selected.audio", "");
@@ -441,10 +395,9 @@ collections {
               emit("main.selected.settings", "");
            }
           else if (get_int(exit_window_state) == 1)
-            {
+           {
               emit("main.selected.exit", "");
-              send_message(MSG_STRING, 0, "EXIT NOW!");
-           } 
+           }
         }
       }
       program {
@@ -455,13 +408,6 @@ collections {
           if (get_int(exit_window_state) == 0)
           {
             set_int(exit_window_state, 1);
-            send_message(MSG_STRING, 0, "exit_window_state == 1");
-
-            set_state(PART:"audio_bt", "default", 0.0);
-            set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"settings_bt", "default", 0.0);
-            //set_state(PART:"exit_background"  , "visible", 0.0);
-
             emit("transition.test", "");
 
             set_state(PART:"confirm_exit_window", "visible", 0.0);
@@ -471,31 +417,14 @@ collections {
           else if (get_int(exit_window_state) == 1)
           {
             set_int(exit_window_state, 0);
-            send_message(MSG_STRING, 0, "exit_window_state == 0");
-            set_state(PART:"audio_bt", "default", 0.0);
-            set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"settings_bt", "default", 0.0);
             set_state(PART:"exit_background"  , "default", 0.0);
             set_state(PART:"confirm_exit_window", "default", 0.0);
             set_state(PART:"yes_bt", "default", 0.0);
             set_state(PART:"no_bt", "default", 0.0);
-
-            if (get_int(audio_state) == 1)
-            {
-              emit("main.show.audio", "");
-            }
-            else if (get_int(video_state) == 1)
-            {
-              emit("main.show.video", "");
-            }
-            else if (get_int(settings_state) == 1)
-            {
-              emit("main.show.settings", "");
-            }
           }
         }
       }
-      /******** audio_bt ********/
+/******** audio_bt ********/
       program {
          name: "audio_bt_mouse_in";
          signal: "mouse,in";
@@ -514,8 +443,10 @@ collections {
 
             set_state(PART:"app_window", "show_audio", 0.0);
             set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
+
             set_state(PART:"video_bt", "default", 0.0);
             set_state(PART:"settings_bt", "default", 0.0);
+            set_state(PART:"exit_background"  , "default", 0.0);
             set_state(PART:"confirm_exit_window", "default", 0.0);
             set_state(PART:"yes_bt", "default", 0.0);
             set_state(PART:"no_bt", "default", 0.0);
@@ -526,8 +457,10 @@ collections {
          signal: "mouse,clicked,*";
          source: "audio_bt";
          action: SIGNAL_EMIT "main.selected.audio" "audio_bt";
-      }/******** end audio_bt ********/
-      /******** video_bt ********/
+      }
+/******** end audio_bt ********/
+
+/******** video_bt ********/
       program {
          name: "video_bt_mouse_in";
          signal: "mouse,in";
@@ -539,15 +472,17 @@ collections {
          signal: "main.show.video";
          source: "*";
          script {
-            set_int(audio_state, 0);
             set_int(video_state, 1);
+            set_int(audio_state, 0);
             set_int(settings_state, 0);
             set_int(exit_window_state, 0);
 
             set_state(PART:"app_window", "show_video", 0.0);
-            set_state(PART:"audio_bt", "default", 0.0);
             set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
+
+            set_state(PART:"audio_bt", "default", 0.0);
             set_state(PART:"settings_bt", "default", 0.0);
+            set_state(PART:"exit_background"  , "default", 0.0);
             set_state(PART:"confirm_exit_window", "default", 0.0);
             set_state(PART:"yes_bt", "default", 0.0);
             set_state(PART:"no_bt", "default", 0.0);
@@ -558,8 +493,10 @@ collections {
          signal: "mouse,clicked,*";
          source: "video_bt";
          action: SIGNAL_EMIT "main.selected.video" "video_bt";
-      }/******** end video_bt ********/
-      /******** settings_bt ********/
+      }
+/******** end video_bt ********/
+
+/******** settings_bt ********/
       program {
          name: "settings_selected";
          signal: "mouse,in";
@@ -580,6 +517,7 @@ collections {
             set_state(PART:"audio_bt", "default", 0.0);
             set_state(PART:"video_bt", "default", 0.0);
             set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
+            set_state(PART:"exit_background"  , "default", 0.0);
             set_state(PART:"confirm_exit_window", "default", 0.0);
             set_state(PART:"yes_bt", "default", 0.0);
             set_state(PART:"no_bt", "default", 0.0);
@@ -590,7 +528,9 @@ collections {
          signal: "mouse,clicked,*";
          source: "settings_bt";
          action: SIGNAL_EMIT "main.selected.settings" "settings_bt";
-      }/******** end settings_bt ********/
+      }
+/******** end settings_bt ********/
+
       program {
          name: "exit_bt_mouse_in";
          signal: "mouse,in";
@@ -618,21 +558,18 @@ collections {
             target: "exit_background";
             transition: LINEAR 0.2;
          }
-      program { // this program just works if the confirm exit window is visible
+      program {
          name: "yes_bt_clicked";
          signal: "mouse,clicked,*";
          source: "yes_bt";
          action: SIGNAL_EMIT "main.selected.exit" "";
       }
-      program { // this program just works if the confirm exit window is visible
+      program {
          name: "no_bt_clicked";
          signal: "mouse,clicked,*";
          source: "no_bt";
          script{
-            set_state(PART:"exit_background"  , "default", 0.0);
-            set_state(PART:"confirm_exit_window", "default", 0.0);
-            set_state(PART:"yes_bt", "default", 0.0);
-            set_state(PART:"no_bt", "default", 0.0);
+            set_int(exit_window_state, 0);
 
             if (get_int(audio_state) == 1)
              {
@@ -645,9 +582,11 @@ collections {
             else if (get_int(settings_state) == 1)
              {
               emit("main.show.settings", "");
-            }            
+            }
          }
-      }/******** end exit_bt ********/
+      }
+/******** end exit_bt ********/
+
    } /* end programs */
  } /*end group "main" */
 } /* end collections */ 
