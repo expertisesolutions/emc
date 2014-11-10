@@ -218,53 +218,48 @@ collections {
         }
        }
        part{
-        name: "play_pause_button";
+        name: "playpause_bt";
         type: IMAGE;
         mouse_events: 1;
         description {
           state: "default" 0.0;
-          //color: 100 255 150 255;
           rel1 {
-                relative: 0.07 0.2 ; 
+                relative: 0.07 0.2 ;
                 to: "down_part";
                 offset: 5 0;
           }
           rel2 {
-                relative: 0.12 0.75; 
+                relative: 0.12 0.75;
                 to: "down_part";
           }
           image {
-            normal: "play_icon.png";//"play_pause_icon.png";
+            normal: "play_icon.png";
           }
         }
         description {
-          state: "play_pause_button_focused" 0.0;
+          state: "play_focused" 0.0;
           inherit: "default" 0.0;
           image.normal: "play_focused_icon.png";
-          //color: 255 255 0 220;
         }
         description {
-          state: "play_pause_button_pause" 0.0;
+          state: "pause_unfocused" 0.0;
           inherit: "default" 0.0;
-          //color: 100 255 150 255;
           image.normal: "pause_icon.png";
           rel1 {
                 relative: 0.07 0.25 ; 
                 to: "down_part";
-                //offset: 12 0;
           }
           rel2 {
                 relative: 0.117 0.75; 
                 to: "down_part";
-                //offset: -12 0;
           }
         }
         description {
-          state: "play_pause_button_pause_focused" 0.0;
-          inherit: "play_pause_button_pause" 0.0;
-          //color: 255 255 0 220;
+          state: "pause_focused" 0.0;
+          inherit: "pause_unfocused" 0.0;
           image.normal: "pause_icon_focused.png";
         }
+       }
        part{
         name: "next_button";
         type: IMAGE;
@@ -657,23 +652,37 @@ collections {
          transition: LINEAR 0.1;
       }
       program {
-         name: "play_pause_focused";
+         name: "prev_mouse_clicked";
+         signal: "mouse,clicked,1";
+         source: "prev_button";
+         action: SIGNAL_EMIT "audiolist.playlist.prev" "prev_button";
+      }
+
+      program {
+         name: "playpause_focused";
          signal: "mouse,in";
-         source: "play_pause_button";
+         source: "playpause_bt";
          script {
-          if (get_int(play_button_state) == 0){
-             emit("play.mouse.in", "");
-             send_message(MSG_STRING, 0, "return to play");
-          }
-          else if(get_int(play_button_state) == 1){
-             emit("pause.mouse.in", "");
-             send_message(MSG_STRING, 0, "return to pause");
+           if (get_int(play_button_state) == 0) {
+             set_state(PART:"playpause_bt", "play_focused", 0.0);
+           } else {
+             set_state(PART:"playpause_bt", "pause_focused", 0.0);
            }
          }
-         //action: STATE_SET "play_pause_button_focused" 0.0;
-         //target: "play_pause_button";
-         //transition: LINEAR 0.1;
       }
+      program {
+         name: "playpause_unfocused";
+         signal: "mouse,out";
+         source: "playpause_bt";
+         script {
+           if (get_int(play_button_state) == 0) {
+             set_state(PART:"playpause_bt", "default", 0.0);
+           } else {
+             set_state(PART:"playpause_bt", "pause_unfocused", 0.0);
+           }
+         }
+      }
+/*
       program {
         name: "play_mouse_in";
         signal: "play.mouse.in";
@@ -689,24 +698,6 @@ collections {
         transition: SINUSOIDAL 0.1;
       }
       program {
-         name: "play_pause_mouse_out";
-         signal: "mouse,out";
-         source: "play_pause_button";
-         script {
-          if (get_int(play_button_state) == 0){
-             emit("play.mouse.out", "");
-             send_message(MSG_STRING, 0, "return to play");
-          }
-          else if(get_int(play_button_state) == 1){
-             emit("pause.mouse.out", "");
-             send_message(MSG_STRING, 0, "return to pause");
-           }
-         }
-         //action: STATE_SET "default" 0.0;
-         //target: "play_pause_button";
-         //transition: LINEAR 0.1;
-      }
-      program {
         name: "play_mouse_out";
         signal: "play.mouse.out";
         action: STATE_SET "default" 0.0;
@@ -720,39 +711,30 @@ collections {
         target: "play_pause_button";
         transition: SINUSOIDAL 0.1;
       }
+*/
       program {
          name: "play_pause_mouse_clicked";
-         signal: "mouse,clicked,*";
-         source: "play_pause_button";
-         action: STATE_SET "play_pause_button_pause" 0.0;
-         target: "play_pause_button";
-         //transition: SINUSOIDAL 0.2;
-         script{
-          if (get_int(play_button_state) == 0){
-             set_int(play_button_state, 1);
-             emit("pause.on", "");
-             send_message(MSG_STRING, 0, "pause.on");
-          }
-          else if(get_int(play_button_state) == 1){
-             set_int(play_button_state, 0);
-             emit("play.on", "");
-             send_message(MSG_STRING, 0, "play.on");
-           }
-         }
+         signal: "mouse,clicked,1";
+         source: "playpause_bt";
+         action: SIGNAL_EMIT "audiolist.playlist.playpause" "playpause_bt";
       }
       program {
-        name: "play_on";
-        signal: "play.on";
-        action: STATE_SET "play_pause_button_focused" 0.0;
-        target: "play_pause_button";
-        transition: SINUSOIDAL 0.2;
+        name: "playlist_playing";
+        signal: "audiolist.playlist.playing";
+        source: "*";
+        script {
+          set_state(PART:"playpause_bt", "pause_unfocused", 0.0);
+          set_int(play_button_state, 1);
+        }
       }
       program {
-        name: "pause.on";
-        signal: "pause.on";
-        action: STATE_SET "play_pause_button_pause_focused" 0.0;
-        target: "play_pause_button";
-        transition: SINUSOIDAL 0.1;
+        name: "playlistpaused";
+        signal: "audiolist.playlist.paused";
+        source: "*";
+        script {
+          set_state(PART:"playpause_bt", "default", 0.0);
+          set_int(play_button_state, 0);
+        }
       }
       program {
          name: "next_focused";
@@ -769,6 +751,12 @@ collections {
          action: STATE_SET "default" 0.0;
          target: "next_button";
          transition: LINEAR 0.1;
+      }
+      program {
+         name: "next_mouse_clicked";
+         signal: "mouse,clicked,1";
+         source: "next_button";
+         action: SIGNAL_EMIT "audiolist.playlist.next" "next_button";
       }
       program {
          name: "repeat_focused";
@@ -993,6 +981,5 @@ collections {
       }
     } /* end programs */
    } 
-  } 
  }/*end group "audiolist" */
 }/* end collections */ 

@@ -97,6 +97,45 @@ audiolist::audiolist(const ::elm_layout &_layout, const std::string &_theme, set
           }
        ));
 
+    layout.signal_callback_add("audiolist.playlist.playpause", "*",
+       std::bind([this]
+          {
+            std::cout << "playpause selected cb" << std::endl;
+            if (player.is_playing_get()) {
+              player.pause();
+              layout.signal_emit("audiolist.playlist.paused", "");
+            } else if (player.play_position_get() > 0) {
+              player.play();
+              layout.signal_emit("audiolist.playlist.playing", "");
+            } else
+              list_activated_cb();
+          }
+       ));
+
+    layout.signal_callback_add("audiolist.playlist.next", "*",
+       std::bind([this]
+          {
+            std::cout << "next selected cb" << std::endl;
+            Elm_Object_Item* i = list.selected_item_get();
+            if (!i) return;
+            Elm_Object_Item* next = elm_genlist_item_next_get(i);
+            if (!next) return;
+            elm_genlist_item_selected_set(next, EINA_TRUE);
+          }
+       ));
+
+    layout.signal_callback_add("audiolist.playlist.prev", "*",
+       std::bind([this]
+          {
+            std::cout << "prev selected cb" << std::endl;
+            Elm_Object_Item* i = list.selected_item_get();
+            if (!i) return;
+            Elm_Object_Item* prev = elm_genlist_item_prev_get(i);
+            if (!prev) return;
+            elm_genlist_item_selected_set(prev, EINA_TRUE);
+          }
+       ));
+
     evas::object emotion = player.emotion_get();
     evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", playback_finished_cb, this); //FIXME
     evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", frame_decode_cb, this); //FIXME
@@ -110,8 +149,6 @@ audiolist::player_playback_finished_cb()
     Elm_Object_Item* i = list.selected_item_get();
     if (!i) return;
 
-    if (player.is_playing_get())
-            std::cout << "PORRA" << std::endl;
     Elm_Object_Item* next = elm_genlist_item_next_get(i);
     if (!next) return;
 
@@ -163,6 +200,7 @@ audiolist::list_activated_cb()
          std::cout << std::this_thread::get_id() << std::endl;
          player.file_set(path, "");
          player.play();
+         layout.signal_emit("audiolist.playlist.playing", "");
        }
        free(path);
     }
@@ -189,6 +227,12 @@ audiolist::active()
 
    layout.content_set(groupname+"/list", list);
    list.show();
+
+   if (player.is_playing_get()) {
+     layout.signal_emit("audiolist.playlist.playing", "");
+     std::cout << "playing" << std::endl;
+   }
+
    eo_unref(list._eo_ptr()); //XXX
    eo_unref(list._eo_ptr()); //XXX
 
