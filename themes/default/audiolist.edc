@@ -314,24 +314,22 @@ collections {
           }
         }
        }
-       part{
-        name: "music_temp_swallow";
-        type: RECT;
-        mouse_events: 1;
-        description {
-          state: "default" 0.0;
-          color: 100 255 150 150;
-          rel1 {
-                relative: 1.1 0.1 ; 
-                to_y: "down_part";
-                to_x: "music_temp_restante";
-                offset: 5 0;
-          }
-          rel2 {
-                relative: 0.82 0.9;
-                to: "down_part";
-          }
-        }
+       part {
+         name: "audiolist/progressbar";
+         type: SWALLOW;
+         description {
+           state: "default" 0.0;
+           rel1 {
+             relative: 1.1 0.1 ; 
+             to_y: "down_part";
+             to_x: "music_temp_restante";
+             offset: 5 0;
+           }
+           rel2 {
+             relative: 0.82 0.9;
+             to: "down_part";
+           }
+         }
        }
        part{
         name: "music_temp_total";
@@ -344,7 +342,7 @@ collections {
           rel1 {
                 relative: 1.0 0.25 ; 
                 to_y: "down_part";
-                to_x: "music_temp_swallow";
+                to_x: "audiolist/progressbar";
                 offset: 10 0;
           }
           rel2 {
@@ -358,7 +356,7 @@ collections {
             min: 1 1;
             ellipsis: -1;
           }
-        }        
+        }
        }
        part{
         name: "repeat_button";
@@ -833,12 +831,10 @@ collections {
           if (get_int(repeat_state) == 0){
              set_state(PART:"repeat_button", "default", 0.0);
              send_message(MSG_STRING, 0, "repeat_off");
-          }
-          else if (get_int(repeat_state) == 1){
+          } else if (get_int(repeat_state) == 1){
              set_state(PART:"repeat_button", "repeat_all", 0.0);
              send_message(MSG_STRING, 0, "repeat_all");
-          }
-          else if (get_int(repeat_state) == 2){
+          } else if (get_int(repeat_state) == 2){
              set_state(PART:"repeat_button", "repeat_one", 0.0);
              send_message(MSG_STRING, 0, "repeat_one");
           }
@@ -853,19 +849,17 @@ collections {
              set_int(repeat_state, 1);
              set_state(PART:"repeat_button", "repeat_all", 0.0);
              send_message(MSG_STRING, 0, "repeat_all");
-          }
-          else if (get_int(repeat_state) == 1){
+          } else if (get_int(repeat_state) == 1){
              set_int(repeat_state, 2);
              set_state(PART:"repeat_button", "repeat_one", 0.0);
              send_message(MSG_STRING, 0, "repeat_one");
-          }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-          else if (get_int(repeat_state) == 2){
+          } else if (get_int(repeat_state) == 2){
              set_int(repeat_state, 0);
              set_state(PART:"repeat_button", "default", 0.0);
              send_message(MSG_STRING, 0, "repeat_off");
           }
         }
-      }   
+      }
       program {
          name: "shuffle_focused";
          signal: "mouse,in";
@@ -979,6 +973,9 @@ collections {
          source: "backbt";
          action: SIGNAL_EMIT "audiolist.selected.back" "backbt";
       }
+
+      BACK_PROG_ADD(audiolist);
+
     } /* end programs */
    } 
  }/*end group "audiolist" */

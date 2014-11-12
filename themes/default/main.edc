@@ -562,7 +562,7 @@ collections {
          name: "yes_bt_clicked";
          signal: "mouse,clicked,*";
          source: "yes_bt";
-         action: SIGNAL_EMIT "main.selected.exit" "";
+         action: SIGNAL_EMIT "main.selected.back" "";
       }
       program {
          name: "no_bt_clicked";

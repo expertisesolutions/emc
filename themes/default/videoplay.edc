@@ -1,0 +1,119 @@
+
+collections {
+  group {
+    name: "videoplayer";
+    images {
+      image: "background_video.jpg" RAW;
+    }
+    parts {
+      part {
+        name: "bg";
+        type: RECT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 0 0 0 255;
+          rel1 {
+            relative: 0.0 0.0;
+            offset: 0 0;
+          }
+          rel2 {
+            relative: 1.0 1.0;
+            offset: -1 -1;
+          }
+        }
+      }
+      part {
+        name: "videoplay/video";
+        type: SWALLOW;
+        description {
+          state: "default" 0.0;
+          rel1 {
+            relative: 0.0 0.0;
+            offset: 0 0;
+          }
+          rel2 {
+            relative: 1.0 1.0;
+            offset: -1 -1;
+          }
+        }
+      }
+      part {
+        name: "playback_bar";
+        type: RECT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 0 0 0 100;
+          rel1 {
+            relative: 0.0 1.0 ;
+            offset: 5 -66;
+          }
+          rel2 {
+            relative: 1.0 1.0;
+            offset: -5 -6;
+          }
+        }
+        description {
+          state: "hide" 0.0;
+          inherit: "default" 0.0;
+          rel1.offset: 5 0;
+          rel2.offset: -5 65;
+        }
+      }
+      part {
+        name: "playpause_bt";
+        type: IMAGE;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          rel1 {
+            relative: 0.0 0.0;
+            to: "playback_bar";
+            offset: 5 5;
+          }
+          rel2 {
+            relative: 0.0 1.0;
+            to: "playback_bar";
+            offset: 55 -6;
+          }
+          image {
+            normal: "play_icon.png";
+          }
+        }
+        description {
+          state: "play_focused" 0.0;
+          inherit: "default" 0.0;
+          image.normal: "play_focused_icon.png";
+        }
+        description {
+          state: "pause_unfocused" 0.0;
+          inherit: "default" 0.0;
+          image.normal: "pause_icon.png";
+        }
+        description {
+          state: "pause_focused" 0.0;
+          inherit: "default" 0.0;
+          image.normal: "pause_icon_focused.png";
+        }
+      }
+      part {
+        name: "videoplay/progressbar";
+        type: SWALLOW;
+        description {
+          state: "default" 0.0;
+          rel1 {
+            relative: 0.0 0.0;
+            to: "playback_bar";
+            offset: 65 5;
+          }
+          rel2 {
+            relative: 1.0 1.0;
+            to: "playback_bar";
+            offset: -1 -6;
+          }
+        }
+      }
+    }
+  }
+}

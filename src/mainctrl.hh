@@ -15,17 +15,14 @@ namespace emc {
 class mainctrl
  : public basectrl
 {
-   ::elm_win win;
-   settingsmodel set_model;
    audiolist audio;
    videolist video;
-   settingsctrl settings;
-
-   void _on_key_down(std::string key);
+   settingsctrl settctrl;
 
    public:
-     mainctrl(const ::elm_win &win, ::elm_layout &layout, const std::string &theme);
+     mainctrl(settingsmodel &settings);
      ~mainctrl() {}
+     void on_key_down(std::string key);
 };
 
 } //emc

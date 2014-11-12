@@ -16,13 +16,10 @@
 
 #include "mainctrl.hh"
 
-#define WIDTH 1280
-#define HEIGHT 720
-
 namespace emc {
 
 void
-mainctrl::_on_key_down(std::string key)
+mainctrl::on_key_down(std::string key)
 {
    std::cout << "Main Ctrl Key down "<< key << std::endl;
    if (key == "Return")
@@ -31,36 +28,22 @@ mainctrl::_on_key_down(std::string key)
      layout.signal_emit("main.show.next", "");
    else if (key == "Left")
      layout.signal_emit("main.show.prev", "");
-   else if (key == "Escape")
-     layout.signal_emit("main.select.back", "");
+   else
+     basectrl::on_key_down(key);
 }
 
 //Constructor
-mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout &_layout, const std::string &_theme)
-   : basectrl(_layout, _theme, "main"),
-     set_model(),
-     settings(_layout, _theme, set_model),
-     audio(_layout, _theme, set_model),
-     video(_layout, _theme, set_model),
-     win(_win)
+mainctrl::mainctrl(settingsmodel &_settings)
+   : basectrl(_settings, "main", []{elm_exit();}),
+     settctrl(settings, [this]{active();}),
+     audio(settings, [this]{active();}),
+     video(settings, [this]{active();})
 {
-   layout.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   win.resize_object_add(layout);
-   win.size_set(WIDTH, HEIGHT);
-   win.visibility_set(true);
-   layout.visibility_set(true);
-   win.callback_key_down_add(std::bind([this](void *einfo){_on_key_down(static_cast<Evas_Event_Key_Down *>(einfo)->key);}, std::placeholders::_3));
-   audio.deactive_cb_set([this]{active();});
-   video.deactive_cb_set([this]{active();});
-   settings.deactive_cb_set([this]{active();});
-
-   deactive_cb_set([]{elm_exit();});
-
    //add signal callbacks
    layout.signal_callback_add("main.selected.audio", "*",
       std::bind([this]
         {
-          audio.active();
+          push(audio);
           std::cout << "audio selected cb" << std::endl;
         }
       ));
@@ -68,7 +51,7 @@ mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout &_layout, const std::stri
    layout.signal_callback_add("main.selected.video", "*",
       std::bind([this]
         {
-          video.active();
+          push(video);
           std::cout << "video selected cb" << std::endl;
         }
       ));
@@ -76,19 +59,10 @@ mainctrl::mainctrl(const ::elm_win &_win, ::elm_layout &_layout, const std::stri
    layout.signal_callback_add("main.selected.settings", "*",
       std::bind([this]
         {
-          settings.active();
+          push(settctrl);
           std::cout << "settings selected cb" << std::endl;
         }
       ));
-
-   layout.signal_callback_add("main.selected.exit", "*",
-      std::bind([this]
-        {
-          deactive();
-        }
-      ));
-
-   std::cout << "Theme file: " << _theme << std::endl;
 }
 
 } //emc

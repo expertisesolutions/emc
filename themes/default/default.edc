@@ -87,7 +87,17 @@
        } \
 
 
+#define BACK_PROG_ADD(_G) \
+      program { \
+        name: _G"_select_back"; \
+        signal: _G".select.back"; \
+        source: "*"; \
+        action: SIGNAL_EMIT _G".selected.back" ""; \
+      } \
+
+
 #include "main.edc"
 #include "audiolist.edc"
 #include "videolist.edc"
+#include "videoplayer.edc"
 #include "settings.edc"

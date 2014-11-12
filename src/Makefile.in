@@ -5,8 +5,8 @@ basectrl.cc \
 audiolistmodel.cc \
 audiolist.cc \
 videolist.cc \
+videoplayer.cc \
 settingsctrl.cc \
-emc_avplayer.cc \
 mainctrl.cc \
 settingsmodel.cc \
 emc.cc

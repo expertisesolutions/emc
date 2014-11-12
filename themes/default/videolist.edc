@@ -196,6 +196,9 @@ collections {
          source: "backbt";
          action: SIGNAL_EMIT "videolist.selected.back" "backbt";
       }
+
+      BACK_PROG_ADD(videolist);
+
     } /* end programs */
   } /*end group "videolist" */
 } /* end collections */ 

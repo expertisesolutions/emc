@@ -117,6 +117,9 @@ collections {
          source: "backbt";
          action: SIGNAL_EMIT "settings.selected.back" "backbt";
       }
+
+      BACK_PROG_ADD(settings);
+
     } /* end programs */
   } /*end group "settings" */
 } /* end collections */ 

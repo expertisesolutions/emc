@@ -4,26 +4,27 @@
 #include <iostream>
 
 #include <elm_layout.eo.hh>
-#include <elm_win.eo.hh>
+#include "settingsmodel.hh"
 
 namespace emc {
 
 class basectrl
 {
-   std::string theme;
    std::function<void()> deactive_cb;
+   ::efl::eo::signal_connection key_con;
 
    protected:
      std::string groupname;
+     settingsmodel settings;
      ::elm_layout layout;
 
    public:
-     basectrl(const ::elm_layout &layout, const std::string &theme, const std::string &groupname);
+     basectrl(const settingsmodel &settings, const std::string &groupname, const std::function<void()> &deactive_cb);
      ~basectrl() {};
      virtual void active();
      virtual void deactive();
-     bool theme_set(const std::string &theme);
-     bool deactive_cb_set(std::function<void()> deactive_cb);
+     virtual void on_key_down(std::string key);
+     void push(basectrl &ctrl);
 };
 
 } //emc

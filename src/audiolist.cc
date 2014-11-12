@@ -65,9 +65,8 @@ activated_cb(void *data, Evas_Object *obj, void *event_info)
 
 }
 
-audiolist::audiolist(const ::elm_layout &_layout, const std::string &_theme, settingsmodel &_settings)
-   : basectrl(_layout, _theme, "audiolist"),
-        settings(_settings),
+audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
+   : basectrl(_settings, "audiolist", _cb),
         list(efl::eo::parent = layout),
         player(efl::eo::parent = layout),
         view(nullptr),
@@ -197,7 +196,6 @@ audiolist::list_activated_cb()
        row_selected.property_get("file", &v);
        char *path = eina_value_to_string(&v);
        if (path) {
-         std::cout << std::this_thread::get_id() << std::endl;
          player.file_set(path, "");
          player.play();
          layout.signal_emit("audiolist.playlist.playing", "");
@@ -217,7 +215,6 @@ audiolist::active()
    basectrl::active();
 
    list.visibility_set(true);
-   elm_theme_overlay_add(NULL, "../themes/default/theme_overlay.edj");
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
 
    view.callback_model_selected_add(std::bind([this](void *eo)

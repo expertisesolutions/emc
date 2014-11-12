@@ -16,12 +16,12 @@
 
 namespace emc {
 
-//Constructor
-basectrl::basectrl(const ::elm_layout &_layout, const std::string &_theme, const std::string &_groupname) :
+basectrl::basectrl(const settingsmodel &_settings, const std::string &_groupname, const std::function<void()> &_cb) :
         groupname(_groupname),
-        layout(_layout),
-        theme(_theme),
-        deactive_cb()
+        settings(_settings),
+        deactive_cb(_cb),
+        layout(settings.layout),
+        key_con(nullptr)
 {
    layout.signal_callback_add(groupname+".selected.back", "*",
       std::bind([this]
@@ -34,26 +34,33 @@ basectrl::basectrl(const ::elm_layout &_layout, const std::string &_theme, const
 void
 basectrl::active()
 {
-   layout.file_set(theme, groupname);
+   key_con = settings.win.callback_key_down_add(std::bind([this](void *einfo)
+         {
+           on_key_down(static_cast<Evas_Event_Key_Down *>(einfo)->key);
+         }, std::placeholders::_3));
+
+   settings.group_set(groupname);
 }
 
 void
 basectrl::deactive()
 {
+   key_con.disconnect();
    deactive_cb();
 }
 
-bool
-basectrl::theme_set(const std::string &_theme)
+void
+basectrl::on_key_down(std::string key)
 {
-   theme = _theme;
-   return layout.file_set(theme, groupname);
+   if (key == "Escape")
+     layout.signal_emit(groupname+".select.back", "");
 }
 
-bool
-basectrl::deactive_cb_set(std::function<void()> _deactive_cb)
+void
+basectrl::push(basectrl &ctrl)
 {
-   deactive_cb = _deactive_cb;
+   key_con.disconnect();
+   ctrl.active();
 }
 
 } //emc

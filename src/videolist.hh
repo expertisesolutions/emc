@@ -6,6 +6,7 @@
 
 #include "basectrl.hh"
 #include "settingsmodel.hh"
+#include "videoplayer.hh"
 
 #include "elm_interface_scrollable.h"
 #include "elm_genlist.eo.hh"
@@ -25,14 +26,16 @@ class videolist
    ::elm_view_list view;
    ::elm_genlist list;
    eio::model selected;
-   settingsmodel settings;
+   videoplayer vp;
 
    //::EModel model;
    public:
-     videolist(const ::elm_layout &layout, const std::string &theme, settingsmodel &settings);
+     videolist(settingsmodel &settings, const std::function<void()> &deactive_cb);
      ~videolist() {}
      void active();
      void deactive();
+     void push_back();
+     void list_activated_cb();
 };
 
 } //emc

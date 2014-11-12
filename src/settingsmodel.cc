@@ -3,17 +3,39 @@
  *    Audio/Video Player
  */
 
+#include <Elementary.h>
+#include <elm_widget.h>
+#include "elm_interface_atspi_accessible.h"
+#include "elm_interface_atspi_accessible.eo.h"
+#include "elm_interface_atspi_widget_action.h"
+#include "elm_interface_atspi_widget_action.eo.h"
+#include <elm_layout.eo.hh>
+
+
 #include "settingsmodel.hh"
 
 #define VIDEODIR "/Videos"
 #define AUDIODIR "/Music"
 #define PICTUREDIR "/Pictures"
 
+#define THEME_PATH "../themes/default"
+
+#define WIDTH 1280
+#define HEIGHT 720
+
 namespace emc {
 
-settingsmodel::settingsmodel()
+settingsmodel::settingsmodel(const ::elm_win &_win, const ::elm_layout &_layout)
+   : win(_win),
+     layout(_layout),
+     theme_dir(THEME_PATH)
 {
-   std::cout << "IN" << std::endl;
+   layout.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   win.resize_object_add(layout);
+   win.size_set(WIDTH, HEIGHT);
+   win.visibility_set(true);
+   layout.visibility_set(true);
+
    std::string homepath(".");
    char *tmp = getenv("HOME");
    std::cout << tmp << std::endl;
@@ -22,21 +44,26 @@ settingsmodel::settingsmodel()
 
    video_dir = std::string(homepath + VIDEODIR);
    audio_dir = std::string(homepath + AUDIODIR);
-   std::cout << "OUT" << std::endl;
+
+   elm_theme_overlay_add(NULL, THEME_PATH"/theme_overlay.edj");
 }
 
 std::string
 settingsmodel::video_rootpath_get()
 {
-   std::cout << __FUNCTION__ << std::endl;
    return video_dir;
 }
 
 std::string
 settingsmodel::audio_rootpath_get()
 {
-   std::cout << __FUNCTION__ << std::endl;
    return audio_dir;
+}
+
+void
+settingsmodel::group_set(const std::string groupname)
+{
+   layout.file_set(theme_dir + "/default.edj", groupname);
 }
 
 } //emc

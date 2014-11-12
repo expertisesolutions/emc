@@ -16,14 +16,8 @@
 
 namespace emc {
 
-void
-settingsctrl::_on_key_down(std::string key)
-{
-}
-
-settingsctrl::settingsctrl(const ::elm_layout &_layout, const std::string &_theme, settingsmodel &_settings)
-   : basectrl(_layout, _theme, "settings"),
-        settings(_settings)
+settingsctrl::settingsctrl(const settingsmodel &_settings, const std::function<void()> &_cb)
+   : basectrl(_settings, "settings", _cb)
 {
 }
 

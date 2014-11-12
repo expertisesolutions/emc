@@ -5,7 +5,6 @@
 #include <Elementary.h>
 
 #include "basectrl.hh"
-#include "settingsmodel.hh"
 #include "audiolistmodel.hh"
 
 #include "elm_interface_scrollable.h"
@@ -27,13 +26,12 @@ class audiolist
    ::elm_video player;
    esql::model_row row_selected;
    audiolistmodel model;
-   settingsmodel settings;
    void artists_show(esql::model_table& model);
    void albums_show(esql::model_table& model);
    void playlists_show(esql::model_table& model);
 
    public:
-     audiolist(const ::elm_layout &layout, const std::string &theme, settingsmodel &settings);
+     audiolist(settingsmodel &settings, const std::function<void()> &deactive_cb);
      ~audiolist() {}
      void active();
      void deactive();
