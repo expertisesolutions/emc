@@ -68,7 +68,8 @@ activated_cb(void *data, Evas_Object *obj, void *event_info)
 audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
    : basectrl(_settings, "audiolist", _cb),
         list(efl::eo::parent = layout),
-        player(efl::eo::parent = layout),
+        progslider(efl::eo::parent = layout),
+        player(settings.player),
         view(nullptr),
         row_selected(nullptr),
         model()
@@ -137,9 +138,6 @@ audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
 
     evas::object emotion = player.emotion_get();
     evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", playback_finished_cb, this); //FIXME
-    evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", frame_decode_cb, this); //FIXME
-
-    evas_object_smart_callback_add(list._eo_ptr(), "activated", activated_cb, this); //FIXME
 }
 
 void
@@ -177,6 +175,9 @@ audiolist::player_fame_decode_cb()
 
     layout.text_set("music_temp_restante", label_pos.str());
     layout.text_set("music_temp_total", label_total.str());
+
+    progslider.min_max_set(0, len);
+    progslider.value_set(pos);
 }
 
 void
@@ -215,6 +216,7 @@ audiolist::active()
    basectrl::active();
 
    list.visibility_set(true);
+   progslider.visibility_set(true);
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
 
    view.callback_model_selected_add(std::bind([this](void *eo)
@@ -223,7 +225,13 @@ audiolist::active()
       }, std::placeholders::_3));
 
    layout.content_set(groupname+"/list", list);
+   layout.content_set(groupname+"/progressbar", progslider);
    list.show();
+   progslider.show();
+
+   evas::object emotion = player.emotion_get();
+   evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", frame_decode_cb, this); //FIXME
+   evas_object_smart_callback_add(list._eo_ptr(), "activated", activated_cb, this); //FIXME
 
    if (player.is_playing_get()) {
      layout.signal_emit("audiolist.playlist.playing", "");
@@ -231,7 +239,7 @@ audiolist::active()
    }
 
    eo_unref(list._eo_ptr()); //XXX
-   eo_unref(list._eo_ptr()); //XXX
+   eo_unref(progslider._eo_ptr()); //XXX
 
    view.model_set(model.artists_get());
    view.property_connect("name", "elm.text");
@@ -241,10 +249,17 @@ audiolist::active()
 void
 audiolist::deactive()
 {
+
+   evas::object emotion = player.emotion_get();
+   evas_object_smart_callback_del(emotion._eo_ptr(), "frame_decode", frame_decode_cb); //FIXME
+   evas_object_smart_callback_del(list._eo_ptr(), "activated", activated_cb); //FIXME
+
    layout.content_unset(groupname+"/list");
+   layout.content_unset(groupname+"/progressbar");
    view._reset();
    basectrl::deactive();
    list.hide();
+   progslider.hide();
 }
 
 void

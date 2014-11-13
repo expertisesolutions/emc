@@ -6,6 +6,7 @@
 #include "Emodel.hh"
 #include <elm_layout.eo.hh>
 #include <elm_win.eo.hh>
+#include <elm_video.eo.hh>
 
 namespace emc {
 
@@ -21,9 +22,11 @@ class settingsmodel
      ~settingsmodel() {}
      std::string video_rootpath_get();
      std::string audio_rootpath_get();
+//     ::elm_video player_get();
      void group_set(const std::string groupname);
      ::elm_win win;
      ::elm_layout layout;
+     ::elm_video player;
 };
 
 } //emc

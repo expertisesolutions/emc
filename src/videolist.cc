@@ -53,18 +53,17 @@ videolist::list_activated_cb()
    if (selected._eo_ptr() == NULL)
       return;
 
-      layout.content_unset(groupname+"/list");
+   layout.content_unset(groupname+"/list");
    list.hide();
    push(vp);
    vp.play(selected);
-   view._reset();
 }
 
 void
 videolist::push_back()
 {
-   std::cout << "OOOOOOOOOOOOOOOOOOOOOOOO" << std::endl;
    basectrl::active();
+   layout.content_set(groupname+"/list", list);
    list.show();
 }
 
@@ -107,6 +106,8 @@ videolist::active()
    evas_object_smart_callback_add(list._eo_ptr(), "activated", _video_list_activated_cb, this); //FIXME
    layout.content_set(groupname+"/list", list);
    list.show();
+
+   eo_unref(list._eo_ptr()); //XXX
 }
 
 void
@@ -114,6 +115,7 @@ videolist::deactive()
 {
    std::cout << "Video List deactive" << std::endl;
    efreet_mime_shutdown();
+   evas_object_smart_callback_del(list._eo_ptr(), "activated", _video_list_activated_cb); //FIXME
    layout.content_unset(groupname+"/list");
    selected = eio::model(nullptr);
    view._reset();

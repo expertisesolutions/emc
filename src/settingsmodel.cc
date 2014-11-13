@@ -28,6 +28,7 @@ namespace emc {
 settingsmodel::settingsmodel(const ::elm_win &_win, const ::elm_layout &_layout)
    : win(_win),
      layout(_layout),
+     player(efl::eo::parent = layout),
      theme_dir(THEME_PATH)
 {
    layout.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);

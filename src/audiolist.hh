@@ -24,6 +24,7 @@ class audiolist
    ::elm_genlist list;
    ::elm_view_list view;
    ::elm_video player;
+   ::elm_slider progslider;
    esql::model_row row_selected;
    audiolistmodel model;
    void artists_show(esql::model_table& model);
