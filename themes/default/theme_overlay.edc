@@ -91,15 +91,16 @@ collections {
          description { state: "selected" 0.0;
             inherit: "default" 0.0;
             visible: 1;
-            color: 200 200 200 55;//color of item when selected
+            color: 200 200 200 200;//color of item when selected
             rel1 {
                relative: 0.0 0.0;
                offset: -2 -2;
             }
             rel2 {
                relative: 1.0 1.0;
-               offset: 2 2;
+               offset: 2 -2;
             }
+            image.normal: "bt_sm_base2.png";
          }
       }
       part { name: "elm.swallow.pad";
@@ -226,7 +227,7 @@ collections {
          mouse_events: 0;
          description { state: "default" 0.0;
             visible: 0;
-            color: 255 255 255 0;
+            color: 0 0 0 10;
             rel1.to: "bg";
             rel2.relative: 1.0 0.5;
             rel2.to: "bg";
@@ -238,7 +239,7 @@ collections {
          description { state: "selected" 0.0;
             inherit: "default" 0.0;
             visible: 1;
-            color: 255 255 255 255;
+            color: 0 0 0 10;
          }
       }
       part { name: "fg2";
@@ -246,7 +247,7 @@ collections {
          mouse_events: 0;
          description { state: "default" 0.0;
             visible: 0;
-            color: 255 255 255 0;
+            color: 0 0 0 10;
             rel1.to: "bg";
             rel2.to: "bg";
             image {
@@ -257,7 +258,7 @@ collections {
          description { state: "selected" 0.0;
             inherit: "default" 0.0;
             visible: 1;
-            color: 255 255 255 255;
+            color: 0 0 0 10;
          }
       }
       part { name: "disclip";
@@ -268,7 +269,7 @@ collections {
          }
          description { state: "disabled" 0.0;
             inherit: "default" 0.0;
-            color: 255 255 255 64;
+            color: 0 0 0 10;
          }
       }
    }
@@ -328,6 +329,7 @@ group { name: "elm/genlist/item/default/default"; //used in audiolist
    //      data.item: "states" "";
    images {
       image: "bt_sm_base1.png" COMP;
+      image: "bt_sm_base2.png" COMP;
       image: "bt_sm_shine.png" COMP;
       image: "bt_sm_hilight.png" COMP;
       image: "ilist_1.png" COMP;
@@ -411,15 +413,16 @@ group { name: "elm/genlist/item/default/default"; //used in audiolist
          description { state: "selected" 0.0;
             inherit: "default" 0.0;
             visible: 1;
-            color: 200 200 200 55;//color of item when selected
+            color: 200 200 200 200;//color of item when selected
             rel1 {
                relative: 0.0 0.0;
                offset: -2 -2;
             }
             rel2 {
                relative: 1.0 1.0;
-               offset: 2 2;
+               offset: 2 -2;
             }
+            image.normal: "bt_sm_base2.png";
          }
       }
       /*part { name: "elm.swallow.pad";
@@ -547,7 +550,7 @@ group { name: "elm/genlist/item/default/default"; //used in audiolist
          mouse_events: 0;
          description { state: "default" 0.0;
             visible: 0;
-            color: 255 255 255 0;
+            color: 0 0 0 10;
             rel1.to: "bg";
             rel2.relative: 1.0 0.5;
             rel2.to: "bg";
@@ -559,7 +562,7 @@ group { name: "elm/genlist/item/default/default"; //used in audiolist
          description { state: "selected" 0.0;
             inherit: "default" 0.0;
             visible: 1;
-            color: 255 255 255 255;
+            color: 0 0 0 10;
          }
       }
       part { name: "fg2";
@@ -567,7 +570,7 @@ group { name: "elm/genlist/item/default/default"; //used in audiolist
          mouse_events: 0;
          description { state: "default" 0.0;
             visible: 0;
-            color: 255 255 255 0;
+            color: 0 0 0 10;
             rel1.to: "bg";
             rel2.to: "bg";
             image {
@@ -578,7 +581,7 @@ group { name: "elm/genlist/item/default/default"; //used in audiolist
          description { state: "selected" 0.0;
             inherit: "default" 0.0;
             visible: 1;
-            color: 255 255 255 255;
+            color: 0 0 0 10;
          }
       }
       part { name: "disclip";
@@ -589,7 +592,7 @@ group { name: "elm/genlist/item/default/default"; //used in audiolist
          }
          description { state: "disabled" 0.0;
             inherit: "default" 0.0;
-            color: 255 255 255 64;
+            color: 0 0 0 10;
          }
       }
    }

@@ -322,8 +322,6 @@ collections {
           set_int(settings_state, 0);
           set_int(exit_window_state, 0);
 
-          send_message(MSG_STRING, 0, "AUDIO_STATE IN");
-
           set_state(PART:"app_window", "show_audio", 0.0);
           set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
           set_state(PART:"video_bt", "default", 0.0);

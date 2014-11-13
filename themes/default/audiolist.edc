@@ -161,7 +161,7 @@ collections {
           color: 0 0 255 255;
         }
        }
-       part{
+        part{
         name: "down_part";
         type: RECT;
         mouse_events: 1;
@@ -169,15 +169,14 @@ collections {
           state: "default" 0.0;
           color: 0 0 0 100;
           rel1 {
-                relative: 0.0 0.9 ; 
-                to_x: "background_img";
-                offset: 5 5;
+                relative: 0.0 1.0;
+                offset: 5 -50;
+             }
+             rel2 {
+                relative: 1.0 1.0;
+                offset: -5 -6;
+             }
           }
-          rel2 {
-                relative: 1.0 1.0; to: "background_img";
-                offset: -5 -5;
-          }
-        }
         description {
           state: "down_part_clicked" 0.0;
           inherit: "default" 0.0;
@@ -199,12 +198,14 @@ collections {
           state: "default" 0.0;
           //color: 100 255 150 255;
           rel1 {
-                relative: 0.01 0.25 ; 
+                relative: 0.0 1.0 ; 
                 to: "down_part";
+                offset: 5 -40;
           }
           rel2 {
-                relative: 0.06 0.75; 
+                relative: 0.0 1.0; 
                 to: "down_part";
+                offset: 40 -5;
           }
           image {
             normal: "prev_icon.png";
@@ -224,13 +225,14 @@ collections {
         description {
           state: "default" 0.0;
           rel1 {
-                relative: 0.07 0.2 ;
+                relative: 0.0 1.0 ; 
                 to: "down_part";
-                offset: 5 0;
+                offset: 45 -40;
           }
           rel2 {
-                relative: 0.12 0.75;
+                relative: 0.0 1.0; 
                 to: "down_part";
+                offset: 80 -5;
           }
           image {
             normal: "play_icon.png";
@@ -245,14 +247,6 @@ collections {
           state: "pause_unfocused" 0.0;
           inherit: "default" 0.0;
           image.normal: "pause_icon.png";
-          rel1 {
-                relative: 0.07 0.25 ; 
-                to: "down_part";
-          }
-          rel2 {
-                relative: 0.117 0.75; 
-                to: "down_part";
-          }
         }
         description {
           state: "pause_focused" 0.0;
@@ -268,12 +262,14 @@ collections {
           state: "default" 0.0;
           //color: 100 255 150 255;
           rel1 {
-                relative: 0.13 0.25 ; 
+                relative: 0.0 1.0 ; 
                 to: "down_part";
+                offset: 85 -40;
           }
           rel2 {
-                relative: 0.18 0.75;  
+                relative: 0.0 1.0; 
                 to: "down_part";
+                offset: 125 -5;
           }
           image {
             normal: "next_icon.png";
@@ -295,14 +291,14 @@ collections {
           color: 255 255 255 255;
           fixed: 1 1;
           rel1 {
-                relative: 0.2 0.25 ; 
-                to_y: "down_part";
-                to_x: "next_button";
-                offset: 10 0;
+                relative: 0.0 1.0 ; 
+                to: "down_part";
+                offset: 130 -40;
           }
           rel2 {
-                relative: 0.3 0.75; 
+                relative: 0.0 1.0; 
                 to: "down_part";
+                offset: 170 -5;
           }
           text {
             text: "--:--";
@@ -319,15 +315,19 @@ collections {
          type: SWALLOW;
          description {
            state: "default" 0.0;
+           min: 63 0;
            rel1 {
-             relative: 1.1 0.1 ; 
+             relative: 1.0 0.0 ; 
              to_y: "down_part";
              to_x: "music_temp_restante";
-             offset: 5 0;
+             offset: 10 5;
            }
            rel2 {
-             relative: 0.82 0.9;
-             to: "down_part";
+             relative: 0.0 1.0;
+             to_x: "music_temp_total";
+             to_y: "down_part";
+             offset: -10 -5;
+             //"down_part";
            }
          }
        }
@@ -340,14 +340,14 @@ collections {
           color: 255 255 255 255;
           fixed: 1 1;
           rel1 {
-                relative: 1.0 0.25 ; 
-                to_y: "down_part";
-                to_x: "audiolist/progressbar";
-                offset: 10 0;
+                relative: 1.0 1.0 ; 
+                to: "down_part";
+                offset: -155 -40;
           }
           rel2 {
-                relative: 0.9 0.75; 
+                relative: 1.0 1.0; 
                 to: "down_part";
+                offset: -105 -5;
           }
           text {
             text: "--:--";
@@ -363,15 +363,17 @@ collections {
         type: IMAGE;
         mouse_events: 1;
         description {
-          state: "default" 0.0;
+          state: "default" 0.0; //default is 'repeat off'
           //color: 100 255 150 255;
           rel1 {
-                relative: 0.908 0.27 ; 
+                relative: 1.0 1.0 ; 
                 to: "down_part";
+                offset: -95 -35;
           }
           rel2 {
-                relative: 0.94 0.72;
+                relative: 1.0 1.0; 
                 to: "down_part";
+                offset: -60 -10;
           }
           image {
             normal: "repeat_icon.png";
@@ -380,18 +382,22 @@ collections {
         description {
           state: "repeat_button_default_focused" 0.0;
           inherit: "default" 0.0;
-          rel1 {
-                relative: 0.908 0.23 ; 
-                to: "down_part";
-          }
-          rel2 {
-                relative: 0.94 0.77;
-                to: "down_part";
-          }
+          rel1.offset: -95 -39;
+          rel2.offset: -60 -6;
         }
         description {
           state: "repeat_all" 0.0;
-          inherit: "default" 0.0;
+          //inherit: "default" 0.0;
+          rel1 {
+                relative: 1.0 1.0 ; 
+                to: "down_part";
+                offset: -95 -35;
+          }
+          rel2 {
+                relative: 1.0 1.0; 
+                to: "down_part";
+                offset: -60 -10;
+          }
           image {
             normal: "repeat_all_icon.png";
           }
@@ -400,14 +406,8 @@ collections {
        description {
           state: "repeat_all_focused" 0.0;
           inherit: "repeat_all" 0.0;
-          rel1 {
-                relative: 0.908 0.23 ; 
-                to: "down_part";
-          }
-          rel2 {
-                relative: 0.94 0.77;
-                to: "down_part";
-          }
+          rel1.offset: -95 -39;
+          rel2.offset: -60 -6;
           image {
             normal: "repeat_all_icon.png";
           }
@@ -424,14 +424,8 @@ collections {
        description {
           state: "repeat_one_focused" 0.0;
           inherit: "repeat_one" 0.0;
-          rel1 {
-                relative: 0.908 0.23 ; 
-                to: "down_part";
-          }
-          rel2 {
-                relative: 0.94 0.77;
-                to: "down_part";
-          }
+          rel1.offset: -95 -39;
+          rel2.offset: -60 -6;
           image {
             normal: "repeat_one_icon.png";
           }
@@ -442,16 +436,17 @@ collections {
         type: IMAGE;
         mouse_events: 1;
         description {
-          state: "default" 0.0;
+          state: "default" 0.0; //default is 'random off'
           //color: 100 255 150 255;
           rel1 {
-                relative: 0.95 0.25 ; 
+                relative: 1.0 1.0 ; 
                 to: "down_part";
-                offset: 5 0;
+                offset: -50 -35;
           }
           rel2 {
-                relative: 0.99 0.75;
+                relative: 1.0 1.0; 
                 to: "down_part";
+                offset: -10 -10;
           }
           image {
             normal: "shuffle_icon_off.png";
@@ -460,15 +455,8 @@ collections {
         description {
           state: "shuffle_button_off_focused" 0.0;
           inherit: "default";
-          rel1 {
-                relative: 0.95 0.20 ; 
-                to: "down_part";
-                offset: 5 0;
-          }
-          rel2 {
-                relative: 0.99 0.80;
-                to: "down_part";
-          }
+          rel1.offset: -50 -39;
+          rel2.offset: -10 -6;
         }
         description {
           state: "shuffle_button_on" 0.0;
@@ -479,15 +467,8 @@ collections {
         description {
           state: "shuffle_button_on_focused" 0.0;
           inherit: "shuffle_button_on";
-          rel1 {
-                relative: 0.95 0.20 ; 
-                to: "down_part";
-                offset: 5 0;
-          }
-          rel2 {
-                relative: 0.99 0.80;
-                to: "down_part";
-          }
+          rel1.offset: -50 -39;
+          rel2.offset: -10 -6;
        }
        part{
         name: "audiolist/list";
@@ -524,7 +505,7 @@ collections {
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             color: 0 255 255 220;
+             color: 255 255 255 255;
              fixed: 1 1;
              rel1 {
                 relative: 0.0 0.25 ; 
@@ -763,15 +744,12 @@ collections {
          script {
           if (get_int(repeat_state) == 0){
              emit("repeat.off.focused", "");
-             send_message(MSG_STRING, 0, "repeat_off");
           }
           else if (get_int(repeat_state) == 1){
              emit("repeat.all.focused", "");
-             send_message(MSG_STRING, 0, "repeat_all");
           }
           else if (get_int(repeat_state) == 2){
              emit("repeat.one.focused", "");
-             send_message(MSG_STRING, 0, "repeat_one");
           }
         }
       }
@@ -830,13 +808,10 @@ collections {
          script {
           if (get_int(repeat_state) == 0){
              set_state(PART:"repeat_button", "default", 0.0);
-             send_message(MSG_STRING, 0, "repeat_off");
           } else if (get_int(repeat_state) == 1){
              set_state(PART:"repeat_button", "repeat_all", 0.0);
-             send_message(MSG_STRING, 0, "repeat_all");
           } else if (get_int(repeat_state) == 2){
              set_state(PART:"repeat_button", "repeat_one", 0.0);
-             send_message(MSG_STRING, 0, "repeat_one");
           }
         }
       }
@@ -844,20 +819,33 @@ collections {
         name: "repeat_clicked";
         signal: "mouse,clicked,*";
         source: "repeat_button";
+        action: SIGNAL_EMIT "audiolist.playlist.repeat" "repeat_button";
+      }
+      program {
+        name: "playlist_repeat_all";
+        signal: "audiolist.playlist.repeat.all";
+        source: "*";
         script {
-          if (get_int(repeat_state) == 0){
-             set_int(repeat_state, 1);
-             set_state(PART:"repeat_button", "repeat_all", 0.0);
-             send_message(MSG_STRING, 0, "repeat_all");
-          } else if (get_int(repeat_state) == 1){
-             set_int(repeat_state, 2);
-             set_state(PART:"repeat_button", "repeat_one", 0.0);
-             send_message(MSG_STRING, 0, "repeat_one");
-          } else if (get_int(repeat_state) == 2){
-             set_int(repeat_state, 0);
-             set_state(PART:"repeat_button", "default", 0.0);
-             send_message(MSG_STRING, 0, "repeat_off");
-          }
+          set_state(PART:"repeat_button", "repeat_all", 0.0);
+          set_int(play_button_state, 1);
+        }
+      }
+      program {
+        name: "playlist_repeat_one";
+        signal: "audiolist.playlist.repeat.one";
+        source: "*";
+        script {
+          set_state(PART:"repeat_button", "repeat_one", 0.0);
+          set_int(play_button_state, 2);
+        }
+      }
+      program {
+        name: "playlist_repeat_off";
+        signal: "audiolist.playlist.repeat.off";
+        source: "*";
+        script {
+          set_state(PART:"repeat_button", "default", 0.0);
+          set_int(play_button_state, 0);
         }
       }
       program {
@@ -921,17 +909,24 @@ collections {
         name: "shuffle_clicked";
         signal: "mouse,clicked,*";
         source: "shuffle_button";
+        action: SIGNAL_EMIT "audiolist.playlist.random" "shuffle_button";
+      }
+      program {
+        name: "playlist_shuffle_off";
+        signal: "audiolist.playlist.shuffle.off";
+        source: "*";
         script {
-          if (get_int(shuffle_state) == 0){
-             set_int(shuffle_state, 1);
-             set_state(PART:"shuffle_button", "shuffle_button_on", 0.0);
-             send_message(MSG_STRING, 0, "shuffle_button_on");
-          }
-          else if (get_int(shuffle_state) == 1){
-             set_int(shuffle_state, 0);
-             set_state(PART:"shuffle_button", "default", 0.0);
-             send_message(MSG_STRING, 0, "shuffle_off");
-          }
+          set_state(PART:"shuffle_button", "default", 0.0);
+          set_int(shuffle_state, 0);
+        }
+      }
+      program {
+        name: "playlist_shuffle_on";
+        signal: "audiolist.playlist.shuffle.on";
+        source: "*";
+        script {
+          set_state(PART:"shuffle_button", "shuffle_button_on", 0.0);
+          set_int(shuffle_state, 1);
         }
       }
       program {

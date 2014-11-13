@@ -135,6 +135,18 @@ audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
             elm_genlist_item_selected_set(prev, EINA_TRUE);
           }
        ));
+    layout.signal_callback_add("audiolist.playlist.repeat", "*",
+       std::bind([this]
+          {
+            std::cout << "repeat selected cb" << std::endl;
+          }
+       ));
+    layout.signal_callback_add("audiolist.playlist.random", "*",
+       std::bind([this]
+          {
+            std::cout << "random selected cb" << std::endl;
+          }
+       ));
 
     evas::object emotion = player.emotion_get();
     evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", playback_finished_cb, this); //FIXME

@@ -109,7 +109,7 @@ collections {
           mouse_events: 1;
           description {
              state: "default" 0.0;
-             color: 0 255 255 220;
+             color: 255 255 255 255;
              fixed: 1 1;
              rel1 {
                 relative: 0.0 0.25 ; 

@@ -66,14 +66,14 @@
           color: 255 255 255 255; \
           fixed: 1 1; \
           rel1 { \
-                relative: 1.0 0.5; \
+                relative: 1.0 1.0; \
                 to: "status_bar"; \
-                offset: -100 -15; \
+                offset: -40 -40; \
           } \
           rel2 { \
-                relative: 1.0 0.5; \
+                relative: 1.0 1.0; \
                 to: "status_bar"; \
-                offset: -10 15; \
+                offset: -20 -5; \
           } \
           text { \
             text: "--:--"; \
