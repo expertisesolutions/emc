@@ -41,22 +41,19 @@ audiolistmodel::audiolistmodel()
         */
 
          /* FIXME XXX USE EINA-CXX */
-         Eina_Value value_prop;
          Eo *child;
          unsigned int i = 0;
          EINA_ACCESSOR_FOREACH(_ac, i, child)
            {
-              eo_do(child, emodel_property_get(TABLE_PROP_NAME, &value_prop));
-              char *tablename = eina_value_to_string(&value_prop);
-              if (strcmp(tablename, ARTISTIS_TABLE_NAME) == 0)
-                  artists = esql::model_table(child);
-              else if (strcmp(tablename, ALBUMS_TABLE_NAME) == 0)
-                  albums = esql::model_table(child);
-              else if (strcmp(tablename, TRACKS_TABLE_NAME) == 0)
-                  tracks = esql::model_table(child);
+              esql::model_table table(child);
+              std::string tablename = table.name_get();
 
-              eina_value_flush(&value_prop);
-              free(tablename);
+              if (tablename == ARTISTIS_TABLE_NAME)
+                  artists = table;
+              else if (tablename == ALBUMS_TABLE_NAME)
+                  albums = table;
+              else if (tablename == TRACKS_TABLE_NAME)
+                  tracks = table;
            }
 
          is_load = true;
@@ -71,6 +68,7 @@ audiolistmodel::artists_get()
 {
     artists.filter_set("");
     artists.load();
+    std::cout << artists.name_get() << std::endl;
     return artists;
 }
 

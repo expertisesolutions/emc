@@ -93,7 +93,7 @@ collections {
         description {
           state: "artists_button_focused" 0.0;
           inherit: "default" 0.0;
-          color: 0 0 255 255;
+          color: 50 150 255 255;
         }
        }
        part{
@@ -125,7 +125,7 @@ collections {
         description {
           state: "albums_button_focused" 0.0;
           inherit: "default" 0.0;
-          color: 0 0 255 255;
+          color: 50 150 255 255;
         }
        }
        part{
@@ -158,7 +158,7 @@ collections {
           state: "playlist_button_focused" 0.0;
           inherit: "default" 0.0;
           text.font: "Sans";
-          color: 0 0 255 255;
+          color: 50 150 255 255;
         }
        }
         part{

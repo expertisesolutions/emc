@@ -39,6 +39,87 @@ collections {
         }
       }
       part {
+        name: "status_bar";
+        type: RECT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 0 0 0 100;
+          rel1 {
+            relative: 0.0 0.0;
+            offset: 0 -41;
+          }
+          rel2 {
+            relative: 1.0 0.0;
+            offset: -1 -1;
+          }
+        }
+        description {
+          state: "show" 0.0;
+          inherit: "default" 0.0;
+          rel1.offset: 0 0;
+          rel2.offset: -1 40;
+        }
+      }
+      part {
+        name: "backbt";
+        type: TEXT;
+        mouse_events: 1;
+        description {
+          state: "default" 0.0;
+          color: 255 255 255 255;
+          fixed: 1 1;
+          rel1 {
+            relative: 0.0 0.0 ;
+            to: "status_bar";
+          }
+          rel2 {
+            relative: 0.0 1.0;
+            offset: 50 -1;
+            to: "status_bar";
+          }
+          text {
+            text: "...";
+            fit: 1 1;
+            size: 16;
+            font: "sans:style=Bold";
+            min: 1 1;
+            ellipsis: -1;
+          }
+        }
+        description {
+           state: "backbt_focused" 0.0;
+           inherit: "default" 0.0;
+           color: 50 150 255 255;
+        }
+      }
+      part {
+        name: "videoplayer/filename";
+        type: TEXT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 255 255 255 255;
+          fixed: 1 1;
+          rel1 {
+            relative: 0.5 0.5 ; to: "status_bar";
+            offset: 0 -27;
+          }
+          rel2 {
+            relative: 0.5 0.5; to: "status_bar";
+            offset: 0 27;
+          }
+          text {
+            size: 1;
+            fit: 0 1;
+            font: "sans";
+            min: 1 1;
+            align: 0.5 0.5;
+            ellipsis: -1;
+          }
+        }
+      }
+      part {
         name: "playback_bar";
         type: RECT;
         mouse_events: 0;
@@ -47,18 +128,18 @@ collections {
           color: 0 0 0 100;
           rel1 {
             relative: 0.0 1.0 ;
-            offset: 5 -66;
+            offset: 5 0;
           }
           rel2 {
             relative: 1.0 1.0;
-            offset: -5 -6;
+            offset: -5 65;
           }
         }
         description {
-          state: "hide" 0.0;
+          state: "show" 0.0;
           inherit: "default" 0.0;
-          rel1.offset: 5 0;
-          rel2.offset: -5 65;
+          rel1.offset: 5 -51;
+          rel2.offset: -5 -6;
         }
       }
       part {
@@ -75,7 +156,7 @@ collections {
           rel2 {
             relative: 0.0 1.0;
             to: "playback_bar";
-            offset: 55 -6;
+            offset: 45 -6;
           }
           image {
             normal: "play_icon.png";
@@ -98,27 +179,114 @@ collections {
         }
       }
       part {
+        name: "videoplayer/curtime";
+        type: TEXT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 255 255 255 255;
+          fixed: 1 1;
+          rel1 {
+            relative: 1.0 0.0 ;
+            to: "playpause_bt";
+            offset: 5 0;
+          }
+          rel2 {
+            relative: 1.0 1.0;
+            to: "playpause_bt";
+            offset: 55 -1;
+          }
+          text {
+            text: "--:--";
+            fit: 0 1;
+            font: "sans:style=Bold";
+            min: 1 1;
+            max: 1 1;
+            ellipsis: -1;
+          }
+        }
+      }
+      part {
+        name: "videoplayer/totaltime";
+        type: TEXT;
+        mouse_events: 0;
+        description {
+          state: "default" 0.0;
+          color: 255 255 255 255;
+          fixed: 1 1;
+          rel1 {
+            relative: 1.0 0.0 ;
+            to: "playback_bar";
+            offset: -70 5;
+          }
+          rel2 {
+            relative: 1.0 1.0;
+            to: "playback_bar";
+            offset: -15 -6;
+          }
+          text {
+            text: "--:--";
+            fit: 0 1;
+            font: "sans:style=Bold";
+            min: 1 1;
+            max: 1 1;
+            ellipsis: -1;
+          }
+        }
+      }
+      part {
         name: "videoplayer/progressbar";
         type: SWALLOW;
         description {
           state: "default" 0.0;
           rel1 {
             relative: 0.0 0.0;
-            to: "playback_bar";
-            offset: 65 5;
+            to: "videoplayer/curtime";
+            offset: 55 5;
           }
           rel2 {
-            relative: 1.0 1.0;
-            to: "playback_bar";
-            offset: -1 -6;
+            relative: 0.0 1.0;
+            to: "videoplayer/totaltime";
+            offset: -6 -6;
           }
         }
       }
     }
     programs {
-
       BACK_PROG_ADD(videoplayer);
-
+      program {
+        name: "video_mouse_move";
+        signal: "mouse,move";
+        source: "videoplayer/video";
+        action: STATE_SET "show" 0.0;
+        transition: LINEAR 4.0;
+        targets: "playback_bar" "status_bar";
+        sequence {
+          action: STATE_SET "default" 0.0;
+          targets: "playback_bar" "status_bar";
+        }
+      }
+      program {
+        name: "backbt_focused";
+        signal: "mouse,in";
+        source: "backbt";
+        action: STATE_SET "backbt_focused" 0.0;
+        target: "backbt";
+        transition: LINEAR 0.1;
+      }
+      program {
+        name: "backbt_mouse_out";
+        signal: "mouse,out";
+        source: "backbt";
+        action: STATE_SET "default" 0.0;
+        target: "backbt";
+      }
+      program {
+        name: "backbt_mouse_clicked";
+        signal: "mouse,clicked,*";
+        source: "backbt";
+        action: SIGNAL_EMIT "videoplayer.selected.back" "backbt";
+      }
     }
   }
 }

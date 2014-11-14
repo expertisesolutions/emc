@@ -119,7 +119,8 @@ collections {
           description {
              state: "audio_bt_mouse_in" 0.0;
              inherit: "default" 0.0;
-             color: 0 0 255 255;
+             color: 50 150 255 255;
+             color3: 50 150 255 50;
           }
        }
        part {
@@ -149,7 +150,8 @@ collections {
           description {
              state: "video_bt_mouse_in" 0.0;
              inherit: "default" 0.0;
-             color: 0 0 255 255;
+             color: 50 150 255 255;
+             color3: 50 150 255 50;
           }
        }
        part {
@@ -179,7 +181,8 @@ collections {
           description {
              state: "settings_bt_mouse_in" 0.0;
              inherit: "default" 0.0;
-             color: 0 0 255 255;
+             color: 50 150 255 255;
+             color3: 50 150 255 50;
           }
        }
        part {

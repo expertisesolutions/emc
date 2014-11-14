@@ -81,6 +81,7 @@ videoplayer::play(emodel model)
 
    progslider.show();
    eo_unref(progslider._eo_ptr()); //XXX
+   settings.win.activate();
 }
 
 void
@@ -120,8 +121,8 @@ videoplayer::player_fame_decode_cb()
 
     label_total << m << ":" << s;
 
-//    layout.text_set("music_temp_restante", label_pos.str());
-//    layout.text_set("music_temp_total", label_total.str());
+    layout.text_set(groupname+"/curtime", label_pos.str());
+    layout.text_set(groupname+"/totaltime", label_total.str());
 
     progslider.min_max_set(0, len);
     progslider.value_set(pos);
