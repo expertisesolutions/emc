@@ -20,6 +20,7 @@ collections {
     images {
        image: "background.jpg" RAW;
        image: "background_video.jpg" RAW;
+       image: "background_audio_1.jpg" RAW; // by 'imelenchon', http://www.morguefile.com/archive/display/112695
        image: "app_window.jpg" RAW;
        image: "confirm_exit_window.png" RAW;
        image: "btn_round_0.png" RAW;
@@ -49,7 +50,7 @@ collections {
           type: RECT;
           description {
               state: "default" 0.0;
-              color: 255 255 255 255;
+              color: 0 0 0 100;
               rel1 {
                  relative: 0.0 0.0; 
                  offset: 0 0;
@@ -68,24 +69,40 @@ collections {
              image.normal: "background.jpg";
              rel1 {
                 relative: 0.0 0.0 ; to: "background_img";
-                offset: 0 0;
              }
              rel2 {
                 relative: 1.0 1.0; to: "background_img";
-                offset: -1 -1;
              }
           }
           description {
              state: "show_audio" 0.0;
              inherit: "default" 0.0;
+             color: 100 100 100 255;
+             image.normal: "background_audio_1.jpg";
+          }          
+          description {
+             state: "show_audio_1" 0.0;
+             inherit: "default" 0.0;
+             image.normal: "background_audio_1.jpg";
           }
           description {
              state: "show_video" 0.0;
+             inherit: "default" 0.0;
+             color: 80 80 80 255;
+             image.normal: "background_video.jpg";
+          }          
+          description {
+             state: "show_video_1" 0.0;
              inherit: "default" 0.0;
              image.normal: "background_video.jpg";
           }
           description {
              state: "show_settings" 0.0;
+             inherit: "default" 0.0;
+             color: 80 80 80 255;
+          }
+          description {
+             state: "show_settings_1" 0.0;
              inherit: "default" 0.0;
           }
        }
@@ -333,6 +350,7 @@ collections {
           set_state(PART:"yes_bt", "default", 0.0);
           set_state(PART:"no_bt", "default", 0.0);
         }
+        after: "transition_audio_1";
       }
       program {
            signal: "main.show.next";
@@ -442,7 +460,7 @@ collections {
             set_int(settings_state, 0);
             set_int(exit_window_state, 0);
 
-            set_state(PART:"app_window", "show_audio", 0.0);
+            //set_state(PART:"app_window", "show_audio", 0.0);
             set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
 
             set_state(PART:"video_bt", "default", 0.0);
@@ -452,6 +470,20 @@ collections {
             set_state(PART:"yes_bt", "default", 0.0);
             set_state(PART:"no_bt", "default", 0.0);
           }
+          after: "transition_audio";
+      }
+      program {
+         name: "transition_audio";
+         action: STATE_SET "show_audio" 0.0;
+         target: "app_window";//transition_rect";
+         transition: SINUSOIDAL 0.3;
+         after: "transition_audio_1";
+      }
+      program {
+         name: "transition_audio_1";
+         action: STATE_SET "show_audio_1" 0.0;
+         target: "app_window";
+         transition: SINUSOIDAL 0.3;
       }
       program {
          name: "audio_selected";
@@ -478,7 +510,7 @@ collections {
             set_int(settings_state, 0);
             set_int(exit_window_state, 0);
 
-            set_state(PART:"app_window", "show_video", 0.0);
+            //set_state(PART:"app_window", "show_video", 0.0);
             set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
 
             set_state(PART:"audio_bt", "default", 0.0);
@@ -488,6 +520,20 @@ collections {
             set_state(PART:"yes_bt", "default", 0.0);
             set_state(PART:"no_bt", "default", 0.0);
           }
+          after: "transition_video";
+      }
+      program {
+         name: "transition_video";
+         action: STATE_SET "show_video" 0.0;
+         target: "app_window";//transition_rect";
+         transition: SINUSOIDAL 0.3;
+         after: "transition_video_1";
+      }
+      program {
+         name: "transition_video_1";
+         action: STATE_SET "show_video_1" 0.0;
+         target: "app_window";
+         transition: SINUSOIDAL 0.3;
       }
       program {
          name: "video_selected";
@@ -514,7 +560,7 @@ collections {
             set_int(settings_state, 1);
             set_int(exit_window_state, 0);
 
-            set_state(PART:"app_window", "show_settings", 0.0);
+            //set_state(PART:"app_window", "show_settings", 0.0);
             set_state(PART:"audio_bt", "default", 0.0);
             set_state(PART:"video_bt", "default", 0.0);
             set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
@@ -523,6 +569,20 @@ collections {
             set_state(PART:"yes_bt", "default", 0.0);
             set_state(PART:"no_bt", "default", 0.0);
           }
+          after: "transition_settings";
+      }
+      program {
+         name: "transition_settings";
+         action: STATE_SET "show_settings" 0.0;
+         target: "app_window";//transition_rect";
+         transition: SINUSOIDAL 0.3;
+         after: "transition_settings_1";
+      }
+      program {
+         name: "transition_settings_1";
+         action: STATE_SET "show_settings_1" 0.0;
+         target: "app_window";
+         transition: SINUSOIDAL 0.2;
       }
       program {
          name: "settings_bt_mouse_clicked";

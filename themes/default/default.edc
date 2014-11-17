@@ -19,7 +19,7 @@
           mouse_events: 1; \
           description { \
              state: "default" 0.0; \
-             color: 0 0 125 255; \
+             color: 0 0 125 100; \
              rel1 { \
                 relative: 0.0 0.0 ; \
                 offset: 0 0; \
