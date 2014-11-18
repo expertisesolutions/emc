@@ -95,19 +95,18 @@ videolist::active()
      , std::placeholders::_2));
 
    view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
+
    view.model_set(model);
    view.property_connect("filename", "elm.text");
    view.property_connect("size", "elm.text.sub");
    view.callback_model_selected_add(std::bind([this](void *eo)
        {
-         selected = eio::model(static_cast<Eo *>(eo));
+         selected = eio::model(eo_ref(static_cast<Eo *>(eo)));
        }, std::placeholders::_3));
 
    evas_object_smart_callback_add(list._eo_ptr(), "activated", _video_list_activated_cb, this); //FIXME
    layout.content_set(groupname+"/list", list);
    list.show();
-
-   eo_unref(list._eo_ptr()); //XXX
 }
 
 void
@@ -117,10 +116,10 @@ videolist::deactive()
    efreet_mime_shutdown();
    evas_object_smart_callback_del(list._eo_ptr(), "activated", _video_list_activated_cb); //FIXME
    layout.content_unset(groupname+"/list");
-   selected = eio::model(nullptr);
+   selected._reset();
    view._reset();
-   basectrl::deactive();
    list.hide();
+   basectrl::deactive();
 }
 
 } //emc

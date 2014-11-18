@@ -24,7 +24,6 @@ class audiolistmodel
    esql::model_table albums;
    esql::model_table tracks;
    std::function<void()> loaded;
-   int is_load;
 
    bool load_tables();
 

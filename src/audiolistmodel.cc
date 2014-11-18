@@ -17,8 +17,7 @@ audiolistmodel::audiolistmodel()
     :   database(nullptr),
         artists(nullptr),
         albums(nullptr),
-        tracks(nullptr),
-        is_load(false)
+        tracks(nullptr)
 {
    esql_init();
    database = esql::model("./emc.db", "", "", "");
@@ -26,6 +25,7 @@ audiolistmodel::audiolistmodel()
    database.callback_children_count_changed_add(std::bind([this](void * info)
       {
          unsigned int len = *(unsigned int *)info;
+         static bool is_load = false;
          std::cout << "audioDB children count change " << len << std::endl;
          if (len == 0) return EINA_TRUE;
 
@@ -46,6 +46,8 @@ audiolistmodel::audiolistmodel()
          EINA_ACCESSOR_FOREACH(_ac, i, child)
            {
               esql::model_table table(child);
+              eo_ref(child); //XXX?
+
               std::string tablename = table.name_get();
 
               if (tablename == ARTISTIS_TABLE_NAME)

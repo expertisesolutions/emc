@@ -176,13 +176,11 @@ audiolist::player_fame_decode_cb()
     h = pos / 3600;
     m = pos / 60 - (h * 60);
     s = pos - (h * 3600) - (m * 60);
-
     label_pos << m << ":" << s;
 
     h = len / 3600;
     m = len / 60 - (h * 60);
     s = len - (h * 3600) - (m * 60);
-
     label_total << m << ":" << s;
 
     layout.text_set("music_temp_restante", label_pos.str());
@@ -233,11 +231,12 @@ audiolist::active()
 
    view.callback_model_selected_add(std::bind([this](void *eo)
       {
-         row_selected = esql::model_row(static_cast<Eo *>(eo));
+         row_selected = esql::model_row(eo_ref(static_cast<Eo *>(eo)));
       }, std::placeholders::_3));
 
    layout.content_set(groupname+"/list", list);
    layout.content_set(groupname+"/progressbar", progslider);
+
    list.show();
    progslider.show();
 
@@ -250,9 +249,6 @@ audiolist::active()
      std::cout << "playing" << std::endl;
    }
 
-   eo_unref(list._eo_ptr()); //XXX
-   eo_unref(progslider._eo_ptr()); //XXX
-
    view.model_set(model.artists_get());
    view.property_connect("name", "elm.text");
   // view.property_connect("name", "elm.text.sub");
@@ -261,7 +257,6 @@ audiolist::active()
 void
 audiolist::deactive()
 {
-
    evas::object emotion = player.emotion_get();
    evas_object_smart_callback_del(emotion._eo_ptr(), "frame_decode", frame_decode_cb); //FIXME
    evas_object_smart_callback_del(list._eo_ptr(), "activated", activated_cb); //FIXME

@@ -51,12 +51,20 @@ videoplayer::videoplayer(const settingsmodel &settings, const std::function<void
         player(settings.player),
         progslider(efl::eo::parent = layout)
 {
+   progslider.callback_changed_add
+      (std::bind([this]
+          {
+              // Update video position. Progress slider is updated as side effect.
+              player.play_position_set(progslider.value_get());
+          }
+      ));
 }
 
 void
 videoplayer::play(emodel model)
 {
    Eina_Value v;
+   v.type == NULL;
 
    if (player.is_playing_get())
      player.stop();
@@ -64,13 +72,29 @@ videoplayer::play(emodel model)
    layout.content_set(groupname+"/video", player);
    player.show();
 
-   model.property_get("path", &v);
+   if (model.property_get("path", &v) == EMODEL_LOAD_STATUS_ERROR) {
+      std::cout << "ERROR GET FILENAME MODEL PROPERTY" << std::endl;
+      return;
+   }
+
+   if (NULL == v.type) {
+      std::cout << "ERROR TYPE EINA VALUE IS NULL" << std::endl;
+      return;
+   }
+
    char *path = eina_value_to_string(&v);
    if (path) {
-     player.file_set(path, "");
-     player.play();
-     layout.signal_emit("videoplayer.video.playing", "");
-     free(path);
+      player.file_set(path, "");
+      player.play();
+      layout.signal_emit("videoplayer.video.playing", "");
+      free(path);
+   }
+
+   model.property_get("filename", &v);
+   char *name = eina_value_to_string(&v);
+   if (name) {
+      layout.text_set(groupname+"/filename", name);
+      free(name);
    }
 
    layout.content_set(groupname+"/progressbar", progslider);
@@ -80,7 +104,6 @@ videoplayer::play(emodel model)
    evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", _video_frame_decode_cb, this); //FIXME
 
    progslider.show();
-   eo_unref(progslider._eo_ptr()); //XXX
    settings.win.activate();
 }
 
@@ -91,8 +114,10 @@ videoplayer::deactive()
    evas_object_smart_callback_del(emotion._eo_ptr(), "playback_finished", _video_playback_finished_cb); //FIXME
    evas_object_smart_callback_del(emotion._eo_ptr(), "frame_decode", _video_frame_decode_cb); //FIXME
 
-   if (player.is_playing_get())
+   if (player.is_playing_get()) {
      player.stop();
+     player.play_position_set(0);
+   }
 
    layout.content_unset(groupname+"/video");
    player.hide();
@@ -112,13 +137,11 @@ videoplayer::player_fame_decode_cb()
     h = pos / 3600;
     m = pos / 60 - (h * 60);
     s = pos - (h * 3600) - (m * 60);
-
     label_pos << m << ":" << s;
 
     h = len / 3600;
     m = len / 60 - (h * 60);
     s = len - (h * 3600) - (m * 60);
-
     label_total << m << ":" << s;
 
     layout.text_set(groupname+"/curtime", label_pos.str());

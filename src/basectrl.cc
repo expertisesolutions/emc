@@ -39,6 +39,7 @@ basectrl::active()
            on_key_down(static_cast<Evas_Event_Key_Down *>(einfo)->key);
          }, std::placeholders::_3));
 
+   evas_object_focus_set(settings.win._eo_ptr(), EINA_TRUE);
    settings.group_set(groupname);
 }
 
