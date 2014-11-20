@@ -52,6 +52,20 @@ videoplayer::videoplayer(const settingsmodel &settings, const std::function<void
         player(settings.player),
         progslider(efl::eo::parent = layout)
 {
+    layout.signal_callback_add("videoplayer.selected.playpause", "*",
+       std::bind([this]
+          {
+             std::cout << "playpause selected cb" << std::endl;
+             if (player.is_playing_get()) {
+               player.pause();
+               layout.signal_emit("videoplayer.video.paused", "");
+             } else {
+               player.play();
+               layout.signal_emit("videoplayer.video.playing", "");
+             }
+          }
+       ));
+
    progslider.callback_changed_add
       (std::bind([this]
           {

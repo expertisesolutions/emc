@@ -103,11 +103,11 @@ collections {
           fixed: 1 1;
           rel1 {
             relative: 0.5 0.5 ; to: "status_bar";
-            offset: 0 -27;
+            offset: 0 -17;
           }
           rel2 {
             relative: 0.5 0.5; to: "status_bar";
-            offset: 0 27;
+            offset: 0 17;
           }
           text {
             size: 1;
@@ -189,12 +189,12 @@ collections {
           rel1 {
             relative: 1.0 0.0 ;
             to: "playpause_bt";
-            offset: 5 0;
+            offset: 10 0;
           }
           rel2 {
             relative: 1.0 1.0;
             to: "playpause_bt";
-            offset: 55 -1;
+            offset: 75 -1;
           }
           text {
             text: "--:--";
@@ -217,7 +217,7 @@ collections {
           rel1 {
             relative: 1.0 0.0 ;
             to: "playback_bar";
-            offset: -70 5;
+            offset: -80 5;
           }
           rel2 {
             relative: 1.0 1.0;
@@ -242,18 +242,20 @@ collections {
           rel1 {
             relative: 0.0 0.0;
             to: "videoplayer/curtime";
-            offset: 55 5;
+            offset: 85 1;
           }
           rel2 {
             relative: 0.0 1.0;
             to: "videoplayer/totaltime";
-            offset: -6 -6;
+            offset: -26 -1;
           }
         }
       }
     }
     programs {
+
       BACK_PROG_ADD(videoplayer);
+
       program {
         name: "video_mouse_move";
         signal: "mouse,move";
@@ -283,9 +285,35 @@ collections {
       }
       program {
         name: "backbt_mouse_clicked";
-        signal: "mouse,clicked,*";
+        signal: "mouse,clicked,1";
         source: "backbt";
         action: SIGNAL_EMIT "videoplayer.selected.back" "backbt";
+      }
+      program {
+        name: "playpausebt_mouse_clicked";
+        signal: "mouse,clicked,1";
+        source: "playpause_bt";
+        action: SIGNAL_EMIT "videoplayer.selected.playpause" "playpause_bt";
+      }
+      program {
+        name: "video_mouse_clicked";
+        signal: "mouse,clicked,1";
+        source: "videoplayer/video";
+        action: SIGNAL_EMIT "videoplayer.selected.playpause" "videoplayer/video";
+      }
+      program {
+        name: "video_playing";
+        signal: "videoplayer.video.playing";
+        source: "*";
+        action: STATE_SET "default" 0.0;
+        target: "playpause_bt";
+      }
+      program {
+        name: "video_paused";
+        signal: "videoplayer.video.paused";
+        source: "*";
+        action: STATE_SET "pause_unfocused" 0.0;
+        target: "playpause_bt";
       }
     }
   }
