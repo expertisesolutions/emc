@@ -13,6 +13,7 @@
 
 #include <Ecore.hh>
 #include "videoplayer.hh"
+#include <iomanip>
 
 namespace emc {
 
@@ -137,12 +138,17 @@ videoplayer::player_fame_decode_cb()
     h = pos / 3600;
     m = pos / 60 - (h * 60);
     s = pos - (h * 3600) - (m * 60);
-    label_pos << m << ":" << s;
+    label_pos.fill('0');
+    if (len / 3600 >= 1)
+      label_pos << std::setw(2) << h << ":";
+    label_pos << std::setw(2) << m << ":" << std::setw(2) << s;
 
     h = len / 3600;
     m = len / 60 - (h * 60);
     s = len - (h * 3600) - (m * 60);
-    label_total << m << ":" << s;
+    label_total.fill('0');
+    if (h) label_total << std::setw(2) << h << ":";
+    label_total << std::setw(2) << m << ":" << std::setw(2) << s;
 
     layout.text_set(groupname+"/curtime", label_pos.str());
     layout.text_set(groupname+"/totaltime", label_total.str());
@@ -150,6 +156,5 @@ videoplayer::player_fame_decode_cb()
     progslider.min_max_set(0, len);
     progslider.value_set(pos);
 }
-
 
 } //emc

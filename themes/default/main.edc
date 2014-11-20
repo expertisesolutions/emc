@@ -401,21 +401,21 @@ collections {
         signal: "main.select.current";
         source: "*";
         script {
-           if (get_int(audio_state) == 1 && get_int(exit_window_state) == 0)
-            {
-              emit("main.selected.audio", "");
+           if (get_int(exit_window_state) == 1)
+           {
+              emit("main.selected.back", "");
            }
-           else if (get_int(video_state) == 1 && get_int(exit_window_state) == 0)
-            {
+           else if (get_int(video_state) == 1)
+           {
               emit("main.selected.video", "");
            }
-           else if (get_int(settings_state) == 1 && get_int(exit_window_state) == 0)
-            {
+           else if (get_int(settings_state) == 1)
+           {
               emit("main.selected.settings", "");
            }
-          else if (get_int(exit_window_state) == 1)
+           else if (get_int(audio_state) == 1)
            {
-              emit("main.selected.exit", "");
+              emit("main.selected.audio", "");
            }
         }
       }

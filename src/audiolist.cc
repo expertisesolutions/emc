@@ -15,6 +15,7 @@
 #include "audiolist.hh"
 #include <Ecore.hh>
 #include <thread>
+#include <iomanip>
 
 namespace emc {
 
@@ -121,6 +122,7 @@ audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
             Elm_Object_Item* next = elm_genlist_item_next_get(i);
             if (!next) return;
             elm_genlist_item_selected_set(next, EINA_TRUE);
+            list_activated_cb();
           }
        ));
 
@@ -133,6 +135,7 @@ audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
             Elm_Object_Item* prev = elm_genlist_item_prev_get(i);
             if (!prev) return;
             elm_genlist_item_selected_set(prev, EINA_TRUE);
+            list_activated_cb();
           }
        ));
     layout.signal_callback_add("audiolist.playlist.repeat", "*",
@@ -148,6 +151,14 @@ audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
           }
        ));
 
+    progslider.callback_changed_add(
+      std::bind([this]
+          {
+              // Update video position. Progress slider is updated as side effect.
+              player.play_position_set(progslider.value_get());
+          }
+      ));
+
     evas::object emotion = player.emotion_get();
     evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", playback_finished_cb, this); //FIXME
 }
@@ -162,6 +173,7 @@ audiolist::player_playback_finished_cb()
     if (!next) return;
 
     elm_genlist_item_selected_set(next, EINA_TRUE);
+    list_activated_cb();
 }
 
 void
@@ -176,18 +188,22 @@ audiolist::player_fame_decode_cb()
     h = pos / 3600;
     m = pos / 60 - (h * 60);
     s = pos - (h * 3600) - (m * 60);
-    label_pos << m << ":" << s;
+    label_pos.fill('0');
+    label_pos << std::setw(2) << m << ":" << std::setw(2) << s;
 
     h = len / 3600;
     m = len / 60 - (h * 60);
     s = len - (h * 3600) - (m * 60);
-    label_total << m << ":" << s;
+    label_total.fill('0');
+    label_total << std::setw(2) << m << ":" << std::setw(2) << s;
 
     layout.text_set("music_temp_restante", label_pos.str());
     layout.text_set("music_temp_total", label_total.str());
 
     progslider.min_max_set(0, len);
     progslider.value_set(pos);
+
+    if (len - pos < 0.2) player_playback_finished_cb(); //FIXME
 }
 
 void
