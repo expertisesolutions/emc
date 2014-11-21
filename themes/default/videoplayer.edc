@@ -276,14 +276,14 @@ collections {
         name: "video_playing";
         signal: "videoplayer.video.playing";
         source: "*";
-        action: STATE_SET "default" 0.0;
+        action: STATE_SET "pause_unfocused" 0.0;
         target: "playpause_bt";
       }
       program {
         name: "video_paused";
         signal: "videoplayer.video.paused";
         source: "*";
-        action: STATE_SET "pause_unfocused" 0.0;
+        action: STATE_SET "default" 0.0;
         target: "playpause_bt";
       }
     }

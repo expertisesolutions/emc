@@ -7,7 +7,7 @@ collections {
               play_button_state;
     }
     images {
-       image: "background.jpg" RAW;
+       image: "background_audio_1.jpg" RAW;
        image: "prev_icon.png" LOSSY 80;
        image: "prev_focused_icon.png" LOSSY 80;
        image: "play_icon.png" RAW;
@@ -56,7 +56,7 @@ collections {
                  offset: -1 -1;
               }
               image {
-                normal: "background.jpg";
+                normal: "background_audio_1.jpg";
               }
           }
        }
@@ -78,16 +78,18 @@ collections {
           rel1 {
                 relative: 0.1 1.0 ; 
                 to_y: "status_bar";
+                offset: 0 0;
           }
           rel2 {
-                relative: 0.3 0.0;
-                to: "audiolist/list";
+                relative: 0.3 1.0;
+                to_y: "status_bar";
+                offset: 0 50;
           }
           text {
             text: "ARTISTS";
             size: 2;
             fit: 0 1;
-            font: "sans";
+            font: "sans:style=Bold";
             min: 1 1;
             ellipsis: -1;
           }
@@ -112,14 +114,15 @@ collections {
                 relative: 0.4 1.0 ; to: "status_bar";
           }
           rel2 {
-                relative: 0.6 0.0;
-                to: "audiolist/list";
+                relative: 0.6 1.0;
+                to_y: "status_bar";
+                offset: 0 50;
           }
           text {
             text: "ALBUMS";
             size: 2;
             fit: 0 1;
-            font: "sans";
+            font: "sans:style=Bold";
             min: 1 1;
             ellipsis: -1;
           }
@@ -144,14 +147,15 @@ collections {
                 relative: 0.7 1.0 ; to: "status_bar";
           }
           rel2 {
-                relative: 0.9 0.0;
-                to: "audiolist/list";
+                relative: 0.9 1.0;
+                to_y: "status_bar";
+                offset: 0 50;
           }
           text {
             text: "PLAYLIST";
             size: 2;
             fit: 0 1;
-            font: "sans";
+            font: "sans:style=Bold";
             min: 1 1;
             ellipsis: -1;
           }
@@ -159,7 +163,6 @@ collections {
         description {
           state: "playlist_button_focused" 0.0;
           inherit: "default" 0.0;
-          text.font: "Sans";
           color: 50 150 255 255;
         }
        }
@@ -478,10 +481,10 @@ collections {
         description {
           state: "default" 0.0;
           rel1 {
-                relative: 0.0 0.15 ; 
-                to: "background_img";
-                //to_y: "albums_button";
-                offset: 5 5;
+                relative: 0.0 1.00 ; 
+                to_x: "background_img";
+                to_y: "status_bar";
+                offset: 5 50;
           }
           rel2 {
                 relative: 1.0 0.0;
