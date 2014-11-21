@@ -76,7 +76,7 @@
                 offset: -20 -5; \
           } \
           text { \
-            text: "--:--"; \
+            text: ""; \
             size: 1; \
             fit: 0 1; \
             font: "sans"; \
@@ -84,8 +84,41 @@
             ellipsis: -1; \
           } \
         } \
-       } \
+       }
 
+#define ADD_STATUS_BACKBT() \
+      part { \
+        name: "backbt"; \
+        type: TEXT; \
+        mouse_events: 1; \
+        description { \
+          state: "default" 0.0; \
+          color: 255 255 255 255; \
+          fixed: 1 1; \
+          rel1 { \
+            relative: 0.0 0.0 ; \
+            to: "status_bar"; \
+          } \
+          rel2 { \
+            relative: 0.0 1.0; \
+            offset: 50 -1; \
+            to: "status_bar"; \
+          } \
+          text { \
+            text: "..."; \
+            fit: 1 1; \
+            size: 16; \
+            font: "sans:style=Bold"; \
+            min: 1 1; \
+            ellipsis: -1; \
+          } \
+        } \
+        description { \
+           state: "backbt_focused" 0.0; \
+           inherit: "default" 0.0; \
+           color: 50 150 255 255; \
+        } \
+      }
 
 #define BACK_PROG_ADD(_G) \
       program { \
@@ -93,7 +126,7 @@
         signal: _G".select.back"; \
         source: "*"; \
         action: SIGNAL_EMIT _G".selected.back" ""; \
-      } \
+      }
 
 
 #include "main.edc"

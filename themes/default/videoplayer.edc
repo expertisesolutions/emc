@@ -61,38 +61,9 @@ collections {
           rel2.offset: -1 40;
         }
       }
-      part {
-        name: "backbt";
-        type: TEXT;
-        mouse_events: 1;
-        description {
-          state: "default" 0.0;
-          color: 255 255 255 255;
-          fixed: 1 1;
-          rel1 {
-            relative: 0.0 0.0 ;
-            to: "status_bar";
-          }
-          rel2 {
-            relative: 0.0 1.0;
-            offset: 50 -1;
-            to: "status_bar";
-          }
-          text {
-            text: "...";
-            fit: 1 1;
-            size: 16;
-            font: "sans:style=Bold";
-            min: 1 1;
-            ellipsis: -1;
-          }
-        }
-        description {
-           state: "backbt_focused" 0.0;
-           inherit: "default" 0.0;
-           color: 50 150 255 255;
-        }
-      }
+
+      ADD_STATUS_BACKBT()
+
       part {
         name: "videoplayer/filename";
         type: TEXT;
@@ -189,12 +160,12 @@ collections {
           rel1 {
             relative: 1.0 0.0 ;
             to: "playpause_bt";
-            offset: 10 0;
+            offset: 20 0;
           }
           rel2 {
             relative: 1.0 1.0;
             to: "playpause_bt";
-            offset: 75 -1;
+            offset: 85 -1;
           }
           text {
             text: "--:--";
@@ -240,9 +211,9 @@ collections {
         description {
           state: "default" 0.0;
           rel1 {
-            relative: 0.0 0.0;
+            relative: 1.0 0.0;
             to: "videoplayer/curtime";
-            offset: 85 1;
+            offset: 25 0;
           }
           rel2 {
             relative: 0.0 1.0;

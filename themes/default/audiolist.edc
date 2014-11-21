@@ -63,6 +63,8 @@ collections {
 
        ADD_STATUS_BAR("EMC - MUSIC");
 
+       ADD_STATUS_BACKBT()
+
       part{
         name: "artists_button";
         type: TEXT;
@@ -291,14 +293,14 @@ collections {
           color: 255 255 255 255;
           fixed: 1 1;
           rel1 {
-                relative: 0.0 1.0 ; 
-                to: "down_part";
-                offset: 130 -40;
+                relative: 1.0 0.0 ;
+                to: "next_button";
+                offset: 10 0;
           }
           rel2 {
-                relative: 0.0 1.0; 
-                to: "down_part";
-                offset: 170 -5;
+                relative: 1.0 1.0;
+                to: "next_button";
+                offset: 60 -1;
           }
           text {
             text: "--:--";
@@ -320,13 +322,13 @@ collections {
              relative: 1.0 0.0 ; 
              to_y: "down_part";
              to_x: "music_temp_restante";
-             offset: 10 5;
+             offset: 15 5;
            }
            rel2 {
              relative: 0.0 1.0;
              to_x: "music_temp_total";
              to_y: "down_part";
-             offset: -10 -5;
+             offset: -15 -5;
              //"down_part";
            }
          }
@@ -340,14 +342,14 @@ collections {
           color: 255 255 255 255;
           fixed: 1 1;
           rel1 {
-                relative: 1.0 1.0 ; 
-                to: "down_part";
-                offset: -155 -40;
+                relative: 0.0 0.0 ;
+                to: "repeat_button";
+                offset: -70 -5;
           }
           rel2 {
-                relative: 1.0 1.0; 
-                to: "down_part";
-                offset: -105 -5;
+                relative: 0.0 1.0;
+                to: "repeat_button";
+                offset: -20 5;
           }
           text {
             text: "--:--";
@@ -499,38 +501,7 @@ collections {
           }
         }
        }
-       part {
-          name: "backbt";
-          type: TEXT;
-          mouse_events: 1;
-          description {
-             state: "default" 0.0;
-             color: 255 255 255 255;
-             fixed: 1 1;
-             rel1 {
-                relative: 0.0 0.25 ; 
-                to: "status_bar";
-             }
-             rel2 {
-                relative: 0.04 0.75; 
-                to: "status_bar";
-             }
-             text {
-              text: "...";
-              fit: 1 1;
-              size: 16;
-              //fit: 1 1;
-              font: "sans:style=Bold";
-              min: 1 1;
-              ellipsis: -1;
-             }
-          }
-          description {
-             state: "backbt_focused" 0.0;
-             inherit: "default" 0.0;
-             color: 255 255 0 255;
-          }
-       }
+
     } /*end parts */
 
     programs {
