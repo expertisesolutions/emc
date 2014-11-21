@@ -25,6 +25,7 @@ class videoplayer
 
      void play(emodel model);
      void deactive();
+     void opened_done_cb();
      void player_fame_decode_cb();
 };
 

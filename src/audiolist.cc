@@ -66,6 +66,21 @@ activated_cb(void *data, Evas_Object *obj, void *event_info)
 
 }
 
+ //FIXME
+static void
+audio_open_done_cb(void *data, Evas_Object *obj, void *event_info)
+{
+   audiolist *t = static_cast<audiolist*>(data);
+   if(!t)
+     {
+        std::string errmsg("Invalid Data\n");
+        std::cerr << "Error: " << errmsg;
+        return;
+     }
+
+   efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::opened_done_cb, t));
+}
+
 audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
    : basectrl(_settings, "audiolist", _cb),
         list(efl::eo::parent = layout),
@@ -202,8 +217,6 @@ audiolist::player_fame_decode_cb()
 
     progslider.min_max_set(0, len);
     progslider.value_set(pos);
-
-    if (len - pos < 0.2) player_playback_finished_cb(); //FIXME
 }
 
 void
@@ -223,13 +236,24 @@ audiolist::list_activated_cb()
        row_selected.property_get("file", &v);
        char *path = eina_value_to_string(&v);
        if (path) {
+         evas::object emotion = player.emotion_get();
+         evas_object_smart_callback_add(emotion._eo_ptr(), "open_done", audio_open_done_cb, this); //FIXME
          player.file_set(path, "");
-         player.play();
-         layout.signal_emit("audiolist.playlist.playing", "");
+         free(path);
        }
-       free(path);
     }
 }
+
+
+void
+audiolist::opened_done_cb()
+{
+   player.play();
+   evas::object emotion = player.emotion_get();
+   evas_object_smart_callback_del(emotion._eo_ptr(), "open_done", audio_open_done_cb); //FIXME
+   layout.signal_emit("audiolist.playlist.playing", "");
+}
+
 
 void
 audiolist::active()

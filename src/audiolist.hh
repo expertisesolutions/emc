@@ -39,6 +39,7 @@ class audiolist
      void player_playback_finished_cb();
      void player_fame_decode_cb();
      void list_activated_cb();
+     void opened_done_cb();
 };
 
 } //emc

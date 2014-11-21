@@ -35,9 +35,9 @@ void
 basectrl::active()
 {
    key_con = settings.win.callback_key_down_add(std::bind([this](void *einfo)
-         {
-           on_key_down(static_cast<Evas_Event_Key_Down *>(einfo)->key);
-         }, std::placeholders::_3));
+      {
+         on_key_down(static_cast<Evas_Event_Key_Down *>(einfo)->key);
+      }, std::placeholders::_3));
 
    evas_object_focus_set(settings.win._eo_ptr(), EINA_TRUE);
    settings.group_set(groupname);

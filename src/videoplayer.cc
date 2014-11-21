@@ -34,6 +34,21 @@ _video_playback_finished_cb(void *data, Evas_Object *obj, void *event_info)
 
  //FIXME
 static void
+_video_open_done_cb(void *data, Evas_Object *obj, void *event_info)
+{
+   videoplayer *t = static_cast<videoplayer*>(data);
+   if(!t)
+     {
+        std::string errmsg("Invalid Data\n");
+        std::cerr << "Error: " << errmsg;
+        return;
+     }
+
+   efl::ecore::main_loop_thread_safe_call_async(std::bind(&videoplayer::opened_done_cb, t));
+}
+
+ //FIXME
+static void
 _video_frame_decode_cb(void *data, Evas_Object *obj, void *event_info)
 {
    videoplayer *t = static_cast<videoplayer*>(data);
@@ -55,7 +70,6 @@ videoplayer::videoplayer(const settingsmodel &settings, const std::function<void
     layout.signal_callback_add("videoplayer.selected.playpause", "*",
        std::bind([this]
           {
-             std::cout << "playpause selected cb" << std::endl;
              if (player.is_playing_get()) {
                player.pause();
                layout.signal_emit("videoplayer.video.paused", "");
@@ -97,11 +111,13 @@ videoplayer::play(emodel model)
       return;
    }
 
+   evas::object emotion = player.emotion_get();
    char *path = eina_value_to_string(&v);
    if (path) {
+      evas_object_smart_callback_add(emotion._eo_ptr(), "open_done", _video_open_done_cb, this); //FIXME
       player.file_set(path, "");
-      player.play();
-      layout.signal_emit("videoplayer.video.playing", "");
+//      player.play();
+//      layout.signal_emit("videoplayer.video.playing", "");
       free(path);
    }
 
@@ -114,12 +130,20 @@ videoplayer::play(emodel model)
 
    layout.content_set(groupname+"/progressbar", progslider);
 
-   evas::object emotion = player.emotion_get();
    evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", _video_playback_finished_cb, this); //FIXME
    evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", _video_frame_decode_cb, this); //FIXME
 
    progslider.show();
    settings.win.activate();
+}
+
+void
+videoplayer::opened_done_cb()
+{
+   player.play();
+   evas::object emotion = player.emotion_get();
+   evas_object_smart_callback_del(emotion._eo_ptr(), "open_done", _video_open_done_cb); //FIXME
+   layout.signal_emit("videoplayer.video.playing", "");
 }
 
 void
