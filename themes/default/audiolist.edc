@@ -167,31 +167,31 @@ collections {
         }
        }
         part{
-        name: "down_part";
+        name: "audioplayer";
         type: RECT;
         mouse_events: 1;
         description {
           state: "default" 0.0;
           color: 0 0 0 100;
           rel1 {
-                relative: 0.0 1.0;
-                offset: 5 -50;
+             relative: 0.0 1.0;
+             offset: 5 0;
              }
-             rel2 {
-                relative: 1.0 1.0;
-                offset: -5 -6;
+          rel2 {
+             relative: 1.0 1.0;
+             offset: -5 50;
              }
           }
         description {
-          state: "down_part_clicked" 0.0;
+          state: "show_player" 0.0;
           inherit: "default" 0.0;
           rel1 {
-                relative: 0.0 1.0;
-                offset: 5 5;
+             relative: 0.0 1.0;
+             offset: 5 -51;
           }
           rel2 {
-                relative: 1.0 1.1; to: "background_img";
-                offset: -5 -5;
+             relative: 1.0 1.0;
+             offset: -5 -6;
           }
         }
        }
@@ -201,15 +201,14 @@ collections {
         mouse_events: 1;
         description {
           state: "default" 0.0;
-          //color: 100 255 150 255;
           rel1 {
                 relative: 0.0 1.0 ; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: 5 -40;
           }
           rel2 {
                 relative: 0.0 1.0; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: 40 -5;
           }
           image {
@@ -220,7 +219,6 @@ collections {
           state: "prev_button_focused" 0.0;
           inherit: "default" 0.0;
           image.normal: "prev_focused_icon.png";
-          //color: 255 255 0 220;
         }
        }
        part{
@@ -231,12 +229,12 @@ collections {
           state: "default" 0.0;
           rel1 {
                 relative: 0.0 1.0 ; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: 45 -40;
           }
           rel2 {
                 relative: 0.0 1.0; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: 80 -5;
           }
           image {
@@ -265,15 +263,14 @@ collections {
         mouse_events: 1;
         description {
           state: "default" 0.0;
-          //color: 100 255 150 255;
           rel1 {
                 relative: 0.0 1.0 ; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: 85 -40;
           }
           rel2 {
                 relative: 0.0 1.0; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: 125 -5;
           }
           image {
@@ -284,7 +281,6 @@ collections {
           state: "next_button_focused" 0.0;
           inherit: "default" 0.0;
           image.normal: "next_focused_icon.png";
-          //color: 255 255 0 220;
         }
        }
        part{
@@ -322,17 +318,16 @@ collections {
            state: "default" 0.0;
            min: 63 0;
            rel1 {
-             relative: 1.0 0.0 ; 
-             to_y: "down_part";
+             relative: 1.0 0.0 ;
+             to_y: "audioplayer";
              to_x: "music_temp_restante";
              offset: 15 5;
            }
            rel2 {
              relative: 0.0 1.0;
              to_x: "music_temp_total";
-             to_y: "down_part";
+             to_y: "audioplayer";
              offset: -15 -5;
-             //"down_part";
            }
          }
        }
@@ -346,13 +341,15 @@ collections {
           fixed: 1 1;
           rel1 {
                 relative: 0.0 0.0 ;
-                to: "repeat_button";
-                offset: -70 -5;
+                to_x: "repeat_button";
+                to_y: "music_temp_restante";
+                offset: -70 0;
           }
           rel2 {
                 relative: 0.0 1.0;
-                to: "repeat_button";
-                offset: -20 5;
+                to_x: "repeat_button";
+                to_y: "music_temp_restante";
+                offset: -20 -1;
           }
           text {
             text: "--:--";
@@ -369,15 +366,14 @@ collections {
         mouse_events: 1;
         description {
           state: "default" 0.0; //default is 'repeat off'
-          //color: 100 255 150 255;
           rel1 {
                 relative: 1.0 1.0 ; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: -95 -35;
           }
           rel2 {
                 relative: 1.0 1.0; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: -60 -10;
           }
           image {
@@ -395,18 +391,17 @@ collections {
           //inherit: "default" 0.0;
           rel1 {
                 relative: 1.0 1.0 ; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: -95 -35;
           }
           rel2 {
                 relative: 1.0 1.0; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: -60 -10;
           }
           image {
             normal: "repeat_all_icon.png";
           }
-          //color: 255 255 0 220;
        }
        description {
           state: "repeat_all_focused" 0.0;
@@ -416,7 +411,6 @@ collections {
           image {
             normal: "repeat_all_icon.png";
           }
-          //color: 255 255 0 220;
        }
         description {
           state: "repeat_one" 0.0;
@@ -424,7 +418,6 @@ collections {
           image {
             normal: "repeat_one_icon.png";
           }
-          //color: 255 255 0 220;
        }
        description {
           state: "repeat_one_focused" 0.0;
@@ -434,7 +427,6 @@ collections {
           image {
             normal: "repeat_one_icon.png";
           }
-          //color: 255 255 0 220;
        }
        part{
         name: "shuffle_button";
@@ -442,15 +434,14 @@ collections {
         mouse_events: 1;
         description {
           state: "default" 0.0; //default is 'random off'
-          //color: 100 255 150 255;
           rel1 {
                 relative: 1.0 1.0 ; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: -50 -35;
           }
           rel2 {
                 relative: 1.0 1.0; 
-                to: "down_part";
+                to: "audioplayer";
                 offset: -10 -10;
           }
           image {
@@ -467,7 +458,6 @@ collections {
           state: "shuffle_button_on" 0.0;
           inherit: "default";
           image.normal: "shuffle_icon_on.png";
-          //color: 255 255 0 220;
         }
         description {
           state: "shuffle_button_on_focused" 0.0;
@@ -489,18 +479,8 @@ collections {
           rel2 {
                 relative: 1.0 0.0;
                 to_x: "background_img";
-                to_y: "down_part";
-                offset: -5 -5;
-          }
-        }
-        description {
-          state: "down_part_clicked" 0.0;
-          inherit: "default" 0.0;
-          rel2 {
-                relative: 1.0 0.0;
-                to_x: "background_img";
-                to_y: "down_part";
-                offset: -5 -20;
+                to_y: "audioplayer";
+                offset: -5 -6;
           }
         }
        }
@@ -676,6 +656,7 @@ collections {
         signal: "audiolist.playlist.playing";
         source: "*";
         script {
+          emit("audiolist.player.show", "");
           set_state(PART:"playpause_bt", "pause_unfocused", 0.0);
           set_int(play_button_state, 1);
         }
@@ -904,21 +885,19 @@ collections {
         }
       }
       program {
-         //name: "down_part_clicked";
-         signal: "mouse,clicked,*";
-         source: "down_part";
-         action: STATE_SET "down_part_clicked" 0.0;
-         target: "down_part";
-         target: "audiolist/list";
+         name: "player_show";
+         signal: "audiolist.player.show";
+         source: "*";
+         action: STATE_SET "show_player" 0.0;
+         targets: "audioplayer";
          transition: LINEAR 0.3;
       }
       program {
-         //name: "audiolist/list_clicked";
-         signal: "mouse,clicked,*";
-         source: "audiolist/list";
+         name: "player_hide";
+         signal: "audiolist.player.hide";
+         source: "*";
          action: STATE_SET "default" 0.0;
-         target: "down_part";
-         target: "audiolist/list";
+         targets: "audioplayer";
          transition: LINEAR 0.3;
       }
       program {

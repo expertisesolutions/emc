@@ -66,7 +66,7 @@ collections {
           type: IMAGE;
           description {
              state: "default" 0.0;
-             image.normal: "background.jpg";
+             image.normal: "background_audio_1.jpg";
              rel1 {
                 relative: 0.0 0.0 ; to: "background_img";
              }
@@ -78,19 +78,17 @@ collections {
              state: "show_audio" 0.0;
              inherit: "default" 0.0;
              color: 100 100 100 255;
-             image.normal: "background_audio_1.jpg";
-          }          
+          }
           description {
              state: "show_audio_1" 0.0;
              inherit: "default" 0.0;
-             image.normal: "background_audio_1.jpg";
           }
           description {
              state: "show_video" 0.0;
              inherit: "default" 0.0;
              color: 80 80 80 255;
              image.normal: "background_video.jpg";
-          }          
+          }
           description {
              state: "show_video_1" 0.0;
              inherit: "default" 0.0;
@@ -100,10 +98,12 @@ collections {
              state: "show_settings" 0.0;
              inherit: "default" 0.0;
              color: 80 80 80 255;
+             image.normal: "background.jpg";
           }
           description {
              state: "show_settings_1" 0.0;
              inherit: "default" 0.0;
+             image.normal: "background.jpg";
           }
        }
 
@@ -134,7 +134,7 @@ collections {
              }
           }
           description {
-             state: "audio_bt_mouse_in" 0.0;
+             state: "show_audio" 0.0;
              inherit: "default" 0.0;
              color: 50 150 255 255;
              color3: 50 150 255 50;
@@ -165,7 +165,7 @@ collections {
              }
           }
           description {
-             state: "video_bt_mouse_in" 0.0;
+             state: "show_video" 0.0;
              inherit: "default" 0.0;
              color: 50 150 255 255;
              color3: 50 150 255 50;
@@ -196,7 +196,7 @@ collections {
              }
           }
           description {
-             state: "settings_bt_mouse_in" 0.0;
+             state: "show_settings" 0.0;
              inherit: "default" 0.0;
              color: 50 150 255 255;
              color3: 50 150 255 50;
@@ -333,24 +333,23 @@ collections {
     programs {
       program { // fills the global vars(audio_state,video_state,settings_state)
                 // and starts audio_state as 'show' by default
-        name: state_fill;
-        signal: "load";
-        source: "";
-        script {
-          set_int(audio_state, 1);
-          set_int(video_state, 0);
-          set_int(settings_state, 0);
-          set_int(exit_window_state, 0);
-
-          set_state(PART:"app_window", "show_audio", 0.0);
-          set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
-          set_state(PART:"video_bt", "default", 0.0);
-          set_state(PART:"settings_bt", "default", 0.0);
-          set_state(PART:"confirm_exit_window", "default", 0.0);
-          set_state(PART:"yes_bt", "default", 0.0);
-          set_state(PART:"no_bt", "default", 0.0);
-        }
-        after: "transition_audio_1";
+         name: state_fill;
+         signal: "load";
+         source: "*";
+         script {
+            set_int(audio_state, 1);
+            set_int(video_state, 0);
+            set_int(settings_state, 0);
+            set_int(exit_window_state, 0);
+         }
+         sequence {
+            action: STATE_SET "show_audio_1" 0.0;
+            target: "app_window";
+            action: STATE_SET "show_audio" 0.0;
+            targets: "audio_bt";
+            action: STATE_SET "default" 0.0;
+            targets: "video_bt" "settings_bt" "exit_background" "confirm_exit_window" "yes_bt" "no_bt";
+         }
       }
       program {
            signal: "main.show.next";
@@ -448,6 +447,7 @@ collections {
          name: "audio_bt_mouse_in";
          signal: "mouse,in";
          source: "audio_bt";
+         filter: "audio_bt" "default";
          action: SIGNAL_EMIT "main.show.audio" "audio_bt";
       }
       program {
@@ -459,35 +459,21 @@ collections {
             set_int(video_state, 0);
             set_int(settings_state, 0);
             set_int(exit_window_state, 0);
-
-            //set_state(PART:"app_window", "show_audio", 0.0);
-            set_state(PART:"audio_bt", "audio_bt_mouse_in", 0.0);
-
-            set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"settings_bt", "default", 0.0);
-            set_state(PART:"exit_background"  , "default", 0.0);
-            set_state(PART:"confirm_exit_window", "default", 0.0);
-            set_state(PART:"yes_bt", "default", 0.0);
-            set_state(PART:"no_bt", "default", 0.0);
-          }
-          after: "transition_audio";
-      }
-      program {
-         name: "transition_audio";
-         action: STATE_SET "show_audio" 0.0;
-         target: "app_window";//transition_rect";
-         transition: SINUSOIDAL 0.3;
-         after: "transition_audio_1";
-      }
-      program {
-         name: "transition_audio_1";
-         action: STATE_SET "show_audio_1" 0.0;
-         target: "app_window";
-         transition: SINUSOIDAL 0.3;
+         }
+         sequence {
+            action: STATE_SET "show_audio" 0.0;
+            targets: "app_window" "audio_bt";
+            transition: SINUSOIDAL 0.3;
+            action: STATE_SET "default" 0.0;
+            targets: "video_bt" "settings_bt" "exit_background" "confirm_exit_window" "yes_bt" "no_bt";
+            action: STATE_SET "show_audio_1" 0.0;
+            target: "app_window";
+            transition: SINUSOIDAL 0.3;
+        }
       }
       program {
          name: "audio_selected";
-         signal: "mouse,clicked,*";
+         signal: "mouse,clicked,1";
          source: "audio_bt";
          action: SIGNAL_EMIT "main.selected.audio" "audio_bt";
       }
@@ -498,6 +484,7 @@ collections {
          name: "video_bt_mouse_in";
          signal: "mouse,in";
          source: "video_bt";
+         filter: "video_bt" "default";
          action: SIGNAL_EMIT "main.show.video" "video_bt";
       }
       program {
@@ -509,31 +496,17 @@ collections {
             set_int(audio_state, 0);
             set_int(settings_state, 0);
             set_int(exit_window_state, 0);
-
-            //set_state(PART:"app_window", "show_video", 0.0);
-            set_state(PART:"video_bt", "video_bt_mouse_in", 0.0);
-
-            set_state(PART:"audio_bt", "default", 0.0);
-            set_state(PART:"settings_bt", "default", 0.0);
-            set_state(PART:"exit_background"  , "default", 0.0);
-            set_state(PART:"confirm_exit_window", "default", 0.0);
-            set_state(PART:"yes_bt", "default", 0.0);
-            set_state(PART:"no_bt", "default", 0.0);
-          }
-          after: "transition_video";
-      }
-      program {
-         name: "transition_video";
-         action: STATE_SET "show_video" 0.0;
-         target: "app_window";//transition_rect";
-         transition: SINUSOIDAL 0.3;
-         after: "transition_video_1";
-      }
-      program {
-         name: "transition_video_1";
-         action: STATE_SET "show_video_1" 0.0;
-         target: "app_window";
-         transition: SINUSOIDAL 0.3;
+         }
+         sequence {
+            action: STATE_SET "show_video" 0.0;
+            targets: "app_window" "video_bt";
+            transition: SINUSOIDAL 0.3;
+            action: STATE_SET "default" 0.0;
+            targets: "audio_bt" "settings_bt" "exit_background" "confirm_exit_window" "yes_bt" "no_bt";
+            action: STATE_SET "show_video_1" 0.0;
+            target: "app_window";
+            transition: SINUSOIDAL 0.3;
+        }
       }
       program {
          name: "video_selected";
@@ -548,6 +521,7 @@ collections {
          name: "settings_selected";
          signal: "mouse,in";
          source: "settings_bt";
+         filter: "settings_bt" "default";
          action: SIGNAL_EMIT "main.show.settings" "settings_bt";
       }
       program {
@@ -559,30 +533,17 @@ collections {
             set_int(video_state, 0);
             set_int(settings_state, 1);
             set_int(exit_window_state, 0);
-
-            //set_state(PART:"app_window", "show_settings", 0.0);
-            set_state(PART:"audio_bt", "default", 0.0);
-            set_state(PART:"video_bt", "default", 0.0);
-            set_state(PART:"settings_bt", "settings_bt_mouse_in", 0.0);
-            set_state(PART:"exit_background"  , "default", 0.0);
-            set_state(PART:"confirm_exit_window", "default", 0.0);
-            set_state(PART:"yes_bt", "default", 0.0);
-            set_state(PART:"no_bt", "default", 0.0);
-          }
-          after: "transition_settings";
-      }
-      program {
-         name: "transition_settings";
-         action: STATE_SET "show_settings" 0.0;
-         target: "app_window";//transition_rect";
-         transition: SINUSOIDAL 0.3;
-         after: "transition_settings_1";
-      }
-      program {
-         name: "transition_settings_1";
-         action: STATE_SET "show_settings_1" 0.0;
-         target: "app_window";
-         transition: SINUSOIDAL 0.2;
+         }
+         sequence {
+            action: STATE_SET "show_settings" 0.0;
+            targets: "app_window" "settings_bt";
+            transition: SINUSOIDAL 0.3;
+            action: STATE_SET "default" 0.0;
+            targets: "audio_bt" "video_bt" "exit_background" "confirm_exit_window" "yes_bt" "no_bt";
+            action: STATE_SET "show_settings_1" 0.0;
+            target: "app_window";
+            transition: SINUSOIDAL 0.3;
+         }
       }
       program {
          name: "settings_bt_mouse_clicked";

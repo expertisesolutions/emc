@@ -2,6 +2,9 @@
 collections {
   group {
     name: "videoplayer";
+    script {
+       public player_state = 0;
+    }
     images {
       image: "background_video.jpg" RAW;
     }
@@ -41,7 +44,7 @@ collections {
       part {
         name: "status_bar";
         type: RECT;
-        mouse_events: 0;
+        mouse_events: 1;
         description {
           state: "default" 0.0;
           color: 0 0 0 100;
@@ -55,10 +58,16 @@ collections {
           }
         }
         description {
-          state: "show" 0.0;
+          state: "show_info" 0.0;
           inherit: "default" 0.0;
-          rel1.offset: 0 0;
-          rel2.offset: -1 40;
+          rel1 {
+            relative: 0.0 0.0;
+            offset: 1 1;
+          }
+          rel2 {
+            relative: 1.0 0.0;
+            offset: -1 40;
+          }
         }
       }
 
@@ -73,11 +82,13 @@ collections {
           color: 255 255 255 255;
           fixed: 1 1;
           rel1 {
-            relative: 0.5 0.5 ; to: "status_bar";
+            to: "status_bar";
+            relative: 0.5 0.5;
             offset: 0 -17;
           }
           rel2 {
-            relative: 0.5 0.5; to: "status_bar";
+            to: "status_bar";
+            relative: 0.5 0.5;
             offset: 0 17;
           }
           text {
@@ -96,21 +107,27 @@ collections {
         mouse_events: 0;
         description {
           state: "default" 0.0;
-          color: 0 0 0 100;
+          color: 0 0 0 0;
           rel1 {
             relative: 0.0 1.0 ;
             offset: 5 0;
           }
           rel2 {
             relative: 1.0 1.0;
-            offset: -5 65;
+            offset: -5 45;
           }
         }
         description {
-          state: "show" 0.0;
-          inherit: "default" 0.0;
-          rel1.offset: 5 -51;
-          rel2.offset: -5 -6;
+          state: "show_info" 0.0;
+          color: 0 0 0 100;
+          rel1 {
+            relative: 0.0 1.0 ;
+            offset: 5 -51;
+          }
+          rel2 {
+            relative: 1.0 1.0;
+            offset: -5 -6;
+          }
         }
       }
       part {
@@ -172,7 +189,7 @@ collections {
             fit: 0 1;
             font: "sans:style=Bold";
             min: 1 1;
-            max: 1 1;
+            align: 0.5 0.5;
             ellipsis: -1;
           }
         }
@@ -231,12 +248,42 @@ collections {
         name: "video_mouse_move";
         signal: "mouse,move";
         source: "videoplayer/video";
-        action: STATE_SET "show" 0.0;
-        transition: LINEAR 4.0;
+        script {
+           if (get_int(player_state) == 0) {
+              emit("videoplayer.player.show", "");
+              set_int(player_state, 1);
+           }
+           if (get_int(player_state) == 2) {
+              emit("videoplayer.player.show", "");
+           }
+        }
+      }
+      program {
+        name: "show_player";
+        signal: "videoplayer.player.show";
+        source: "*";
+        action: STATE_SET "show_info";
         targets: "playback_bar" "status_bar";
+        transition: LINEAR 0.4;
         sequence {
-          action: STATE_SET "default" 0.0;
-          targets: "playback_bar" "status_bar";
+          script {
+            set_int(player_state, 2);
+          }
+          action: SIGNAL_EMIT "videoplayer.player.hide" "";
+          in: 4.0 0.0;
+        }
+      }
+      program {
+        name: "hide_player";
+        signal: "videoplayer.player.hide";
+        source: "*";
+        action: STATE_SET "default" 0.0;
+        targets: "playback_bar" "status_bar";
+        transition: LINEAR 0.3;
+        sequence {
+          script {
+            set_int(player_state, 0);
+          }
         }
       }
       program {
