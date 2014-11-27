@@ -4,15 +4,16 @@ collections {
     images {
        image: "background.jpg" RAW;
     }
-   // min: 800 600;
+    min: 1280 720;
    // max: 1024 768;
     parts {
        part {
           name: "bg_rect";
           type: RECT;
+          mouse_events: 0;
           description {
              state: "default" 0.0;
-             color: 255 255 255 55;
+             color: 0 0 0 255;
              rel1 {
                 relative: 0.0 0.0;
                 offset: 0 0;
@@ -28,18 +29,18 @@ collections {
           type: IMAGE;
           mouse_events: 0;
           description {
-              state: "default" 0.0;
-              rel1 {
-                 relative: 0.0 0.0; 
-                 offset: 0 0;
-              }
-              rel2 {
-                 relative: 1.0 1.0;
-                 offset: -1 -1;
-              }
-              image {
-                normal: "background.jpg";
-              }
+             state: "default" 0.0;
+             rel1 {
+                relative: 0.0 0.0; 
+                offset: 0 0;
+             }
+             rel2 {
+                relative: 1.0 1.0;
+                offset: -1 -1;
+             }
+             image {
+               normal: "background.jpg";
+             }
           }
        }
 
@@ -47,6 +48,182 @@ collections {
 
        ADD_STATUS_BACKBT()
 
+       part {
+          name: "cBox";
+          type: RECT;
+          mouse_events: 0;
+          description {
+             color: 0 0 0 100;
+             state: "default" 0.0;
+             rel1 {
+                relative: 0.0 1.0;
+                to_y: status_bar;
+                offset: 10 10;
+             }
+             rel2 {
+                relative: 1.0 1.0;
+                offset: -11 -11;
+             }
+          }
+       }
+       part {
+          name: "mPath";
+          type: TEXT;
+          mouse_events: 0;
+          description {
+             state: "default" 0.0;
+             fixed: 1 1;
+             rel1 {
+                relative: 0.0 0.0;
+                to: cBox;
+                offset: 10 10;
+             }
+             rel2 {
+                relative: 0.5 0.0;
+                to: cBox;
+                offset: -6 30;
+             }
+             text {
+                text: "Music Path";
+                size: 16;
+                align: 1.0 0.5;
+                fit: 0 0;
+                font: "sans:style=Bold";
+                min: 1 1;
+                ellipsis: -1;
+             }
+          }
+       }
+       part {
+          name: "settings/musicpath";
+          type: TEXT;
+          mouse_events: 0;
+          description {
+             state: "default" 0.0;
+             color: 155 155 155 255;
+             rel1 {
+                relative: 0.5 0.0;
+                to_x: cBox;
+                to_y: mPath;
+                offset: 5 0;
+             }
+             rel2 {
+                relative: 1.0 1.0;
+                to_x: cBox;
+                to_y: mPath;
+                offset: -36 -1;
+             }
+             text {
+                text: "/home/[user]/Music";
+                size: 16;
+                align: 0.0 0.5;
+                fit: 0 0;
+                font: "sans:style=Bold";
+                min: 1 1;
+                ellipsis: -1;
+             }
+          }
+       }
+       part {
+          type: TEXT;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             color: 255 255 255 255;
+             rel1 {
+                relative: 1.0 0.0;
+                to: "settings/musicpath";
+                offset: 5 0;
+             }
+             rel2 {
+                relative: 1.0 1.0;
+                to: "settings/musicpath";
+                offset: 25 -1;
+             }
+             text {
+                text: "...";
+                size: 20;
+                align: 1.0 0.5;
+                source: mPath;
+             }
+          }
+       }
+       part {
+          name: "vPath";
+          type: TEXT;
+          mouse_events: 0;
+          description {
+             state: "default" 0.0;
+             color: 255 255 255 255;
+             rel1 {
+                relative: 0.0 1.0;
+                to_x: cBox;
+                to_y: mPath;
+                offset: 10 10;
+             }
+             rel2 {
+                relative: 0.5 1.0;
+                to_x: cBox;
+                to_y: mPath;
+                offset: -6 30;
+             }
+             text {
+                text: "Video Path";
+                align: 1.0 0.5;
+                source: mPath;
+             }
+          }
+       }
+       part {
+          name: "settings/videopath";
+          type: TEXT;
+          mouse_events: 0;
+          description {
+             state: "default" 0.0;
+             color: 155 155 155 255;
+             rel1 {
+                relative: 0.5 0.0;
+                to_x: cBox;
+                to_y: vPath;
+                offset: 5 0;
+             }
+             rel2 {
+                relative: 1.0 1.0;
+                to_x: cBox;
+                to_y: vPath;
+                offset: -36 -1;
+             }
+             text {
+                text: "/home/[user]/Videos";
+                align: 0.0 0.5;
+                source: settings/musicpath;
+             }
+          }
+       }
+       part {
+          type: TEXT;
+          mouse_events: 1;
+          description {
+             state: "default" 0.0;
+             color: 255 255 255 255;
+             rel1 {
+                relative: 1.0 0.0;
+                to: "settings/videopath";
+                offset: 5 0;
+             }
+             rel2 {
+                relative: 1.0 1.0;
+                to: "settings/videopath";
+                offset: 25 -1;
+             }
+             text {
+                text: "...";
+                size: 20;
+                align: 1.0 0.5;
+                source: mPath;
+             }
+          }
+       }
     } /*end parts */
 
     programs {
