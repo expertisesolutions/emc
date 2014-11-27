@@ -51,15 +51,25 @@ results()
    $sql $DB ".dump"
 }
 
+artist_get()
+{
+   _ret=$(cat .tmpfile |grep '^TPE2' |cut -d ":" -f2| cut -d "/" -f1 |sed -e 's/^ //g;s/^  //g;s/\x27//g')
+   if [ -z "$artist" ] ; then
+     _ret=$(cat .tmpfile |grep '^TPE1' |cut -d ":" -f2| cut -d "/" -f1 |sed -e 's/^ //g;s/^  //g;s/\x27//g')
+   fi
+
+   echo $_ret;
+}
+
 #create artists
 artist_insert()
 {
    echo "<Artist Insert>"
    find $tracks -name "*.mp3" |while read line ; do
       $id3 -l "$line" > .tmpfile
-      artist=$(cat .tmpfile |grep '^TPE2' |cut -d ":" -f2| cut -d "/" -f1 |sed -e 's/^ //g;s/^  //g;s/\x27//g')
+      artist=$(artist_get)
       if [ ! -z "$artist" ] ; then
-         row=$($sql $DB "SELECT * FROM $t_artists WHERE name = '$artist';") 2>/dev/null
+         row=$($sql $DB "SELECT * FROM $t_artists WHERE name = '$artist' COLLATE NOCASE;") 2>/dev/null
          if [ -z "$row" ] ; then
             $sql -echo $DB "INSERT INTO $t_artists (name) VALUES('$artist');" 2>/dev/null
          fi
@@ -74,11 +84,11 @@ album_insert()
    echo "<Album Insert>"
    find $tracks -name "*.mp3" |while read line ; do
       $id3 -l "$line" > .tmpfile
-      artist=$(cat .tmpfile |grep '^TPE2' |cut -d ":" -f2| cut -d "/" -f1 |sed -e 's/^ //g;s/^  //g;s/\x27//g')
+      artist=$(artist_get)
       if [ ! -z "$artist" ] ; then
          name=$(cat .tmpfile |grep '^TALB' |cut -d ":" -f2| sed -e 's/^ //g;s/^  //g;s/\x27//g')
-         id_artist=$($sql $DB "SELECT id FROM $t_artists WHERE name = '$artist';") 2>/dev/null
-         row=$($sql $DB "SELECT * FROM $t_albums WHERE name = '$name' AND id_artist = "$id_artist";") 2>/dev/null
+         id_artist=$($sql $DB "SELECT id FROM $t_artists WHERE name = '$artist' COLLATE NOCASE;") 2>/dev/null
+         row=$($sql $DB "SELECT * FROM $t_albums WHERE name = '$name' COLLATE NOCASE AND id_artist = "$id_artist";") 2>/dev/null
          if [ -z "$row" ] ; then
             p=$(dirname "$line")
             cd "$p"
@@ -88,13 +98,16 @@ album_insert()
             cd - >/dev/null 2>&1
             genre=$(cat .tmpfile |grep '^TCON' |cut -d ":" -f2| sed -e 's/^ //g;s/^  //g;s/\x27//g')
             year=$(cat .tmpfile |grep '^TYER' |cut -d ":" -f2| sed -e 's/^ //g;s/^  //g;s/\x27//g')
-            if [ $status -eq 0 ] ; then
-               p=$(dirname "$line")
-               # readfile() && writefile() are extensions
-               $sql -echo $DB "INSERT INTO $t_albums (id_artist, name, genre, year, image) VALUES($id_artist, '$name', '$genre', $year, readfile('$p/${array[0]}'));" 2>/dev/null
-            else
-               $sql -echo $DB "INSERT INTO $t_albums (id_artist, name, genre, year) VALUES($id_artist, '$name', '$genre', $year);" 2>/dev/null
+            if [ -z "$year" ] ; then
+              year=0
             fi
+#            if [ $status -eq 0 ] ; then
+#               p=$(dirname "$line")
+               # readfile() && writefile() are extensions
+#               $sql -echo $DB "INSERT INTO $t_albums (id_artist, name, genre, year, image) VALUES($id_artist, '$name', '$genre', $year, readfile('$p/${array[0]}'));" 2>/dev/null
+#            else
+               $sql -echo $DB "INSERT INTO $t_albums (id_artist, name, genre, year) VALUES($id_artist, '$name', '$genre', $year);" 2>/dev/null
+#            fi
          fi
 
       fi
@@ -108,13 +121,13 @@ track_insert()
    echo "<Track Insert>"
    find $tracks -name "*.mp3" |while read line ; do
       $id3 -l "$line" > .tmpfile
-      artist=$(cat .tmpfile |grep '^TPE2' |cut -d ":" -f2| cut -d "/" -f1 |sed -e 's/^ //g;s/^  //g;s/\x27//g')
+      artist=$(artist_get)
       if [ ! -z "$artist" ] ; then
          name_album=$(cat .tmpfile |grep '^TALB' |cut -d ":" -f2| sed -e 's/^ //g;s/^  //g;s/\x27//g')
          name_track=$(cat .tmpfile |grep '^TIT2' |cut -d ":" -f2| sed -e 's/^ //g;s/^  //g;s/\x27//g')
          n_track=$(cat .tmpfile |grep '^TRCK' |cut -d ":" -f2| sed -e 's/^ //g;s/^  //g;s/\x27//g' |cut -d "/" -f1)
-         id_artist=$($sql $DB "SELECT id FROM $t_artists WHERE name = '$artist';") 2>/dev/null
-         id_album=$($sql $DB "SELECT id FROM $t_albums WHERE id_artist = "$id_artist" AND name = '$name_album';") 2>/dev/null
+         id_artist=$($sql $DB "SELECT id FROM $t_artists WHERE name = '$artist' COLLATE NOCASE;") 2>/dev/null
+         id_album=$($sql $DB "SELECT id FROM $t_albums WHERE id_artist = "$id_artist" AND name = '$name_album' COLLATE NOCASE;") 2>/dev/null
          if [ ! -z $id_album ] ; then #XXX
             row=$($sql $DB "SELECT * FROM $t_tracks WHERE name = '$name_track' AND id_artist = "$id_artist" AND id_album = "$id_album";") 2>/dev/null
             if [ -z "$row" ] ; then
