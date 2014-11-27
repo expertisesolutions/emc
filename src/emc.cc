@@ -26,19 +26,18 @@
 EAPI_MAIN int
 elm_main(int argc, char **argv)
 {
-   {
-      ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
-      ::elm_layout layout(efl::eo::parent = win);
-      win.callback_delete_request_add(std::bind([]{elm_exit();}));
+   //elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
-      emc::settingsmodel settings(win, layout);
-      emc::mainctrl mctrl(settings);
-      mctrl.active();
+   ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
+   //win.autodel_set(true);
+   ::elm_layout layout(efl::eo::parent = win);
+   win.callback_delete_request_add(std::bind([]{elm_exit();}));
 
-      elm_run();
-      eo_unref(layout._eo_ptr());
-   }
-   elm_shutdown();
+   emc::settingsmodel settings(win, layout);
+   emc::mainctrl mctrl(settings);
+   mctrl.active();
+
+   elm_run();
 
    return 0;
 }
