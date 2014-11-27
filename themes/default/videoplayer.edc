@@ -308,6 +308,38 @@ collections {
         action: SIGNAL_EMIT "videoplayer.selected.back" "backbt";
       }
       program {
+        name: "playpausebt_play_focused";//when paused
+        signal: "mouse,in";
+        source: "playpause_bt";
+        filter: "playpause_bt" "default";
+        action: STATE_SET "play_focused" 0.0;
+        target: "playpause_bt";
+      }
+      program {
+        name: "playpausebt_play_unfocused";//when paused
+        signal: "mouse,out";
+        source: "playpause_bt";
+        filter: "playpause_bt" "play_focused";
+        action: STATE_SET "default" 0.0;
+        target: "playpause_bt";
+      }
+      program {
+        name: "playpausebt_pause_focused";
+        signal: "mouse,in";
+        source: "playpause_bt";
+        filter: "playpause_bt" "pause_unfocused";
+        action: STATE_SET "pause_focused" 0.0;
+        target: "playpause_bt";
+      }
+      program {
+        name: "playpausebt_pause_unfocused";
+        signal: "mouse,out";
+        source: "playpause_bt";
+        filter: "playpause_bt" "pause_focused";
+        action: STATE_SET "pause_unfocused" 0.0;
+        target: "playpause_bt";
+      }
+      program {
         name: "playpausebt_mouse_clicked";
         signal: "mouse,clicked,1";
         source: "playpause_bt";
