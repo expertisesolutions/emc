@@ -1,3 +1,97 @@
+#define ADD_SETTINGS_ROW_TEXT(_NAMEITEM, _LINEITEM, _TEXTITEM) \
+       part { \
+          name: _NAMEITEM; \
+          type: TEXT; \
+          mouse_events: 0; \
+          description { \
+             state: "default" 0.0; \
+             fixed: 1 1; \
+             rel1 { \
+                relative: 0.0 0.0; \
+                to: cBox; \
+                offset: 10 10+(50*(_LINEITEM-1)); \
+             } \
+             rel2 { \
+                relative: 0.5 0.0; \
+                to: cBox; \
+                offset: -6 30; \
+             } \
+             text { \
+                text: _TEXTITEM; \
+                size: 16; \
+                align: 1.0 0.5; \
+                fit: 0 0; \
+                font: "sans:style=Bold"; \
+                min: 1 1; \
+                ellipsis: -1; \
+             } \
+          } \
+       }
+
+#define ADD_SETTINGS_ROW_ITEM(_NAMEITEM) \
+       part { \
+          name: "settings/"_NAMEITEM; \
+          type: TEXT; \
+          mouse_events: 0; \
+          description { \
+             state: "default" 0.0; \
+             color: 155 155 155 255; \
+             rel1 { \
+                relative: 0.5 0.0; \
+                to_x: cBox; \
+                to_y: _NAMEITEM; \
+                offset: 5 0; \
+             } \
+             rel2 { \
+                relative: 1.0 1.0; \
+                to_x: cBox; \
+                to_y: _NAMEITEM; \
+                offset: -36 -1; \
+             } \
+             text { \
+                text: "-"; \
+                size: 16; \
+                align: 0.0 0.5; \
+                fit: 0 0; \
+                font: "sans:style=Bold"; \
+                min: 1 1; \
+                ellipsis: -1; \
+             } \
+          } \
+       } \
+       part { \
+          type: TEXT; \
+          name: _NAMEITEM"_bt"; \
+          mouse_events: 1; \
+          description { \
+             state: "default" 0.0; \
+             color: 255 255 255 255; \
+             rel1 { \
+                relative: 1.0 0.0; \
+                to: "settings/"_NAMEITEM; \
+                offset: 5 0; \
+             } \
+             rel2 { \
+                relative: 1.0 1.0; \
+                to: "settings/"_NAMEITEM; \
+                offset: 25 -1; \
+             } \
+             text { \
+                text: "..."; \
+                size: 20; \
+                align: 1.0 0.5; \
+                source: _NAMEITEM; \
+             } \
+          } \
+       }
+
+#define ADD_SETTINGS_BT_PROG(_NAMEITEM) \
+      program { \
+        signal: "mouse,clicked,1"; \
+        source: _NAMEITEM"_bt"; \
+        action: SIGNAL_EMIT "settings."_NAMEITEM".clicked" _NAMEITEM"_bt"; \
+      }
+
 collections {
  group {
     name: "settings";
@@ -66,164 +160,13 @@ collections {
              }
           }
        }
-       part {
-          name: "mPath";
-          type: TEXT;
-          mouse_events: 0;
-          description {
-             state: "default" 0.0;
-             fixed: 1 1;
-             rel1 {
-                relative: 0.0 0.0;
-                to: cBox;
-                offset: 10 10;
-             }
-             rel2 {
-                relative: 0.5 0.0;
-                to: cBox;
-                offset: -6 30;
-             }
-             text {
-                text: "Music Path";
-                size: 16;
-                align: 1.0 0.5;
-                fit: 0 0;
-                font: "sans:style=Bold";
-                min: 1 1;
-                ellipsis: -1;
-             }
-          }
-       }
-       part {
-          name: "settings/musicpath";
-          type: TEXT;
-          mouse_events: 0;
-          description {
-             state: "default" 0.0;
-             color: 155 155 155 255;
-             rel1 {
-                relative: 0.5 0.0;
-                to_x: cBox;
-                to_y: mPath;
-                offset: 5 0;
-             }
-             rel2 {
-                relative: 1.0 1.0;
-                to_x: cBox;
-                to_y: mPath;
-                offset: -36 -1;
-             }
-             text {
-                text: "/home/[user]/Music";
-                size: 16;
-                align: 0.0 0.5;
-                fit: 0 0;
-                font: "sans:style=Bold";
-                min: 1 1;
-                ellipsis: -1;
-             }
-          }
-       }
-       part {
-          type: TEXT;
-          mouse_events: 1;
-          description {
-             state: "default" 0.0;
-             color: 255 255 255 255;
-             rel1 {
-                relative: 1.0 0.0;
-                to: "settings/musicpath";
-                offset: 5 0;
-             }
-             rel2 {
-                relative: 1.0 1.0;
-                to: "settings/musicpath";
-                offset: 25 -1;
-             }
-             text {
-                text: "...";
-                size: 20;
-                align: 1.0 0.5;
-                source: mPath;
-             }
-          }
-       }
-       part {
-          name: "vPath";
-          type: TEXT;
-          mouse_events: 0;
-          description {
-             state: "default" 0.0;
-             color: 255 255 255 255;
-             rel1 {
-                relative: 0.0 1.0;
-                to_x: cBox;
-                to_y: mPath;
-                offset: 10 10;
-             }
-             rel2 {
-                relative: 0.5 1.0;
-                to_x: cBox;
-                to_y: mPath;
-                offset: -6 30;
-             }
-             text {
-                text: "Video Path";
-                align: 1.0 0.5;
-                source: mPath;
-             }
-          }
-       }
-       part {
-          name: "settings/videopath";
-          type: TEXT;
-          mouse_events: 0;
-          description {
-             state: "default" 0.0;
-             color: 155 155 155 255;
-             rel1 {
-                relative: 0.5 0.0;
-                to_x: cBox;
-                to_y: vPath;
-                offset: 5 0;
-             }
-             rel2 {
-                relative: 1.0 1.0;
-                to_x: cBox;
-                to_y: vPath;
-                offset: -36 -1;
-             }
-             text {
-                text: "/home/[user]/Videos";
-                align: 0.0 0.5;
-                source: settings/musicpath;
-             }
-          }
-       }
-       part {
-          type: TEXT;
-          mouse_events: 1;
-          description {
-             state: "default" 0.0;
-             color: 255 255 255 255;
-             rel1 {
-                relative: 1.0 0.0;
-                to: "settings/videopath";
-                offset: 5 0;
-             }
-             rel2 {
-                relative: 1.0 1.0;
-                to: "settings/videopath";
-                offset: 25 -1;
-             }
-             text {
-                text: "...";
-                size: 20;
-                align: 1.0 0.5;
-                source: mPath;
-             }
-          }
-       }
+
+       ADD_SETTINGS_ROW_TEXT(musicpath, 1, "Music Path")
+       ADD_SETTINGS_ROW_ITEM(musicpath)
+
+       ADD_SETTINGS_ROW_TEXT(videopath, 2, "Video Path")
+       ADD_SETTINGS_ROW_ITEM(videopath)
+
     } /*end parts */
 
     programs {
@@ -244,6 +187,11 @@ collections {
          source: "*";
       }
 /* Signals End */
+
+      ADD_SETTINGS_BT_PROG(videopath)
+
+      ADD_SETTINGS_BT_PROG(musicpath)
+
       program {
          name: "backbt_mouse_in";
          signal: "mouse,in";

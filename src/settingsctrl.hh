@@ -15,6 +15,8 @@ class settingsctrl
    public:
      settingsctrl(const settingsmodel &settings, const std::function<void()> &_cb);
      ~settingsctrl() {}
+
+     void active();
 };
 
 } //emc
