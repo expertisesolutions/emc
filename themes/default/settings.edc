@@ -28,6 +28,28 @@
           } \
        }
 
+#define ADD_SETTINGS_ROW_SWALLOW(_NAMEITEM) \
+       part { \
+          name: "settings/swallow/"_NAMEITEM; \
+          type: SWALLOW; \
+          description { \
+             state: "default" 0.0; \
+             rel1 { \
+                relative: 0.5 0.0; \
+                to_x: cBox; \
+                to_y: _NAMEITEM; \
+                offset: 5 0; \
+             } \
+             rel2 { \
+                relative: 1.0 1.0; \
+                to_x: cBox; \
+                to_y: _NAMEITEM; \
+                offset: -6 -1; \
+             } \
+          } \
+       } \
+ 
+
 #define ADD_SETTINGS_ROW_ITEM(_NAMEITEM) \
        part { \
           name: "settings/"_NAMEITEM; \
@@ -162,10 +184,10 @@ collections {
        }
 
        ADD_SETTINGS_ROW_TEXT(musicpath, 1, "Music Path")
-       ADD_SETTINGS_ROW_ITEM(musicpath)
+       ADD_SETTINGS_ROW_SWALLOW(musicpath)
 
        ADD_SETTINGS_ROW_TEXT(videopath, 2, "Video Path")
-       ADD_SETTINGS_ROW_ITEM(videopath)
+       ADD_SETTINGS_ROW_SWALLOW(videopath)
 
     } /*end parts */
 
@@ -187,11 +209,6 @@ collections {
          source: "*";
       }
 /* Signals End */
-
-      ADD_SETTINGS_BT_PROG(videopath)
-
-      ADD_SETTINGS_BT_PROG(musicpath)
-
       program {
          name: "backbt_mouse_in";
          signal: "mouse,in";
