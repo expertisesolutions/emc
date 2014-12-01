@@ -13,6 +13,8 @@ extern "C"
 }
 #include <Esql_Model.hh>
 
+#include "file_scanner.hh"
+
 namespace emc {
 
 class audiolistmodel
@@ -24,6 +26,7 @@ class audiolistmodel
    esql::model_table albums;
    esql::model_table tracks;
 
+   file_scanner scanner;
    ::efl::eo::signal_connection init_connection;
 
    bool init(void * info);
@@ -31,7 +34,7 @@ class audiolistmodel
 
    public:
      audiolistmodel();
-     ~audiolistmodel() {}
+     ~audiolistmodel();
      esql::model_table& artists_get();
      esql::model_table& albums_get();
      esql::model_table& tracks_get();

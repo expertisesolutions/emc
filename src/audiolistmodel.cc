@@ -30,6 +30,11 @@ audiolistmodel::audiolistmodel()
    database.load();
 }
 
+audiolistmodel::~audiolistmodel()
+{
+   init_connection.disconnect();
+}
+
 bool
 audiolistmodel::init(void * info)
 {
@@ -75,7 +80,8 @@ audiolistmodel::load_tables()
           tracks = table;
      }
 
-   // TODO: Scans the filesystem
+   std::cout << "Starting file scanner..." << std::endl;
+   scanner.start();
 
    // TODO: Check new/old files and tracks against db/filesystem
 
