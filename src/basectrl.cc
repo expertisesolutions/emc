@@ -16,11 +16,11 @@
 
 namespace emc {
 
-basectrl::basectrl(const settingsmodel &_settings, const std::string &_groupname, const std::function<void()> &_cb) :
+basectrl::basectrl(settingsmodel &_settings, const std::string &_groupname, const std::function<void()> &_cb) :
         groupname(_groupname),
-        settings(_settings),
         deactive_cb(_cb),
-        layout(settings.layout),
+        settings (_settings),
+        layout(_settings.layout),
         key_con(nullptr)
 {
    layout.signal_callback_add(groupname+".selected.back", "*",

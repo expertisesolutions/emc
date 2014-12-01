@@ -25,7 +25,7 @@
 
 namespace emc {
 
-settingsmodel::settingsmodel(const ::elm_win &_win, const ::elm_layout &_layout)
+settingsmodel::settingsmodel(::elm_win &_win, ::elm_layout &_layout)
    : win(_win),
      layout(_layout),
      player(efl::eo::parent = layout),
@@ -52,6 +52,7 @@ settingsmodel::settingsmodel(const ::elm_win &_win, const ::elm_layout &_layout)
 std::string
 settingsmodel::video_rootpath_get()
 {
+   std::cout << "settings videopath get " << video_dir << std::endl;
    return video_dir;
 }
 
@@ -60,6 +61,19 @@ settingsmodel::audio_rootpath_get()
 {
    return audio_dir;
 }
+
+void
+settingsmodel::video_rootpath_set(std::string path)
+{
+   video_dir = path;
+}
+
+void
+settingsmodel::audio_rootpath_set(std::string path)
+{
+   audio_dir = path;
+}
+
 
 void
 settingsmodel::group_set(const std::string groupname)

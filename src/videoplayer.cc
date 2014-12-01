@@ -62,7 +62,7 @@ _video_frame_decode_cb(void *data, Evas_Object *obj, void *event_info)
    efl::ecore::main_loop_thread_safe_call_async(std::bind(&videoplayer::player_fame_decode_cb, t));
 }
 
-videoplayer::videoplayer(const settingsmodel &settings, const std::function<void()> &deactive_cb)
+videoplayer::videoplayer(settingsmodel &settings, const std::function<void()> &deactive_cb)
    : basectrl(settings, "videoplayer", deactive_cb),
         player(settings.player),
         progslider(efl::eo::parent = layout)

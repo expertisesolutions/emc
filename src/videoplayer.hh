@@ -20,7 +20,7 @@ class videoplayer
    ::elm_slider progslider;
 
    public:
-     videoplayer(const settingsmodel &settings, const std::function<void()> &deactive_cb);
+     videoplayer(settingsmodel &settings, const std::function<void()> &deactive_cb);
      ~videoplayer() {}
 
      void play(emodel model);

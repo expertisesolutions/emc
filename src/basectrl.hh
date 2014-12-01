@@ -15,11 +15,11 @@ class basectrl
 
    protected:
      std::string groupname;
-     settingsmodel settings;
-     ::elm_layout layout;
+     ::elm_layout &layout;
+     settingsmodel &settings;
 
    public:
-     basectrl(const settingsmodel &settings, const std::string &groupname, const std::function<void()> &deactive_cb);
+     basectrl(settingsmodel &settings, const std::string &groupname, const std::function<void()> &deactive_cb);
      ~basectrl() {};
      virtual void active();
      virtual void deactive();

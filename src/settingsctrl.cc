@@ -16,12 +16,35 @@
 
 namespace emc {
 
-settingsctrl::settingsctrl(const settingsmodel &_settings, const std::function<void()> &_cb)
+settingsctrl::settingsctrl(settingsmodel &_settings, const std::function<void()> &_cb)
    : basectrl(_settings, "settings", _cb),
    m_fentry(efl::eo::parent = layout),
-   v_fentry(efl::eo::parent = layout)
+   v_fentry(efl::eo::parent = layout),
+   fullscreen_check(efl::eo::parent = layout),
+   mupdate_bt(efl::eo::parent = layout)
 {
+   v_fentry.callback_changed_add(
+       std::bind([this]
+          {
+            std::string path = v_fentry.path_get();
+            std::cout << "music path changed to " << path << std::endl;
+            if (path == "")
+              v_fentry.path_set(settings.video_rootpath_get());
+            else
+              settings.video_rootpath_set(path);
 
+          }));
+
+   m_fentry.callback_changed_add(
+       std::bind([this]
+          {
+            std::string path = m_fentry.path_get();
+            std::cout << "music path changed to " << path << std::endl;
+            if (path == "")
+              m_fentry.path_set(settings.audio_rootpath_get());
+            else
+              settings.audio_rootpath_set(path);
+          }));
 }
 
 void
@@ -37,8 +60,13 @@ settingsctrl::active()
    v_fentry.folder_only_set(true);
    v_fentry.path_set(settings.video_rootpath_get());
 
+   layout.content_set(groupname+"/swallow/musicupdate", mupdate_bt);
+   layout.content_set(groupname+"/swallow/fullscreen", fullscreen_check);
+
    m_fentry.visibility_set(true);
    v_fentry.visibility_set(true);
+   mupdate_bt.visibility_set(true);
+   fullscreen_check.visibility_set(true);
 }
 
 void
@@ -50,6 +78,8 @@ settingsctrl::deactive()
 
    m_fentry.visibility_set(false);
    v_fentry.visibility_set(false);
+   mupdate_bt.visibility_set(false);
+   fullscreen_check.visibility_set(false);
 
    basectrl::deactive();
 }

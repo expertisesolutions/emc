@@ -18,14 +18,16 @@ class settingsmodel
    std::string theme_dir;
 
    public:
-     settingsmodel(const ::elm_win &win, const ::elm_layout &layout);
+     settingsmodel(::elm_win &win, ::elm_layout &layout);
      ~settingsmodel() {}
      std::string video_rootpath_get();
      std::string audio_rootpath_get();
+     void video_rootpath_set(std::string path);
+     void audio_rootpath_set(std::string path);
 //     ::elm_video player_get();
      void group_set(const std::string groupname);
-     ::elm_win win;
-     ::elm_layout layout;
+     ::elm_win &win;
+     ::elm_layout &layout;
      ::elm_video player;
 };
 
