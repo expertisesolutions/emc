@@ -1,15 +1,16 @@
 ACLOCAL_AMFLAGS = -I m4
 PROJ=emc
-SRCS= \
-basectrl.cc \
-audiolistmodel.cc \
-audiolist.cc \
-videolist.cc \
-videoplayer.cc \
-settingsctrl.cc \
-mainctrl.cc \
-settingsmodel.cc \
-emc.cc
+SOURCES= \
+  basectrl.cc \
+  audiolistmodel.cc \
+  audiolist.cc \
+  videolist.cc \
+  videoplayer.cc \
+  settingsctrl.cc \
+  mainctrl.cc \
+  settingsmodel.cc \
+  emc.cc
+OBJECTS=$(SOURCES:.cc=.o)
 
 emc_LIBADD = @EMC_LIBS@
 emc_CFLAGS = @EMC_CFLAGS@
@@ -29,11 +30,18 @@ DEFS = -DEFL_BETA_API_SUPPORT \
 
 DEFS += -DEMC_DISABLE_EO_CALLBACK
 
-all:
-	$(CXX) $(SRCS) -std=c++11 ${emc_LIBADD} ${emc_CFLAGS} ${DEFS} -o $(PROJ)
+all: $(SOURCES) emc
 
-debug:
-	$(CXX) $(SRCS) -std=c++11 ${emc_LIBADD} -g -Og ${emc_CFLAGS} ${DEFS} -o $(PROJ)
+emc: $(OBJECTS)
+	@echo "Linking $@"
+	@$(CXX) $^ ${emc_LIBADD} -o $@
+
+.cc.o:
+	@echo "Compiling $<"
+	@$(CXX) -c -std=c++11 ${emc_LIBADD} ${emc_CFLAGS} ${DEFS} $< -o $@
+
+debug: emc_CFLAGS += -g -Og -DDEBUG
+debug: emc
 
 clean:
 	rm -f emc *.o

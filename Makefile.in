@@ -1,15 +1,15 @@
 ACLOCAL_AMFLAGS = -I m4
-AM_MAKEFLAGS = --no-print-directory
+AM_MAKEFLAGS += --no-print-directory
 
 SUBDIRS = src
 
 all:
 	cd themes/default/ && edje_cc default.edc
-	cd src && make
+	cd src && $(MAKE) $(AM_MAKEFLAGS)
 
 debug:
 	cd themes/default/ && edje_cc default.edc
-	cd src && make debug
+	cd src && $(MAKE) $(AM_MAKEFLAGS) debug
 
 clean:
-	cd src && make clean
+	cd src && $(MAKE) clean
