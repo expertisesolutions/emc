@@ -7,11 +7,7 @@
 
 #include <eina_accessor.hh>
 
-namespace {
-   const std::string ARTISTS_TABLE_NAME = "artists";
-   const std::string ALBUMS_TABLE_NAME = "albums";
-   const std::string TRACKS_TABLE_NAME = "tracks";
-}
+#include "database_schema.hh"
 
 namespace emc {
 
@@ -20,8 +16,10 @@ audiolistmodel::audiolistmodel()
         artists(nullptr),
         albums(nullptr),
         tracks(nullptr),
-        init_connection(nullptr)
+        init_connection(nullptr),
+        db_table_created_connection(nullptr)
 {
+   // TODO: Configure database path to user data
    database = esql::model("./emc.db", "", "", "");
 
    init_connection = database.callback_children_count_changed_add(
@@ -40,17 +38,40 @@ audiolistmodel::init(void * info)
 {
    init_connection.disconnect();
 
+   // TODO: Create a service to take care of database schema creation/validation/migration
+
    unsigned int table_count = *static_cast<unsigned int *>(info);
    std::cout << "audioDB children count change " << table_count << std::endl;
    if (0 == table_count)
      {
-        // TODO: This is a new database, create it
+        std::cout << "Creating database..." << std::endl;
+        db_table_created_connection = database.callback_children_count_changed_add(
+          std::bind(&audiolistmodel::db_table_created, this, std::placeholders::_3));
+        // TODO: connect the load_status_error callback
+        schema::create_database(database);
         return false;
      }
 
 
    // TODO: Validate schema version
+   // if (schema::tables.size() != table_count ...)
 
+   // TODO: Migrate old schema version or error on newer than current
+   // if (version_table.value != current_version)
+
+   load_tables();
+   return false;
+}
+
+bool
+audiolistmodel::db_table_created(void * info)
+{
+   unsigned int table_count = *static_cast<unsigned int *>(info);
+   std::cout << "Database table created. Number of tables: " << table_count << std::endl;
+   if (schema::tables.size() != table_count)
+     return false;
+
+   db_table_created_connection.disconnect();
 
    load_tables();
    return false;
@@ -72,11 +93,11 @@ audiolistmodel::load_tables()
 
         std::string tablename = table.name_get();
 
-        if (ARTISTS_TABLE_NAME == tablename)
+        if (schema::artists_table.name == tablename)
           artists = table;
-        else if (ALBUMS_TABLE_NAME == tablename)
+        else if (schema::albums_table.name == tablename)
           albums = table;
-        else if (TRACKS_TABLE_NAME == tablename)
+        else if (schema::tracks_table.name == tablename)
           tracks = table;
      }
 

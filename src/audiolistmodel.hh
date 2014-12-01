@@ -28,8 +28,10 @@ class audiolistmodel
 
    file_scanner scanner;
    ::efl::eo::signal_connection init_connection;
+   ::efl::eo::signal_connection db_table_created_connection;
 
    bool init(void * info);
+   bool db_table_created(void * info);
    bool load_tables();
 
    public:

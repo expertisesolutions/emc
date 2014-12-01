@@ -10,7 +10,8 @@ SOURCES= \
   mainctrl.cc \
   settingsmodel.cc \
   emc.cc \
-  file_scanner.cc
+  file_scanner.cc \
+  database_schema.cc
 OBJECTS=$(SOURCES:.cc=.o)
 
 emc_LIBADD = @EMC_LIBS@
