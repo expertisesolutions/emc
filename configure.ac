@@ -37,6 +37,7 @@ PKG_CHECK_MODULES([EMC],
  esskyuehl >= 1.0.0
  esskyuehl-cxx >= 1.0.0
  sqlite3 >= 1.0.0
+ taglib >= 1.9.1
 ])
 
 # Checks for header files.
