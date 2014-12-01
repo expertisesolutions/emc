@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 
 #ifdef HAVE_CONFIG_H
@@ -26,19 +27,26 @@
 EAPI_MAIN int
 elm_main(int argc, char **argv)
 {
-   //elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
+   if (!esql_init())
+     {
+        std::cerr << "Could not initialize Esql" << std::endl;
+        return EXIT_FAILURE;
+     }
 
-   ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
-   //win.autodel_set(true);
-   ::elm_layout layout(efl::eo::parent = win);
-   win.callback_delete_request_add(std::bind([]{elm_exit();}));
+   {
+      ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
+      ::elm_layout layout(efl::eo::parent = win);
+      win.callback_delete_request_add(std::bind([]{elm_exit();}));
 
-   emc::settingsmodel settings(win, layout);
-   emc::mainctrl mctrl(settings);
-   mctrl.active();
+      emc::settingsmodel settings(win, layout);
+      emc::mainctrl mctrl(settings);
+      mctrl.active();
 
-   elm_run();
+      elm_run();
+      eo_unref(layout._eo_ptr());
+   }
+   elm_shutdown();
 
-   return 0;
+   return EXIT_SUCCESS;
 }
 ELM_MAIN()

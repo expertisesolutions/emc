@@ -2,16 +2,16 @@
 #define _AUDIOLIST_MODEL_HH
 
 #include <iostream>
-#include "Emodel.h"
-#include "Emodel.hh"
+#include <eo_event.hh>
+#include <Emodel.h>
+#include <Emodel.hh>
 
 extern "C"
 {
 #include <Esskyuehl.h>
-#include "Esql_Model.h"
+#include <Esql_Model.h>
 }
-#include "Esql_Model.eo.hh"
-
+#include <Esql_Model.hh>
 
 namespace emc {
 
@@ -23,8 +23,10 @@ class audiolistmodel
    esql::model_table artists;
    esql::model_table albums;
    esql::model_table tracks;
-   std::function<void()> loaded;
 
+   ::efl::eo::signal_connection init_connection;
+
+   bool init(void * info);
    bool load_tables();
 
    public:
@@ -39,4 +41,5 @@ class audiolistmodel
 };
 
 } //emc
+
 #endif
