@@ -104,16 +104,15 @@ bool file_scanner::file_status(eio::model &file, void *info)
    std::string path;
    int is_directory;
    int is_link;
-   int64_t size;
+   //int64_t size;
 
    if (!get_property(file, "filename", filename)
      || !get_property(file, "path", path)
      || !get_property(file, "is_dir", is_directory)
      || !get_property(file, "is_lnk", is_link)
-     //|| !get_property(file, "size", size)
+     //|| !get_property(file, "size", size) // efl::eina::get<int64_t> is limited, it doesn't match equal types properly like long == int64_t on 64 bits machines
      ) return false;
 
-   std::cout << is_directory << std::endl;
    if (is_directory)
      scan_path(path);
    else
