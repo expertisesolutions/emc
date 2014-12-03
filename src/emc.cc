@@ -33,19 +33,20 @@ elm_main(int argc, char **argv)
         return EXIT_FAILURE;
      }
 
-   {
-      ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
-      ::elm_layout layout(efl::eo::parent = win);
-      win.callback_delete_request_add(std::bind([]{elm_exit();}));
+   //eina_log_domain_level_set("esskyuehl", EINA_LOG_LEVEL_DBG);
+   eina_log_domain_level_set("esql_model", EINA_LOG_LEVEL_DBG);
 
-      emc::settingsmodel settings(win, layout);
-      emc::mainctrl mctrl(settings);
-      mctrl.active();
+   ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
+   //win.autodel_set(true);
+   ::elm_layout layout(efl::eo::parent = win);
+   win.callback_delete_request_add(std::bind([]{elm_exit();}));
 
-      elm_run();
-      win._release();
-   }
-   elm_shutdown();
+   emc::settingsmodel settings(win, layout);
+   emc::mainctrl mctrl(settings);
+   mctrl.active();
+
+   elm_run();
+   win._release();
 
    return EXIT_SUCCESS;
 }

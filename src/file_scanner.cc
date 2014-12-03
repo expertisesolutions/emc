@@ -32,7 +32,8 @@ namespace {
 
 namespace emc {
 
-file_scanner::file_scanner()
+file_scanner::file_scanner(std::function<void(const tag&)> media_file_add_cb)
+   : media_file_add_cb(media_file_add_cb)
 {}
 
 file_scanner::~file_scanner()
@@ -61,6 +62,7 @@ std::vector<std::string> file_scanner::get_configured_paths() const
 
 void file_scanner::scan_path(const std::string &path)
 {
+   //return;
    std::cout << "Scanning path: " << path << std::endl;
    std::unique_ptr<eio::model> file_model(new eio::model());
    file_model->path_set(path);
@@ -70,8 +72,13 @@ void file_scanner::scan_path(const std::string &path)
    files.push_back(move(file_model));
 }
 
+static int count = -1;
+const auto MAX_COUNT = 20;
+
 bool file_scanner::file_found(eio::model &file_model, void *info)
 {
+   if (count > MAX_COUNT) return true;
+
    auto item_count = *static_cast<unsigned int*>(info);
    std::cout << "Number of items found: " << item_count << std::endl;
    if (0 == item_count)
@@ -96,6 +103,8 @@ bool file_scanner::file_found(eio::model &file_model, void *info)
 
 bool file_scanner::file_status(eio::model &file, void *info)
 {
+   if (count > MAX_COUNT) return false;
+
    const auto load = *static_cast<Emodel_Load*>(info);
    if (!(EMODEL_LOAD_STATUS_LOADED_PROPERTIES & load.status))
      return true;
@@ -123,21 +132,39 @@ bool file_scanner::file_status(eio::model &file, void *info)
 
 void file_scanner::check_media_file(const std::string &path)
 {
+   // TODO: Read file tag in background
+
    std::cout << "Checking if filename is a recognized media type: " << path << std::endl;
 
    TagLib::FileRef file(path.c_str());
    if (file.isNull() || !file.tag())
      return;
 
-   using namespace std;
+   if (count == -1)
+     count = 0;
+   else
+     ++count;
+
    TagLib::Tag *tag = file.tag();
-   cout << "title - \"" << tag->title() << "\"" << endl;
-   cout << "artist - \"" << tag->artist() << "\"" << endl;
-   cout << "album - \"" << tag->album() << "\"" << endl;
-   cout << "year - \"" << tag->year() << "\"" << endl;
-   cout << "comment - \"" << tag->comment() << "\"" << endl;
-   cout << "track - \"" << tag->track() << "\"" << endl;
-   cout << "genre - \"" << tag->genre() << "\"" << endl;
+
+   auto to_string = [](const TagLib::String &str) -> std::string
+     {
+        if (str == TagLib::String::null)
+          return "";
+
+        const auto UNICODE = true;
+        return str.to8Bit(UNICODE);
+     };
+
+   ::emc::tag new_tag;
+   new_tag.file = path;
+   new_tag.title = to_string(tag->title());
+   new_tag.track = tag->track();
+   new_tag.artist = to_string(tag->artist());
+   new_tag.album = to_string(tag->album());
+   new_tag.genre = to_string(tag->genre());
+   new_tag.year = tag->year();
+   media_file_add_cb(new_tag);
 }
 
 }

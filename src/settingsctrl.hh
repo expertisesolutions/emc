@@ -2,6 +2,11 @@
 #define _SETTINGS_CTRL_HH
 
 #include <iostream>
+
+extern "C"
+{
+#include "elm_interface_atspi_text.h"
+}
 #include <Elementary.h>
 
 #include "basectrl.hh"
