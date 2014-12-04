@@ -238,7 +238,7 @@ audiolist::list_activated_cb()
        if (path) {
          evas::object emotion = player.emotion_get();
          evas_object_smart_callback_add(emotion._eo_ptr(), "open_done", audio_open_done_cb, this); //FIXME
-         player.file_set(path, "");
+         player.efl::eo::detail::extension_inheritance<efl::file>::template type< ::elm_video>::file_set(path, "");
          free(path);
        }
     }
@@ -267,7 +267,7 @@ audiolist::active()
 
    list.visibility_set(true);
    progslider.visibility_set(true);
-   view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "default");
+   view = ::elm_view_list(view.elm_view_list_constructor(list, ELM_GENLIST_ITEM_NONE, "default"));
 
    view.callback_model_selected_add(std::bind([this](void *eo)
       {

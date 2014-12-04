@@ -3,10 +3,13 @@
 
 #include <iostream>
 #include <Elementary.h>
-#include <Elementary.hh>
 
 #include "basectrl.hh"
 #include "settingsmodel.hh"
+
+#include <elm_fileselector_entry.eo.hh>
+#include <elm_check.eo.hh>
+#include <elm_button.eo.hh>
 
 namespace emc {
 

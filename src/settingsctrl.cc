@@ -51,7 +51,6 @@ void
 settingsctrl::active()
 {
    basectrl::active();
-
    layout.content_set(groupname+"/swallow/musicpath", m_fentry);
    m_fentry.folder_only_set(true);
    m_fentry.path_set(settings.audio_rootpath_get());
@@ -72,7 +71,6 @@ settingsctrl::active()
 void
 settingsctrl::deactive()
 {
-
    layout.content_unset(groupname+"/swallow/musicpath");
    layout.content_unset(groupname+"/swallow/videopath");
 

@@ -52,7 +52,6 @@ settingsmodel::settingsmodel(::elm_win &_win, ::elm_layout &_layout)
 std::string
 settingsmodel::video_rootpath_get()
 {
-   std::cout << "settings videopath get " << video_dir << std::endl;
    return video_dir;
 }
 

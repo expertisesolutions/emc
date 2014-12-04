@@ -43,7 +43,7 @@ elm_main(int argc, char **argv)
       mctrl.active();
 
       elm_run();
-      eo_unref(layout._eo_ptr());
+      win._release();
    }
    elm_shutdown();
 

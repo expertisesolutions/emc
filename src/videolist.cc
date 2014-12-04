@@ -94,7 +94,7 @@ videolist::active()
        }
      , std::placeholders::_2));
 
-   view = ::elm_view_list(list, ELM_GENLIST_ITEM_NONE, "double_label");
+   view = ::elm_view_list(view.elm_view_list_constructor(list, ELM_GENLIST_ITEM_NONE, "double_label"));
 
    view.model_set(model);
    view.property_connect("filename", "elm.text");

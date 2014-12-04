@@ -20,7 +20,7 @@ audiolistmodel::audiolistmodel()
         db_table_created_connection(nullptr)
 {
    // TODO: Configure database path to user data
-   database = esql::model("./emc.db", "", "", "");
+   database = esql::model(database.esql_model_constructor("./emc.db", "", "", ""));
 
    init_connection = database.callback_children_count_changed_add(
      std::bind(&audiolistmodel::init, this, std::placeholders::_3));
