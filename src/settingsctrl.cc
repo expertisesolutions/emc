@@ -45,6 +45,14 @@ settingsctrl::settingsctrl(settingsmodel &_settings, const std::function<void()>
             else
               settings.audio_rootpath_set(path);
           }));
+
+
+   fullscreen_check.callback_changed_add(
+       std::bind([this]
+          {
+            bool f = fullscreen_check.state_get();
+            settings.fullscreen_set(f);
+          }));
 }
 
 void
@@ -61,6 +69,8 @@ settingsctrl::active()
 
    layout.content_set(groupname+"/swallow/musicupdate", mupdate_bt);
    layout.content_set(groupname+"/swallow/fullscreen", fullscreen_check);
+
+   fullscreen_check.state_set(settings.fullscreen_get());
 
    m_fentry.visibility_set(true);
    v_fentry.visibility_set(true);

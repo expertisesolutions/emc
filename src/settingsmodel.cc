@@ -61,6 +61,20 @@ settingsmodel::audio_rootpath_get()
    return audio_dir;
 }
 
+bool
+settingsmodel::fullscreen_get()
+{
+   //TODO: get from database
+   return win.fullscreen_get();
+}
+
+void
+settingsmodel::fullscreen_set(bool fullscreen)
+{
+   //TODO: save in database
+   win.fullscreen_set(fullscreen);
+}
+
 void
 settingsmodel::video_rootpath_set(std::string path)
 {

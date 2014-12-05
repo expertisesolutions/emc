@@ -210,10 +210,10 @@ collections {
        ADD_SETTINGS_ROW_SWALLOW(videopath)
 
        ADD_SETTINGS_ROW_TEXT(musicupdate, 3, "Music List Update")
-       ADD_SETTINGS_ROW_SWALLOW_WIDTH(musicupdate, 100)
+       ADD_SETTINGS_ROW_SWALLOW_WIDTH(musicupdate, 70)
 
        ADD_SETTINGS_ROW_TEXT(fullscreen, 4, "Full Screen")
-       ADD_SETTINGS_ROW_SWALLOW_WIDTH(fullscreen, 100)
+       ADD_SETTINGS_ROW_SWALLOW_WIDTH(fullscreen, 20)
 
     } /*end parts */
 

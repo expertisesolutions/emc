@@ -10,7 +10,6 @@
 
 namespace emc {
 
-//TODO: SqlModel
 class settingsmodel
 {
    std::string video_dir;
