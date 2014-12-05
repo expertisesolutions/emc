@@ -11,40 +11,28 @@
 #include <eina_accessor.hh>
 
 #include "database_schema.hh"
+#include "tag_processor.hh"
+#include "emodel_helpers.hh"
 
 namespace {
+   const auto INVALID_ID = 0;
+
    template<typename T, typename... Args>
    std::unique_ptr<T> make_unique(Args&&... args)
    {
       return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
    }
 
-   template<class T>
-   bool get_property(const ::emodel &model, const std::string &property, T &value)
+   int64_t
+   get_id(const std::unordered_map<std::string, esql::model_row> &map,
+          const std::string &key)
    {
-      ::efl::eina::value property_value;
-      if (!model.property_get(property, property_value.native_handle()))
-        {
-           std::cout << "Error trying to get " << property << " property" << std::endl;
-           return false;
-        }
+      int64_t id = INVALID_ID;
 
-      value = ::efl::eina::get<T>(property_value);
-      return true;
-   }
-
-   template<>
-   bool get_property<int64_t>(const ::emodel &model, const std::string &property, int64_t &value)
-   {
-      ::efl::eina::value property_value;
-      if (!model.property_get(property, property_value.native_handle()))
-        {
-           std::cout << "Error trying to get " << property << " property" << std::endl;
-           return false;
-        }
-
-      eina_value_get(property_value.native_handle(), &value);
-      return true;
+      auto it = map.find(key);
+      if (end(map) != it)
+        emc::emodel_helpers::property_get(it->second, "id", id);
+      return id;
    }
 }
 
@@ -58,8 +46,7 @@ audiolistmodel::audiolistmodel()
         init_connection(nullptr),
         db_table_created_connection(nullptr),
         scanner(std::bind(&audiolistmodel::media_file_add_cb, this, std::placeholders::_1)),
-        maps_ready(false),
-        processing_tag(false)
+        maps_ready(false)
 {
    // TODO: Configure database path to user data
    database = esql::model(database.esql_model_constructor("./emc.db", "", "", ""));
@@ -258,7 +245,7 @@ audiolistmodel::populate_maps()
 }
 
 void
-audiolistmodel::populate_map(const esql::model_table &table, const std::string &key, std::unordered_map<std::string, esql::model_row> &map)
+audiolistmodel::populate_map(const esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map)
 {
    std::cout << "Populating map..." << std::endl;
    Eina_Accessor *_ac = nullptr;
@@ -273,7 +260,7 @@ audiolistmodel::populate_map(const esql::model_table &table, const std::string &
         esql::model_row row(::eo_ref(child));
 
         std::string value;
-        if (!get_property(table, key, value)) continue;
+        if (!emc::emodel_helpers::property_get(table, key_field, value)) continue;
         map.insert(std::make_pair(value, row));
      }
 }
@@ -281,257 +268,109 @@ audiolistmodel::populate_map(const esql::model_table &table, const std::string &
 void
 audiolistmodel::process_pending_tags()
 {
-   if (processing_tag)
+   if (is_processing_tags())
      return;
 
    std::cout << "Processing " << pending_tags.size() << " pending tags..." << std::endl;
-   while (!processing_tag && !pending_tags.empty())
+   while (!is_processing_tags() && !pending_tags.empty())
      {
         tag tag = pending_tags.front();
         pending_tags.pop();
-        processing_tag = process_tag(tag);
+        process_tag(tag);
      }
 }
 
-bool
+void
 audiolistmodel::process_tag(const tag &tag)
 {
-   std::cout << "Processing tag..." << std::endl;
-   return check_artist(tag) || check_album(tag) || check_track(tag);
+   std::cout << "Processing tag: " << tag.file << std::endl;
+
+   auto next_processor = std::bind(&audiolistmodel::next_processor, this);
+
+   auto artist_processor = make_unique<tag_processor>(artist_map, artists, tag.artist, next_processor,
+     [tag](esql::model_row row)
+     {
+        std::cout << "Setting artist properties: " << tag.artist << std::endl;
+        emc::emodel_helpers::property_set(row, "name", tag.artist);
+     });
+
+   auto album_processor = make_unique<tag_processor>(album_map, albums, tag.album, next_processor,
+     [tag, this](esql::model_row row)
+     {
+        std::cout << "Setting album properties: " << tag.album << std::endl;
+        auto artist_id = artist_id_get(tag.artist);
+        emc::emodel_helpers::property_set(row, "name", tag.album);
+        if (INVALID_ID != artist_id)
+          emc::emodel_helpers::property_set(row, "id_artist", artist_id);
+        emc::emodel_helpers::property_set(row, "genre", tag.genre);
+        emc::emodel_helpers::property_set(row, "year", tag.year);
+     });
+
+   auto track_processor = make_unique<tag_processor>(track_map, tracks, tag.file, next_processor,
+     [tag, this](esql::model_row row)
+     {
+        std::cout << "Setting track properties: " << tag.file << std::endl;
+        auto artist_id = artist_id_get(tag.artist);
+        auto album_id = album_id_get(tag.album);
+        emc::emodel_helpers::property_set(row, "file", tag.file);
+        if (INVALID_ID != artist_id)
+          emc::emodel_helpers::property_set(row, "id_artist", artist_id);
+        if (INVALID_ID != album_id)
+          emc::emodel_helpers::property_set(row, "id_album", album_id);
+        emc::emodel_helpers::property_set(row, "name", tag.title);
+        emc::emodel_helpers::property_set(row, "track", tag.track);
+     });
+
+   processing_tags.push(move(artist_processor));
+   processing_tags.push(move(album_processor));
+   processing_tags.push(move(track_processor));
+   std::cout << "Processing " << processing_tags.size() << std::endl;
+   processing_tags.front()->process();
 }
 
-bool
-audiolistmodel::check_artist(const tag &tag)
+void
+audiolistmodel::next_processor()
 {
-   std::cout << "Checking artist: " << tag.artist << std::endl;
-   if (tag.artist.empty())
-     return false;
-
-   auto it = artist_map.find(tag.artist);
-   if (end(artist_map) != it)
+   std::cout << this << std::endl;
+   if (!processing_tags.empty())
      {
-        std::cout << "Artist found: " << tag.artist << std::endl;
-        return false;
+        std::cout << "Going to next processor" << std::endl;
+        processing_tags.pop();
      }
 
-   std::cout << "Artist not found, creating artist and postponing album and track: " << tag.artist << std::endl;
-   // create artist and postopone album/track
-   auto obj = artists.child_add();
-   esql::model_row row(::eo_ref(obj._eo_ptr()));
-   auto connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
-   *connection = row.callback_load_status_add(std::bind(&audiolistmodel::new_artist_row_properties_loaded, this, connection, tag, row, std::placeholders::_3));
-   row.properties_load();
-   return true;
-}
+   if (processing_tags.empty())
+     {
+        std::cout << "No more processors" << std::endl;
+        process_pending_tags();
+        return;
+     }
 
-bool
-audiolistmodel::new_artist_row_properties_loaded(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void *info)
+
+   std::cout << "Processing " << processing_tags.size() << std::endl;
+   processing_tags.front()->process();
+};
+
+int64_t
+audiolistmodel::artist_id_get(const std::string &artist_name) const
 {
-   const Emodel_Load &st = *static_cast<Emodel_Load*>(info);
-   if (st.status & EMODEL_LOAD_STATUS_ERROR)
-     {
-        connection->disconnect();
-        std::cout << "Error loading new artist row properties: " << tag.artist << std::endl;
-        return false;
-     }
-
-   if(!(st.status & EMODEL_LOAD_STATUS_LOADED_PROPERTIES))
-     return true;
-
-   connection->disconnect();
-
-   std::cout << "New artist ready to set values: " << tag.artist << std::endl;
-   // TODO: Error callback
-   auto new_connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
-   *new_connection = row.callback_properties_changed_add(std::bind(&audiolistmodel::artist_row_inserted, this, new_connection, tag, row, std::placeholders::_3));
-   ::efl::eina::value name(tag.artist);
-   row.property_set("name", *name.native_handle());
-   return false;
+   return get_id(artist_map, artist_name);
 }
 
-bool
-audiolistmodel::artist_row_inserted(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void *info)
+int64_t
+audiolistmodel::album_id_get(const std::string &album_name) const
 {
-   std::cout << "New artist values have been set: " << tag.artist << std::endl;
-   connection->disconnect();
-
-   artist_map.insert(std::make_pair(tag.artist, row));
-
-   processing_tag = check_album(tag) || check_track(tag);
-   process_pending_tags();
-   return false;
+   return get_id(album_map, album_name);
 }
 
-bool
-audiolistmodel::check_album(const tag &tag)
+int64_t
+audiolistmodel::track_id_get(const std::string &file_name) const
 {
-   std::cout << "Checking album: " << tag.album << std::endl;
-   if (tag.album.empty())
-     return false;
-
-   auto it = album_map.find(tag.album);
-   if (end(album_map) != it)
-     {
-        std::cout << "Album found: " << tag.album << std::endl;
-        return false;
-     }
-
-   std::cout << "Album not found, creating album and postponing track: " << tag.album << std::endl;
-   // create album and postopone album/track
-   auto obj = albums.child_add();
-   esql::model_row row(::eo_ref(obj._eo_ptr()));
-   auto connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
-   *connection = row.callback_load_status_add(std::bind(&audiolistmodel::new_album_row_properties_loaded, this, connection, tag, row, std::placeholders::_3));
-   row.properties_load();
-   return true;
+   return get_id(track_map, file_name);
 }
 
-bool
-audiolistmodel::new_album_row_properties_loaded(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void *info)
+bool audiolistmodel::is_processing_tags() const
 {
-   const Emodel_Load &st = *static_cast<Emodel_Load*>(info);
-
-   if (st.status & EMODEL_LOAD_STATUS_ERROR)
-     {
-        connection->disconnect();
-        std::cout << "Error loading new album row properties: " << tag.album << std::endl;
-        return false;
-     }
-
-   if(!(st.status & EMODEL_LOAD_STATUS_LOADED_PROPERTIES))
-     return true;
-
-   connection->disconnect();
-
-   int64_t id_artist = 0;
-   auto it = artist_map.find(tag.artist);
-   if (end(artist_map) != it)
-     {
-        std::cout << "Getting artist id for: " << tag.artist << std::endl;
-        get_property(it->second, "id", id_artist);
-        std::cout << "Artist id=" << id_artist << std::endl;
-     }
-
-   std::cout << "New album ready to set values: " << tag.album << std::endl;
-   auto new_connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
-   *new_connection = row.callback_properties_changed_add(std::bind(&audiolistmodel::album_row_inserted, this, new_connection, tag, row, std::placeholders::_3));
-   ::efl::eina::value name(tag.album);
-   row.property_set("name", *name.native_handle());
-   if (id_artist > 0)
-     {
-        ::efl::eina::value artist(id_artist);
-        row.property_set("id_artist", *artist.native_handle());
-     }
-   ::efl::eina::value genre(tag.genre);
-   row.property_set("genre", *genre.native_handle());
-   ::efl::eina::value year(tag.year);
-   row.property_set("year", *year.native_handle());
-   return false;
+   return !processing_tags.empty();
 }
-
-bool
-audiolistmodel::album_row_inserted(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void *info)
-{
-   std::cout << "New album values have been set: " << tag.album << std::endl;
-   connection->disconnect();
-
-   album_map.insert(std::make_pair(tag.album, row));
-
-   processing_tag = check_track(tag);
-   process_pending_tags();
-   return false;
-}
-
-bool
-audiolistmodel::check_track(const tag &tag)
-{
-   std::cout << "Checking track: " << tag.file << std::endl;
-   if (tag.file.empty())
-     return false;
-
-   auto it = track_map.find(tag.file);
-   if (end(track_map) != it)
-     {
-        std::cout << "track found: " << tag.file << std::endl;
-        return false;
-     }
-
-   std::cout << "track not found, creating track: " << tag.file << std::endl;
-   // create track
-   auto obj = tracks.child_add();
-   esql::model_row row(::eo_ref(obj._eo_ptr()));
-   auto connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
-   *connection = row.callback_load_status_add(std::bind(&audiolistmodel::new_track_row_properties_loaded, this, connection, tag, row, std::placeholders::_3));
-   row.properties_load();
-   return true;
-}
-
-bool
-audiolistmodel::new_track_row_properties_loaded(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void *info)
-{
-   const Emodel_Load &st = *static_cast<Emodel_Load*>(info);
-
-   if (st.status & EMODEL_LOAD_STATUS_ERROR)
-     {
-        connection->disconnect();
-        std::cout << "Error loading new track row properties: " << tag.file << std::endl;
-        return false;
-     }
-
-   if(!(st.status & EMODEL_LOAD_STATUS_LOADED_PROPERTIES))
-     return true;
-
-   connection->disconnect();
-
-   int64_t id_artist = -1;
-   auto artist_it = artist_map.find(tag.artist);
-   if (end(artist_map) != artist_it)
-     {
-        std::cout << "Getting artist id for: " << tag.artist << std::endl;
-        get_property(artist_it->second, "id", id_artist);
-        std::cout << "Artist id=" << id_artist << std::endl;
-     }
-   int64_t id_album = -1;
-   auto album_it = album_map.find(tag.album);
-   if (end(album_map) != album_it)
-     {
-        std::cout << "Getting album id for: " << tag.album << std::endl;
-        get_property(album_it->second, "id", id_album);
-        std::cout << "Album id=" << id_artist << std::endl;
-     }
-
-   std::cout << "New track ready to set values: " << tag.file << std::endl;
-   auto new_connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
-   *new_connection = row.callback_properties_changed_add(std::bind(&audiolistmodel::track_row_inserted, this, new_connection, tag, row, std::placeholders::_3));
-   ::efl::eina::value file(tag.file);
-   row.property_set("file", *file.native_handle());
-   if (id_artist != -1)
-     {
-        ::efl::eina::value artist(id_artist);
-        row.property_set("id_artist", *artist.native_handle());
-     }
-   if (id_album != -1)
-     {
-        ::efl::eina::value album(id_album);
-        row.property_set("id_album", *album.native_handle());
-     }
-   ::efl::eina::value name(tag.title);
-   row.property_set("name", *name.native_handle());
-   //row.property_set("track", *track.native_handle());
-   return false;
-}
-
-bool
-audiolistmodel::track_row_inserted(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void *info)
-{
-   std::cout << "New track values have been set: " << tag.file << std::endl;
-   connection->disconnect();
-
-   track_map.insert(std::make_pair(tag.file, row));
-   processing_tag = false;
-   process_pending_tags();
-   return false;
-}
-
 
 } //emc

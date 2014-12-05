@@ -11,7 +11,9 @@ SOURCES= \
   settingsmodel.cc \
   emc.cc \
   file_scanner.cc \
-  database_schema.cc
+  database_schema.cc \
+  tag_processor.cc \
+  emodel_helpers.cc
 OBJECTS=$(SOURCES:.cc=.o)
 
 emc_LIBADD = @EMC_LIBS@

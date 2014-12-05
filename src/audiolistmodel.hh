@@ -1,6 +1,7 @@
- #ifndef _AUDIOLIST_MODEL_HH
+#ifndef _AUDIOLIST_MODEL_HH
 #define _AUDIOLIST_MODEL_HH
 
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <queue>
@@ -23,6 +24,7 @@ extern "C"
 namespace emc {
 
 class tag;
+class tag_processor;
 
 class audiolistmodel
 {
@@ -40,31 +42,27 @@ class audiolistmodel
    std::queue<tag> pending_tags;
 
    bool maps_ready;
-   bool processing_tag;
    std::unordered_map<std::string, esql::model_row> track_map;
    std::unordered_map<std::string, esql::model_row> artist_map;
    std::unordered_map<std::string, esql::model_row> album_map;
+   std::queue<std::unique_ptr<tag_processor>> processing_tags;
 
    bool init(void * info);
    bool db_table_created(void * info);
    bool load_tables();
    void media_file_add_cb(const tag &tag);
    void populate_maps();
-   void populate_map(const esql::model_table &table, const std::string &key, std::unordered_map<std::string, esql::model_row> &map);
+   void populate_map(const esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map);
    void process_pending_tags();
-   bool process_tag(const tag &tag);
+   void process_tag(const tag &tag);
 
-   bool check_artist(const tag &tag);
-   bool new_artist_row_properties_loaded(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void * info);
-   bool artist_row_inserted(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void * info);
+   bool is_processing_tags() const;
+   void next_processor();
 
-   bool check_album(const tag &tag);
-   bool new_album_row_properties_loaded(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void * info);
-   bool album_row_inserted(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void * info);
+   int64_t artist_id_get(const std::string &artist_name) const;
+   int64_t album_id_get(const std::string &album_name) const;
+   int64_t track_id_get(const std::string &file_name) const;
 
-   bool check_track(const tag &tag);
-   bool new_track_row_properties_loaded(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void * info);
-   bool track_row_inserted(std::shared_ptr<::efl::eo::signal_connection> connection, tag tag, esql::model_row row, void * info);
 
    public:
      audiolistmodel();
