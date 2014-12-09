@@ -245,7 +245,7 @@ audiolistmodel::populate_maps()
 }
 
 void
-audiolistmodel::populate_map(const esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map)
+audiolistmodel::populate_map(esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map)
 {
    std::cout << "Populating map..." << std::endl;
    Eina_Accessor *_ac = nullptr;
