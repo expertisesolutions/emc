@@ -8,6 +8,8 @@
 #include <fileref.h>
 #include <tag.h>
 
+#include <Ecore.hh>
+
 namespace {
    template<typename T, typename... Args>
    std::unique_ptr<T> make_unique(Args&&... args)
@@ -32,12 +34,18 @@ namespace {
 
 namespace emc {
 
-file_scanner::file_scanner(std::function<void(const tag&)> media_file_add_cb)
+file_scanner::file_scanner(std::function<void(tag)> media_file_add_cb)
    : media_file_add_cb(media_file_add_cb)
+   , worker(&file_scanner::process, this)
+   , terminated(false)
 {}
 
 file_scanner::~file_scanner()
-{}
+{
+   terminated = true;
+   pending_file.notify_one();
+   worker.join();
+}
 
 void file_scanner::start()
 {
@@ -82,7 +90,7 @@ bool file_scanner::file_found(eio::model &file_model, void *info)
    auto item_count = *static_cast<unsigned int*>(info);
    std::cout << "Number of items found: " << item_count << std::endl;
    if (0 == item_count)
-     return false;
+        return false;
 
    Eina_Accessor *accessor = nullptr;
    file_model.children_slice_get(0, 0, &accessor);
@@ -132,9 +140,15 @@ bool file_scanner::file_status(eio::model &file, void *info)
 
 void file_scanner::check_media_file(const std::string &path)
 {
-   // TODO: Read file tag in background
+   std::cout << "Checking media file: " << path << std::endl;
+   {
+      efl::eina::unique_lock<efl::eina::mutex> lock(mutex);
+      pending_files.push(path);
+   }
+   std::cout << "Notifying: " << path << std::endl;
+   pending_file.notify_one();
 
-   std::cout << "Checking if filename is a recognized media type: " << path << std::endl;
+   /*std::cout << "Checking if filename is a recognized media type: " << path << std::endl;
 
    TagLib::FileRef file(path.c_str());
    if (file.isNull() || !file.tag())
@@ -164,7 +178,64 @@ void file_scanner::check_media_file(const std::string &path)
    new_tag.album = to_string(tag->album());
    new_tag.genre = to_string(tag->genre());
    new_tag.year = tag->year();
-   media_file_add_cb(new_tag);
+   media_file_add_cb(new_tag);*/
+}
+
+void file_scanner::process()
+{
+   efl::eina::unique_lock<efl::eina::mutex> lock(mutex);
+   while (!terminated)
+     {
+        std::cout << "Waiting for new files" << std::endl;
+        pending_file.wait(lock);
+        if (terminated) return;
+
+        process_pending_files();
+     }
+}
+
+void
+file_scanner::process_pending_files()
+{
+   while (!pending_files.empty())
+     {
+        std::cout << "Processing " << pending_files.size() << " file(s)..." << std::endl;
+        auto path = pending_files.front();
+        pending_files.pop();
+        process_file(path);
+     }
+}
+
+void
+file_scanner::process_file(const std::string &path)
+{
+   std::cout << "Checking if filename is a recognized media type: " << path << std::endl;
+
+   TagLib::FileRef file(path.c_str());
+   if (file.isNull() || !file.tag())
+     return;
+
+   TagLib::Tag *tag = file.tag();
+
+   auto to_string = [](const TagLib::String &str) -> std::string
+     {
+        if (str == TagLib::String::null)
+          return "";
+
+        const auto UNICODE = true;
+        return str.to8Bit(UNICODE);
+     };
+
+   ::emc::tag new_tag;
+   new_tag.file = path;
+   new_tag.title = to_string(tag->title());
+   new_tag.track = tag->track();
+   new_tag.artist = to_string(tag->artist());
+   new_tag.album = to_string(tag->album());
+   new_tag.genre = to_string(tag->genre());
+   new_tag.year = tag->year();
+
+   efl::ecore::main_loop_thread_safe_call_async(std::bind(media_file_add_cb, new_tag));
 }
 
 }
