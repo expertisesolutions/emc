@@ -72,18 +72,25 @@ void file_scanner::scan_path(const std::string &path)
 {
    //return;
    std::cout << "Scanning path: " << path << std::endl;
-   std::unique_ptr<eio::model> file_model(new eio::model());
-   file_model->path_set(path);
-   file_model->callback_children_count_changed_add(
-     std::bind(&file_scanner::file_found, this, *file_model, std::placeholders::_3));
-   file_model->load();
-   files.push_back(move(file_model));
+   eio::model file_model;
+   std::cout << "Setting path: " << path << std::endl;
+   file_model.path_set(path);
+   std::cout << "Path have been set to: " << path << std::endl;
+   scan_path(file_model);
+}
+
+void file_scanner::scan_path(eio::model path)
+{
+   path.callback_children_count_changed_add(
+     std::bind(&file_scanner::file_found, this, path, std::placeholders::_3));
+   path.load();
+   files.push_back(path);
 }
 
 static int count = -1;
 const auto MAX_COUNT = 20;
 
-bool file_scanner::file_found(eio::model &file_model, void *info)
+bool file_scanner::file_found(eio::model file_model, void *info)
 {
    if (count > MAX_COUNT) return true;
 
@@ -109,7 +116,7 @@ bool file_scanner::file_found(eio::model &file_model, void *info)
    return true;
 }
 
-bool file_scanner::file_status(eio::model &file, void *info)
+bool file_scanner::file_status(eio::model file, void *info)
 {
    if (count > MAX_COUNT) return false;
 
@@ -131,7 +138,7 @@ bool file_scanner::file_status(eio::model &file, void *info)
      ) return false;
 
    if (is_directory)
-     scan_path(path);
+     scan_path(file);
    else
      check_media_file(path);
 
@@ -147,38 +154,6 @@ void file_scanner::check_media_file(const std::string &path)
    }
    std::cout << "Notifying: " << path << std::endl;
    pending_file.notify_one();
-
-   /*std::cout << "Checking if filename is a recognized media type: " << path << std::endl;
-
-   TagLib::FileRef file(path.c_str());
-   if (file.isNull() || !file.tag())
-     return;
-
-   if (count == -1)
-     count = 0;
-   else
-     ++count;
-
-   TagLib::Tag *tag = file.tag();
-
-   auto to_string = [](const TagLib::String &str) -> std::string
-     {
-        if (str == TagLib::String::null)
-          return "";
-
-        const auto UNICODE = true;
-        return str.to8Bit(UNICODE);
-     };
-
-   ::emc::tag new_tag;
-   new_tag.file = path;
-   new_tag.title = to_string(tag->title());
-   new_tag.track = tag->track();
-   new_tag.artist = to_string(tag->artist());
-   new_tag.album = to_string(tag->album());
-   new_tag.genre = to_string(tag->genre());
-   new_tag.year = tag->year();
-   media_file_add_cb(new_tag);*/
 }
 
 void file_scanner::process()
@@ -214,6 +189,11 @@ file_scanner::process_file(const std::string &path)
    TagLib::FileRef file(path.c_str());
    if (file.isNull() || !file.tag())
      return;
+
+   if (count == -1)
+     count = 0;
+   else
+     ++count;
 
    TagLib::Tag *tag = file.tag();
 

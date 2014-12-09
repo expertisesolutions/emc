@@ -39,8 +39,9 @@ public:
 private:
    std::vector<std::string> get_configured_paths() const;
    void scan_path(const std::string &path);
-   bool file_found(eio::model &file_model, void *info);
-   bool file_status(eio::model &file_model, void *info);
+   void scan_path(eio::model path);
+   bool file_found(eio::model file_model, void *info);
+   bool file_status(eio::model file_model, void *info);
    void check_media_file(const std::string &path);
 
    void process();
@@ -48,7 +49,7 @@ private:
    void process_file(const std::string &path);
 
 private:
-   std::vector<std::unique_ptr<eio::model>> files;
+   std::vector<eio::model> files;
    std::function<void(const tag&)> media_file_add_cb;
    ::efl::eina::condition_variable pending_file;
    ::efl::eina::mutex mutex;
