@@ -46,7 +46,9 @@ audiolistmodel::audiolistmodel()
         init_connection(nullptr),
         db_table_created_connection(nullptr),
         scanner(std::bind(&audiolistmodel::media_file_add_cb, this, std::placeholders::_1)),
-        maps_ready(false)
+        maps_ready(false),
+        loading_tables_count(0),
+        loading_rows_count(0)
 {
    // TODO: Configure database path to user data
    database = esql::model(database.esql_model_constructor("./emc.db", "", "", ""));
@@ -66,6 +68,9 @@ bool
 audiolistmodel::init(void * info)
 {
    init_connection.disconnect();
+
+   std::cout << "Starting file scanner..." << std::endl;
+   scanner.start();
 
    // TODO: Create a service to take care of database schema creation/validation/migration
 
@@ -88,6 +93,7 @@ audiolistmodel::init(void * info)
    // TODO: Migrate old schema version or error on newer than current
    // if (version_table.value != current_version)
 
+   assign_tables();
    load_tables();
    return false;
 }
@@ -102,16 +108,18 @@ audiolistmodel::db_table_created(void * info)
 
    db_table_created_connection.disconnect();
 
-   load_tables();
+   assign_tables();
+   populate_maps();
    return false;
 }
 
-bool
-audiolistmodel::load_tables()
+void
+audiolistmodel::assign_tables()
 {
+
    Eina_Accessor *_ac = nullptr;
    database.children_slice_get(0, 0, &_ac);
-   if (nullptr == _ac) return false;
+   if (nullptr == _ac) return;
 
    // FIXME: Use EINA-CXX
    Eo *child;
@@ -129,13 +137,31 @@ audiolistmodel::load_tables()
         else if (schema::tracks_table.name == tablename)
           tracks = table;
      }
+}
 
-   std::cout << "Starting file scanner..." << std::endl;
-   scanner.start();
+void
+audiolistmodel::load_tables()
+{
+   loading_tables_count = 3;
+   emc::emodel_helpers::async_load(artists, std::bind(&audiolistmodel::on_table_load, this, std::placeholders::_1));
+   emc::emodel_helpers::async_load(albums, std::bind(&audiolistmodel::on_table_load, this, std::placeholders::_1));
+   emc::emodel_helpers::async_load(tracks, std::bind(&audiolistmodel::on_table_load, this, std::placeholders::_1));
+}
+
+void
+audiolistmodel::on_table_load(bool error)
+{
+   --loading_tables_count;
+
+   if (error)
+     {
+        std::cout << "Error loading table" << std::endl;
+        return;
+     }
+
+   if (loading_tables_count) return;
 
    populate_maps();
-
-   return false;
 }
 
 esql::model_table&
@@ -240,8 +266,11 @@ audiolistmodel::populate_maps()
    populate_map(albums, "name", album_map);
    populate_map(tracks, "file", track_map);
 
-   maps_ready = true;
-   process_pending_tags();
+   if (!loading_rows_count)
+     {
+        maps_ready = true;
+        process_pending_tags();
+     }
 }
 
 void
@@ -250,7 +279,11 @@ audiolistmodel::populate_map(esql::model_table &table, const std::string &key_fi
    std::cout << "Populating map..." << std::endl;
    Eina_Accessor *_ac = nullptr;
    table.children_slice_get(0, 0, &_ac);
-   if (nullptr == _ac) return;
+   if (nullptr == _ac)
+     {
+        std::cout << "Error children_slice_get" << std::endl;
+        return;
+     }
 
    // FIXME: Use EINA-CXX
    Eo *child;
@@ -259,9 +292,32 @@ audiolistmodel::populate_map(esql::model_table &table, const std::string &key_fi
      {
         esql::model_row row(::eo_ref(child));
 
-        std::string value;
-        if (!emc::emodel_helpers::property_get(table, key_field, value)) continue;
-        map.insert(std::make_pair(value, row));
+        ++loading_rows_count;
+        emc::emodel_helpers::async_properties_load(row, [this, row, key_field, &map](bool error)
+          {
+             --loading_rows_count;
+
+             if (error)
+               {
+                  std::cout << "Error loading row" << std::endl;
+                  return;
+               }
+
+             std::string value;
+             if (!emc::emodel_helpers::property_get(row, key_field, value))
+               {
+                  std::cout << "Error property_get('" << key_field << "')" << std::endl;
+                  return;
+               }
+             std::cout << "property_get('" << key_field << "')=" << value << std::endl;
+             map.insert(std::make_pair(value, row));
+
+             if (!loading_rows_count)
+               {
+                  maps_ready = true;
+                  process_pending_tags();
+               }
+          });
      }
 }
 

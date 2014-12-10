@@ -76,7 +76,7 @@ void file_scanner::process_paths()
 void
 file_scanner::process_pending_paths()
 {
-   while (!pending_paths.empty())
+   while (!pending_paths.empty() && !terminated)
      {
         std::cout << "Processing " << pending_paths.size() << " path(s)..." << std::endl;
         auto path = pending_paths.front();
@@ -138,7 +138,7 @@ void file_scanner::process_files()
 void
 file_scanner::process_pending_files()
 {
-   while (!pending_files.empty())
+   while (!pending_files.empty() && !terminated)
      {
         std::cout << "Processing " << pending_files.size() << " file(s)..." << std::endl;
         auto path = pending_files.front();

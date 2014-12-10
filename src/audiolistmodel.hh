@@ -47,14 +47,19 @@ class audiolistmodel
    std::unordered_map<std::string, esql::model_row> album_map;
    std::queue<std::unique_ptr<tag_processor>> processing_tags;
 
+   int loading_tables_count;
+   int loading_rows_count;
+
    bool init(void * info);
    bool db_table_created(void * info);
-   bool load_tables();
+   void assign_tables();
+   void load_tables();
    void media_file_add_cb(const tag &tag);
    void populate_maps();
    void populate_map(esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map);
    void process_pending_tags();
    void process_tag(const tag &tag);
+   void on_table_load(bool error);
 
    bool is_processing_tags() const;
    void next_processor();

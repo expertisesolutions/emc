@@ -4,7 +4,7 @@
 
 namespace
 {
-   bool on_properties_load(void *info, std::function<void()> disconnect, std::function<void(bool)> handler)
+   bool on_load(void *info, std::function<void()> disconnect, std::function<void(bool)> handler, Emodel_Load_Status status)
    {
        const Emodel_Load &st = *static_cast<Emodel_Load*>(info);
        std::cout << __LINE__ << std::endl;
@@ -16,7 +16,7 @@ namespace
             return false;
          }
 
-       if(!(st.status & EMODEL_LOAD_STATUS_LOADED_PROPERTIES))
+       if((st.status & status) != status)
          return true;
 
        disconnect();
@@ -47,12 +47,33 @@ namespace
 
 namespace emc { namespace emodel_helpers {
 
-void async_properties_load(::emodel model, std::function<void(bool)> handler)
+void async_load(::emodel model, std::function<void(bool)> handler)
 {
+   if ((model.load_status_get() & EMODEL_LOAD_STATUS_LOADED) == EMODEL_LOAD_STATUS_LOADED)
+     {
+        handler(true);
+        return;
+     }
+
    auto connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
    auto disconnect = [connection] { connection->disconnect(); };
    *connection = model.callback_load_status_add(
-      std::bind(on_properties_load, std::placeholders::_3, disconnect, handler));
+      std::bind(on_load, std::placeholders::_3, disconnect, handler, EMODEL_LOAD_STATUS_LOADED));
+   model.load();
+}
+
+void async_properties_load(::emodel model, std::function<void(bool)> handler)
+{
+   if ((model.load_status_get() & EMODEL_LOAD_STATUS_LOADED_PROPERTIES) == EMODEL_LOAD_STATUS_LOADED_PROPERTIES)
+     {
+        handler(true);
+        return;
+     }
+
+   auto connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
+   auto disconnect = [connection] { connection->disconnect(); };
+   *connection = model.callback_load_status_add(
+      std::bind(on_load, std::placeholders::_3, disconnect, handler, EMODEL_LOAD_STATUS_LOADED_PROPERTIES));
    model.properties_load();
 }
 

@@ -52,6 +52,13 @@ inline void property_set(::emodel model, const std::string &property, const T &r
 }
 
 /**
+ * Asynchronously call handler once on load or error
+ * @param emodel The emodel
+ * @param handler The callback
+ */
+void async_load(::emodel model, std::function<void(bool)> handler);
+
+/**
  * Asynchronously call handler once on properties load or error
  * @param emodel The emodel
  * @param handler The callback
