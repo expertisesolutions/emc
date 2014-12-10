@@ -9,42 +9,24 @@
 #include <tag.h>
 
 #include <Ecore.hh>
-
-namespace {
-   template<typename T, typename... Args>
-   std::unique_ptr<T> make_unique(Args&&... args)
-   {
-      return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-   }
-
-   template<class T>
-   bool get_property(const ::emodel &model, const std::string &property, T &value)
-   {
-      ::efl::eina::value property_value;
-      if (!model.property_get(property, property_value.native_handle()))
-        {
-           std::cout << "Error trying to get " << property << " property" << std::endl;
-           return false;
-        }
-
-      value = ::efl::eina::get<T>(property_value);
-      return true;
-   }
-}
+#include <Ecore_File.h>
 
 namespace emc {
 
 file_scanner::file_scanner(std::function<void(tag)> media_file_add_cb)
    : media_file_add_cb(media_file_add_cb)
-   , worker(&file_scanner::process, this)
    , terminated(false)
+   , path_worker(&file_scanner::process_paths, this)
+   , file_worker(&file_scanner::process_files, this)
 {}
 
 file_scanner::~file_scanner()
 {
    terminated = true;
+   pending_path.notify_one();
+   path_worker.join();
    pending_file.notify_one();
-   worker.join();
+   file_worker.join();
 }
 
 void file_scanner::start()
@@ -70,95 +52,79 @@ std::vector<std::string> file_scanner::get_configured_paths() const
 
 void file_scanner::scan_path(const std::string &path)
 {
-   //return;
-   std::cout << "Scanning path: " << path << std::endl;
-   eio::model file_model;
-   std::cout << "Setting path: " << path << std::endl;
-   file_model.path_set(path);
-   std::cout << "Path have been set to: " << path << std::endl;
-   scan_path(file_model);
+   {
+      efl::eina::unique_lock<efl::eina::mutex> lock(pending_paths_mutex);
+      pending_paths.push(path);
+   }
+   pending_path.notify_one();
 }
 
-void file_scanner::scan_path(eio::model path)
+
+void file_scanner::process_paths()
 {
-   path.callback_children_count_changed_add(
-     std::bind(&file_scanner::file_found, this, path, std::placeholders::_3));
-   path.load();
-   files.push_back(path);
-}
-
-static int count = -1;
-const auto MAX_COUNT = 20;
-
-bool file_scanner::file_found(eio::model file_model, void *info)
-{
-   if (count > MAX_COUNT) return true;
-
-   auto item_count = *static_cast<unsigned int*>(info);
-   std::cout << "Number of items found: " << item_count << std::endl;
-   if (0 == item_count)
-        return false;
-
-   Eina_Accessor *accessor = nullptr;
-   file_model.children_slice_get(0, 0, &accessor);
-   if (nullptr == accessor) return false;
-
-   // FIXME: Use EINA-CXX
-   Eo *item;
-   unsigned int i = 0;
-   EINA_ACCESSOR_FOREACH(accessor, i, item)
+   efl::eina::unique_lock<efl::eina::mutex> lock(pending_paths_mutex);
+   while (!terminated)
      {
-        ::eio::model file(::eo_ref(item));
-        file.callback_load_status_add(
-          std::bind(&file_scanner::file_status, this, file, std::placeholders::_3));
-        file.properties_load();
+        std::cout << "Waiting for new paths" << std::endl;
+        pending_path.wait(lock);
+        if (terminated) return;
+
+        process_pending_paths();
      }
-   return true;
 }
 
-bool file_scanner::file_status(eio::model file, void *info)
+void
+file_scanner::process_pending_paths()
 {
-   if (count > MAX_COUNT) return false;
+   while (!pending_paths.empty())
+     {
+        std::cout << "Processing " << pending_paths.size() << " path(s)..." << std::endl;
+        auto path = pending_paths.front();
+        pending_paths.pop();
+        process_path(path);
+     }
+}
 
-   const auto load = *static_cast<Emodel_Load*>(info);
-   if (!(EMODEL_LOAD_STATUS_LOADED_PROPERTIES & load.status))
-     return true;
+void
+file_scanner::process_path(const std::string &path)
+{
+   std::cout << "Processing path: " << path << std::endl;
+   if (!ecore_file_is_dir(path.c_str()))
+     {
+        std::cout << "Not valid path: " << path << std::endl;
+        return;
+     }
 
-   std::string filename;
-   std::string path;
-   int is_directory;
-   int is_link;
-   //int64_t size;
+   auto it = eina_file_stat_ls(path.c_str());
+   if (!it)
+     {
+        std::cout << "Not valid path: " << path << std::endl;
+        return;
+     }
 
-   if (!get_property(file, "filename", filename)
-     || !get_property(file, "path", path)
-     || !get_property(file, "is_dir", is_directory)
-     || !get_property(file, "is_lnk", is_link)
-     //|| !get_property(file, "size", size) // efl::eina::get<int64_t> is limited, it doesn't match equal types properly like long == int64_t on 64 bits machines
-     ) return false;
-
-   if (is_directory)
-     scan_path(file);
-   else
-     check_media_file(path);
-
-   return false;
+   Eina_File_Direct_Info *info;
+   EINA_ITERATOR_FOREACH(it, info)
+     {
+        if (info->type == EINA_FILE_DIR)
+          pending_paths.push(info->path);
+        else
+          check_media_file(info->path);
+     }
+   eina_iterator_free(it);
 }
 
 void file_scanner::check_media_file(const std::string &path)
 {
-   std::cout << "Checking media file: " << path << std::endl;
    {
-      efl::eina::unique_lock<efl::eina::mutex> lock(mutex);
+      efl::eina::unique_lock<efl::eina::mutex> lock(pending_files_mutex);
       pending_files.push(path);
    }
-   std::cout << "Notifying: " << path << std::endl;
    pending_file.notify_one();
 }
 
-void file_scanner::process()
+void file_scanner::process_files()
 {
-   efl::eina::unique_lock<efl::eina::mutex> lock(mutex);
+   efl::eina::unique_lock<efl::eina::mutex> lock(pending_files_mutex);
    while (!terminated)
      {
         std::cout << "Waiting for new files" << std::endl;
@@ -189,11 +155,6 @@ file_scanner::process_file(const std::string &path)
    TagLib::FileRef file(path.c_str());
    if (file.isNull() || !file.tag())
      return;
-
-   if (count == -1)
-     count = 0;
-   else
-     ++count;
 
    TagLib::Tag *tag = file.tag();
 
