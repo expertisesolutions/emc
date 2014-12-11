@@ -39,177 +39,87 @@ namespace {
 namespace emc {
 
 audiolistmodel::audiolistmodel()
-    :   database(nullptr),
-        artists(nullptr),
-        albums(nullptr),
-        tracks(nullptr),
-        init_connection(nullptr),
-        db_table_created_connection(nullptr),
-        scanner(std::bind(&audiolistmodel::media_file_add_cb, this, std::placeholders::_1)),
-        maps_ready(false),
-        loading_tables_count(0),
-        loading_rows_count(0)
+   : scanner(std::bind(&audiolistmodel::media_file_add_cb, this, std::placeholders::_1))
+   , maps_ready(false)
+   , loading_rows_count(0)
 {
-   // TODO: Configure database path to user data
-   database = esql::model(database.esql_model_constructor("./emc.db", "", "", ""));
+   std::cout << "Starting file scanner..." << std::endl;
+   scanner.start();
 
-   init_connection = database.callback_children_count_changed_add(
-     std::bind(&audiolistmodel::init, this, std::placeholders::_3));
-
-   database.load();
+   std::cout << "Loading database..." << std::endl;
+   database.async_load(std::bind(&audiolistmodel::on_database_loaded, this, std::placeholders::_1));
 }
 
 audiolistmodel::~audiolistmodel()
 {
-   init_connection.disconnect();
 }
 
 bool
-audiolistmodel::init(void * info)
+audiolistmodel::on_database_loaded(bool error)
 {
-   init_connection.disconnect();
-
-   std::cout << "Starting file scanner..." << std::endl;
-   scanner.start();
-
-   // TODO: Create a service to take care of database schema creation/validation/migration
-
-   unsigned int table_count = *static_cast<unsigned int *>(info);
-   std::cout << "audioDB children count change " << table_count << std::endl;
-   if (0 == table_count)
+   if (error)
      {
-        std::cout << "Creating database..." << std::endl;
-        db_table_created_connection = database.callback_children_count_changed_add(
-          std::bind(&audiolistmodel::db_table_created, this, std::placeholders::_3));
-        // TODO: connect the load_status_error callback
-        schema::create_database(database);
+        std::cerr << " Error loading database" << std::endl;
         return false;
      }
 
-
-   // TODO: Validate schema version
-   // if (schema::tables.size() != table_count ...)
-
-   // TODO: Migrate old schema version or error on newer than current
-   // if (version_table.value != current_version)
-
-   assign_tables();
-   load_tables();
-   return false;
-}
-
-bool
-audiolistmodel::db_table_created(void * info)
-{
-   unsigned int table_count = *static_cast<unsigned int *>(info);
-   std::cout << "Database table created. Number of tables: " << table_count << std::endl;
-   if (schema::tables.size() != table_count)
-     return false;
-
-   db_table_created_connection.disconnect();
-
-   assign_tables();
    populate_maps();
    return false;
-}
-
-void
-audiolistmodel::assign_tables()
-{
-
-   Eina_Accessor *_ac = nullptr;
-   database.children_slice_get(0, 0, &_ac);
-   if (nullptr == _ac) return;
-
-   // FIXME: Use EINA-CXX
-   Eo *child;
-   unsigned int i = 0;
-   EINA_ACCESSOR_FOREACH(_ac, i, child)
-     {
-        esql::model_table table(::eo_ref(child));
-
-        std::string tablename = table.name_get();
-
-        if (schema::artists_table.name == tablename)
-          artists = table;
-        else if (schema::albums_table.name == tablename)
-          albums = table;
-        else if (schema::tracks_table.name == tablename)
-          tracks = table;
-     }
-}
-
-void
-audiolistmodel::load_tables()
-{
-   loading_tables_count = 3;
-   emc::emodel_helpers::async_load(artists, std::bind(&audiolistmodel::on_table_load, this, std::placeholders::_1));
-   emc::emodel_helpers::async_load(albums, std::bind(&audiolistmodel::on_table_load, this, std::placeholders::_1));
-   emc::emodel_helpers::async_load(tracks, std::bind(&audiolistmodel::on_table_load, this, std::placeholders::_1));
-}
-
-void
-audiolistmodel::on_table_load(bool error)
-{
-   --loading_tables_count;
-
-   if (error)
-     {
-        std::cout << "Error loading table" << std::endl;
-        return;
-     }
-
-   if (loading_tables_count) return;
-
-   populate_maps();
 }
 
 esql::model_table&
 audiolistmodel::artists_get()
 {
-    artists.filter_set("");
-    artists.load();
-    std::cout << artists.name_get() << std::endl;
-    return artists;
+   auto &artists = database.artists_get();
+   artists.filter_set("");
+   artists.load();
+   std::cout << artists.name_get() << std::endl;
+   return artists;
 }
 
 esql::model_table&
 audiolistmodel::albums_get()
 {
-    albums.filter_set("");
-    albums.load();
-    return albums;
+   auto &albums = database.albums_get();
+   albums.filter_set("");
+   albums.load();
+   return albums;
 }
 
 esql::model_table&
 audiolistmodel::tracks_get()
 {
-    tracks.filter_set("");
-    tracks.load();
-    return tracks;
+   auto &tracks = database.tracks_get();
+   tracks.filter_set("");
+   tracks.load();
+   return tracks;
 }
 
 esql::model_table&
 audiolistmodel::artist_albums_get(esql::model_row& artist)
 {
-    Eina_Value value;
-    char *id_artist = NULL;
+   auto &albums = database.albums_get();
 
-    artist.property_get("id", &value);
-    id_artist = eina_value_to_string(&value);
-    if (id_artist)
-      {
-         std::string f("id_artist=");
-         albums.filter_set(f += id_artist);
-         return albums;
-      }
-    albums.load();
-    return albums;
+   Eina_Value value;
+   char *id_artist = NULL;
+
+   artist.property_get("id", &value);
+   id_artist = eina_value_to_string(&value);
+   if (id_artist)
+     {
+        std::string f("id_artist=");
+        albums.filter_set(f += id_artist);
+        return albums;
+     }
+   albums.load();
+   return albums;
 }
 
 esql::model_table&
 audiolistmodel::artist_tracks_get(esql::model_row& artist)
 {
+    auto &tracks = database.tracks_get();
+
     Eina_Value value;
     char *id_artist = NULL;
 
@@ -227,6 +137,8 @@ audiolistmodel::artist_tracks_get(esql::model_row& artist)
 esql::model_table&
 audiolistmodel::album_tracks_get(esql::model_row& album)
 {
+    auto &tracks = database.tracks_get();
+
     Eina_Value value;
     char *id_album = NULL;
 
@@ -262,6 +174,10 @@ audiolistmodel::media_file_add_cb(const tag &tag)
 void
 audiolistmodel::populate_maps()
 {
+   auto &artists = database.artists_get();
+   auto &albums = database.albums_get();
+   auto &tracks = database.tracks_get();
+
    populate_map(artists, "name", artist_map);
    populate_map(albums, "name", album_map);
    populate_map(tracks, "file", track_map);
@@ -277,22 +193,12 @@ void
 audiolistmodel::populate_map(esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map)
 {
    std::cout << "Populating map..." << std::endl;
-   Eina_Accessor *_ac = nullptr;
-   table.children_slice_get(0, 0, &_ac);
-   if (nullptr == _ac)
-     {
-        std::cout << "Error children_slice_get" << std::endl;
-        return;
-     }
+   auto rows = emc::emodel_helpers::children_get<esql::model_row>(table);
 
-   // FIXME: Use EINA-CXX
-   Eo *child;
-   unsigned int i = 0;
-   EINA_ACCESSOR_FOREACH(_ac, i, child)
-     {
-        esql::model_row row(::eo_ref(child));
+   loading_rows_count += rows.size();
 
-        ++loading_rows_count;
+   for (auto &row : rows)
+     {
         emc::emodel_helpers::async_properties_load(row, [this, row, key_field, &map](bool error)
           {
              --loading_rows_count;
@@ -309,7 +215,7 @@ audiolistmodel::populate_map(esql::model_table &table, const std::string &key_fi
                   std::cout << "Error property_get('" << key_field << "')" << std::endl;
                   return;
                }
-             std::cout << "property_get('" << key_field << "')=" << value << std::endl;
+
              map.insert(std::make_pair(value, row));
 
              if (!loading_rows_count)
@@ -340,6 +246,9 @@ void
 audiolistmodel::process_tag(const tag &tag)
 {
    std::cout << "Processing tag: " << tag.file << std::endl;
+   auto &artists = database.artists_get();
+   auto &albums = database.albums_get();
+   auto &tracks = database.tracks_get();
 
    auto next_processor = std::bind(&audiolistmodel::next_processor, this);
 

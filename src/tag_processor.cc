@@ -1,5 +1,6 @@
 #include "tag_processor.hh"
 
+#include "database.hh"
 #include "emodel_helpers.hh"
 
 namespace {
@@ -9,14 +10,6 @@ namespace {
    {
       auto it = map.find(key);
       return end(map) != it;
-   }
-
-   void async_create_row(esql::model_table &table, std::function<void(bool, esql::model_row)> callback)
-   {
-      auto obj = table.child_add();
-      std::cout << "Row created: " << obj._eo_ptr() << std::endl;
-      esql::model_row row(::eo_ref(obj._eo_ptr()));
-      emc::emodel_helpers::async_properties_load(row, std::bind(callback, std::placeholders::_1, row));
    }
 }
 
@@ -52,7 +45,7 @@ tag_processor::process()
      }
 
    std::cout << "Inserting: " << key_value << std::endl;
-   async_create_row(table, std::bind(&tag_processor::row_create_handler, this, std::placeholders::_1, std::placeholders::_2));
+   database::async_create_row(table, std::bind(&tag_processor::row_create_handler, this, std::placeholders::_1, std::placeholders::_2));
    return;
 }
 

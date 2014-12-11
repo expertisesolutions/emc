@@ -1,6 +1,7 @@
-#ifndef _DB_SCHEMA_HH
-#define _DB_SCHEMA_HH
+#ifndef _DATABASE_SCHEMA_HH
+#define _DATABASE_SCHEMA_HH
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,7 @@ struct table
 // SQLite types
 const std::string INTEGER = "INTEGER";
 const std::string TEXT = "TEXT";
+const std::string BLOB = "BLOB";
 
 // SQLite constraints
 const std::string PRIMARY_KEY = "PRIMARY KEY";
@@ -31,7 +33,9 @@ const std::string NOT_NULL = ""; //"NOT NULL"; TODO: SQLite doesn't support addi
 const std::string DEFAULT_NULL = "DEFAULT NULL";
 const std::string DEFAULT_0 = "DEFAULT 0";
 
-inline namespace v1 {
+namespace v1 {
+
+const auto VERSION = 1;
 
 const table tracks_table = {
    "tracks",
@@ -68,8 +72,39 @@ const std::vector<const table*> tables = {&tracks_table, &artists_table, &albums
 
 } // v1
 
+inline namespace v2 {
 
-void create_database(esql::model &database);
+const auto VERSION = 2;
+
+const table tracks_table = {
+   v1::tracks_table.name,
+   {
+      v1::tracks_table.fields[0],
+      v1::tracks_table.fields[1],
+      v1::tracks_table.fields[2],
+      v1::tracks_table.fields[3],
+      v1::tracks_table.fields[4],
+      v1::tracks_table.fields[5],
+      {"artwork", BLOB}
+   }
+};
+
+using v1::artists_table;
+using v1::albums_table;
+
+const table version_table = {
+   "version",
+   {
+      {"version", INTEGER}
+   }
+};
+
+const std::vector<const table*> tables = {&tracks_table, &artists_table, &albums_table, &version_table};
+
+
+} // v2
+
+const auto CURRENT_VERSION = VERSION;
 
 }}
 
