@@ -21,6 +21,7 @@
 #include <elm_layout.eo.hh>
 
 #include "basectrl.hh"
+#include "logger.hh"
 #include "mainctrl.hh"
 #include "settingsmodel.hh"
 
@@ -29,15 +30,11 @@ elm_main(int argc, char **argv)
 {
    if (!esql_init())
      {
-        std::cerr << "Could not initialize Esql" << std::endl;
+        ERR << "Could not initialize Esql" << std::endl;
         return EXIT_FAILURE;
      }
 
-   //eina_log_domain_level_set("esskyuehl", EINA_LOG_LEVEL_DBG);
-   eina_log_domain_level_set("esql_model", EINA_LOG_LEVEL_DBG);
-
    ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
-   //win.autodel_set(true);
    ::elm_layout layout(efl::eo::parent = win);
    win.callback_delete_request_add(std::bind([]{elm_exit();}));
 

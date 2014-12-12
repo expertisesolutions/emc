@@ -2,17 +2,17 @@
  * EMC - Enlightenment Media Center
  *    Audio/Video Player
  */
-
 #include "audiolistmodel.hh"
 
-#include <functional>
-#include <utility>
+#include "database_schema.hh"
+#include "emodel_helpers.hh"
+#include "logger.hh"
+#include "tag_processor.hh"
 
 #include <eina_accessor.hh>
 
-#include "database_schema.hh"
-#include "tag_processor.hh"
-#include "emodel_helpers.hh"
+#include <functional>
+#include <utility>
 
 namespace {
    const auto INVALID_ID = 0;
@@ -43,10 +43,10 @@ audiolistmodel::audiolistmodel()
    , maps_ready(false)
    , loading_rows_count(0)
 {
-   std::cout << "Starting file scanner..." << std::endl;
+   DBG << "Starting file scanner...";
    scanner.start();
 
-   std::cout << "Loading database..." << std::endl;
+   DBG << "Loading database...";
    database.async_load(std::bind(&audiolistmodel::on_database_loaded, this, std::placeholders::_1));
 }
 
@@ -59,7 +59,7 @@ audiolistmodel::on_database_loaded(bool error)
 {
    if (error)
      {
-        std::cerr << " Error loading database" << std::endl;
+        ERR << "Error loading database";
         return false;
      }
 
@@ -73,7 +73,7 @@ audiolistmodel::artists_get()
    auto &artists = database.artists_get();
    artists.filter_set("");
    artists.load();
-   std::cout << artists.name_get() << std::endl;
+   DBG << artists.name_get();
    return artists;
 }
 
@@ -156,15 +156,6 @@ audiolistmodel::album_tracks_get(esql::model_row& album)
 void
 audiolistmodel::media_file_add_cb(const tag &tag)
 {
-   using namespace std;
-   cout << "file - \"" << tag.file << "\"" << endl;
-   //cout << "title - \"" << tag.title << "\"" << endl;
-   //cout << "artist - \"" << tag.artist << "\"" << endl;
-   //cout << "album - \"" << tag.album << "\"" << endl;
-   //cout << "year - \"" << tag.year << "\"" << endl;
-   //cout << "track - \"" << tag.track << "\"" << endl;
-   //cout << "genre - \"" << tag.genre << "\"" << endl;
-
    pending_tags.push(tag);
 
    if (maps_ready)
@@ -192,7 +183,7 @@ audiolistmodel::populate_maps()
 void
 audiolistmodel::populate_map(esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map)
 {
-   std::cout << "Populating map..." << std::endl;
+   DBG << "Populating map...";
    auto rows = emc::emodel_helpers::children_get<esql::model_row>(table);
 
    loading_rows_count += rows.size();
@@ -205,14 +196,14 @@ audiolistmodel::populate_map(esql::model_table &table, const std::string &key_fi
 
              if (error)
                {
-                  std::cout << "Error loading row" << std::endl;
+                  ERR << "Error loading row";
                   return;
                }
 
              std::string value;
              if (!emc::emodel_helpers::property_get(row, key_field, value))
                {
-                  std::cout << "Error property_get('" << key_field << "')" << std::endl;
+                  ERR << "Error property_get('" << key_field << "')";
                   return;
                }
 
@@ -233,7 +224,7 @@ audiolistmodel::process_pending_tags()
    if (is_processing_tags())
      return;
 
-   std::cout << "Processing " << pending_tags.size() << " pending tags..." << std::endl;
+   DBG << "Processing " << pending_tags.size() << " pending tags...";
    while (!is_processing_tags() && !pending_tags.empty())
      {
         tag tag = pending_tags.front();
@@ -245,7 +236,7 @@ audiolistmodel::process_pending_tags()
 void
 audiolistmodel::process_tag(const tag &tag)
 {
-   std::cout << "Processing tag: " << tag.file << std::endl;
+   DBG << "Processing tag: " << tag.file;
    auto &artists = database.artists_get();
    auto &albums = database.albums_get();
    auto &tracks = database.tracks_get();
@@ -255,14 +246,14 @@ audiolistmodel::process_tag(const tag &tag)
    auto artist_processor = make_unique<tag_processor>(artist_map, artists, tag.artist, next_processor,
      [tag](esql::model_row row)
      {
-        std::cout << "Setting artist properties: " << tag.artist << std::endl;
+        DBG << "Setting artist properties: " << tag.artist;
         emc::emodel_helpers::property_set(row, "name", tag.artist);
      });
 
    auto album_processor = make_unique<tag_processor>(album_map, albums, tag.album, next_processor,
      [tag, this](esql::model_row row)
      {
-        std::cout << "Setting album properties: " << tag.album << std::endl;
+        DBG << "Setting album properties: " << tag.album;
         auto artist_id = artist_id_get(tag.artist);
         emc::emodel_helpers::property_set(row, "name", tag.album);
         if (INVALID_ID != artist_id)
@@ -274,7 +265,7 @@ audiolistmodel::process_tag(const tag &tag)
    auto track_processor = make_unique<tag_processor>(track_map, tracks, tag.file, next_processor,
      [tag, this](esql::model_row row)
      {
-        std::cout << "Setting track properties: " << tag.file << std::endl;
+        DBG << "Setting track properties: " << tag.file;
         auto artist_id = artist_id_get(tag.artist);
         auto album_id = album_id_get(tag.album);
         emc::emodel_helpers::property_set(row, "file", tag.file);
@@ -289,29 +280,28 @@ audiolistmodel::process_tag(const tag &tag)
    processing_tags.push(move(artist_processor));
    processing_tags.push(move(album_processor));
    processing_tags.push(move(track_processor));
-   std::cout << "Processing " << processing_tags.size() << std::endl;
+   DBG << "Processing " << processing_tags.size();
    processing_tags.front()->process();
 }
 
 void
 audiolistmodel::next_processor()
 {
-   std::cout << this << std::endl;
    if (!processing_tags.empty())
      {
-        std::cout << "Going to next processor" << std::endl;
+        DBG << "Going to next processor";
         processing_tags.pop();
      }
 
    if (processing_tags.empty())
      {
-        std::cout << "No more processors" << std::endl;
+        DBG << "No more processors";
         process_pending_tags();
         return;
      }
 
 
-   std::cout << "Processing " << processing_tags.size() << std::endl;
+   DBG << "Processing " << processing_tags.size();
    processing_tags.front()->process();
 };
 

@@ -2,6 +2,7 @@
 
 #include "database_schema.hh"
 #include "emodel_helpers.hh"
+#include "logger.hh"
 
 #include <cassert>
 #include <ostream>
@@ -22,7 +23,7 @@ database::~database()
 void
 database::async_load(std::function<void(bool)> handler)
 {
-   std::cout << "Loading database" << std::endl;
+   DBG << "Loading database";
    this->handler = handler;
    db = esql::model(db.esql_model_constructor("./emc.db", "", "", ""));
    emc::emodel_helpers::async_load(db, std::bind(&database::on_load, this, std::placeholders::_1));
@@ -32,7 +33,7 @@ void
 database::async_create_row(esql::model_table &table, std::function<void(bool, esql::model_row)> callback)
 {
    auto obj = table.child_add();
-   std::cout << "Row created: " << obj._eo_ptr() << std::endl;
+   DBG << "Row created: " << obj._eo_ptr();
    esql::model_row row(::eo_ref(obj._eo_ptr()));
    emc::emodel_helpers::async_properties_load(row, std::bind(callback, std::placeholders::_1, row));
 }
@@ -59,7 +60,7 @@ database::notify(bool error)
         return;
      }
 
-   std::cerr << "No handler available" << std::endl;
+   ERR << "No handler available";
 }
 
 void
@@ -67,7 +68,7 @@ database::on_load(bool error)
 {
   if (error)
     {
-       std::cerr << "Error loading database" << std::endl;
+       ERR << "Error loading database";
        failure();
        return;
     }
@@ -79,7 +80,7 @@ database::on_load(bool error)
 void
 database::map_tables()
 {
-   std::cout << "Mapping tables" << std::endl;
+   DBG << "Mapping tables";
    auto tables = emc::emodel_helpers::children_get<esql::model_table>(db);
    for (auto &table : tables)
      {
@@ -91,7 +92,7 @@ database::map_tables()
 void
 database::check_tables()
 {
-   std::cout << "Checking tables" << std::endl;
+   DBG << "Checking tables";
 
    // version 0 is an empty database
    if (tables.empty())
@@ -106,7 +107,7 @@ database::check_tables()
 void
 database::migrate(int version)
 {
-   std::cout << "Migrating version from " << version << std::endl;
+   DBG << "Migrating version from " << version;
 
    switch(version)
      {
@@ -122,13 +123,13 @@ database::migrate(int version)
         }
       case emc::schema::CURRENT_VERSION:
         {
-           std::cout << "Version " << version << " is the current one. Done!" << std::endl;
+           DBG << "Version " << version << " is the current one. Done!";
            success();
            return;
         }
       default:
         {
-           std::cerr << "Migration procedure not defined" << std::endl;
+           ERR << "Migration procedure not defined";
            failure();
            return;
         }
@@ -138,7 +139,7 @@ database::migrate(int version)
 void
 database::migrate_from_version_0()
 {
-   std::cout << "Migrating from version 0" << std::endl;
+   DBG << "Migrating from version 0";
 
    std::function<void()> migration_done = std::bind(&database::set_version, this, schema::CURRENT_VERSION);
 
@@ -152,7 +153,7 @@ database::migrate_from_version_0()
 void
 database::create_table(const schema::table &table_definition)
 {
-   std::cout << "Creating table: " << table_definition.name << std::endl;
+   DBG << "Creating table: " << table_definition.name;
    efl::eo::base obj = db.child_add();
    esql::model_table table(::eo_ref(obj._eo_ptr()));
    table.name_set(table_definition.name);
@@ -165,7 +166,7 @@ database::create_table(const schema::table &table_definition)
 void
 database::create_table_field(esql::model_table table, const schema::table &table_definition, const schema::field &field_definition)
 {
-   std::cout << "Creating field: " << table_definition.name << "." << field_definition.name << std::endl;
+   DBG << "Creating field: " << table_definition.name << "." << field_definition.name;
    ::efl::eina::value field_type(field_definition.type + " " + field_definition.constraint);
    table.property_set(field_definition.name, *field_type.native_handle());
 }
@@ -175,7 +176,7 @@ database::on_table_created(bool error, unsigned int actual_count, size_t expecte
 {
    if (error)
      {
-        std::cerr << "Error creating table" << std::endl;
+        ERR << "Error creating table";
         failure();
         return false;
      }
@@ -190,7 +191,7 @@ database::on_table_created(bool error, unsigned int actual_count, size_t expecte
 void
 database::set_version(int version)
 {
-   std::cout << "Setting version to " << version << std::endl;
+   DBG << "Setting version to " << version;
 
    auto it = tables.find(emc::schema::version_table.name);
    assert(end(tables) != it);
@@ -204,7 +205,7 @@ database::on_version_table_loaded(bool error, esql::model_table version_table, i
 {
    if (error)
      {
-        std::cerr << "Error loading version table" << std::endl;
+        ERR << "Error loading version table";
         failure();
         return;
      }
@@ -223,12 +224,12 @@ database::load_version_row(bool error, esql::model_row row, int version)
 {
    if (error)
      {
-        std::cerr << "Error creating version table row" << std::endl;
+        ERR << "Error creating version table row";
         failure();
         return;
      }
 
-   std::cout << "Loading version row" << std::endl;
+   DBG << "Loading version row";
    emc::emodel_helpers::async_load(row, std::bind(&database::on_version_table_row_loaded, this, std::placeholders::_1, row, version));
 }
 
@@ -237,12 +238,12 @@ database::on_version_table_row_loaded(bool error, esql::model_row row, int versi
 {
    if (error)
      {
-        std::cerr << "Error loading version table row" << std::endl;
+        ERR << "Error loading version table row";
         failure();
         return;
      }
 
-   std::cout << "Setting version row" << std::endl;
+   DBG << "Setting version row";
    auto callback = std::bind(&database::on_version_table_row_setted, this, std::placeholders::_1, row, version);
    emc::emodel_helpers::callback_properties_changed_once(row, callback);
    emc::emodel_helpers::property_set(row, "version", version);
@@ -253,7 +254,7 @@ database::on_version_table_row_setted(bool error, esql::model_row row, int versi
 {
    if (error)
      {
-        std::cerr << "Error setting version on table row" << std::endl;
+        ERR << "Error setting version on table row";
         failure();
         return;
      }
@@ -265,7 +266,7 @@ void
 database::load_tables()
 {
    loading_tables_count = tables.size();
-   std::cout << "Loading " << loading_tables_count << " tables" << std::endl;
+   DBG << "Loading " << loading_tables_count << " tables";
 
    for (auto &name2table : tables)
      {
@@ -281,7 +282,7 @@ database::on_table_loaded(bool error)
 
    if (error)
      {
-        std::cerr << "Error loading table" << std::endl;
+        ERR << "Error loading table";
         failure();
         return;
      }
@@ -294,7 +295,7 @@ database::on_table_loaded(bool error)
 void
 database::get_version()
 {
-   std::cout << "Getting database schema version" << std::endl;
+   DBG << "Getting database schema version";
 
    auto it = tables.find(emc::schema::version_table.name);
    if (end(tables) == it)
@@ -316,7 +317,7 @@ database::on_version_row_loaded(bool error, esql::model_row row)
    int64_t version;
    if (!emc::emodel_helpers::property_get(row, "version", version))
      {
-        std::cerr << "Error getting database schema version" << std::endl;
+        ERR << "Error getting database schema version";
         failure();
         return;
      }
@@ -327,7 +328,7 @@ database::on_version_row_loaded(bool error, esql::model_row row)
 void
 database::migrate_from_version_1()
 {
-   std::cout << "Migrating from version 1 to 2" << std::endl;
+   DBG << "Migrating from version 1 to 2";
 
    for (auto &table : schema::v1::tables)
      {
@@ -344,7 +345,7 @@ database::migrate_from_version_1()
      {
         if (error)
           {
-             std::cerr << "Error creating field" << std::endl;
+             ERR << "Error creating field";
              failure();
              return;
           }
@@ -358,7 +359,7 @@ database::migrate_from_version_1()
 void
 database::create_version_table()
 {
-   std::cout << "Creating version table" << std::endl;
+   DBG << "Creating version table";
 
    emc::emodel_helpers::callback_children_count_changed_add(db,
      std::bind(&database::on_version_table_created, this, std::placeholders::_1));
@@ -370,7 +371,7 @@ database::on_version_table_created(bool error)
 {
    if (error)
      {
-        std::cerr << "Error creating version table" << std::endl;
+        ERR << "Error creating version table";
         failure();
         return false;
      }

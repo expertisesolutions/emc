@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include "logger.hh"
+
 namespace emc { namespace emodel_helpers {
 
 template<class T>
@@ -21,7 +23,7 @@ inline bool property_get(const ::emodel &model, const std::string &property, T &
    ::efl::eina::value property_value;
    if (!model.property_get(property, property_value.native_handle()))
      {
-        std::cout << "Error trying to get " << property << " property" << std::endl;
+        ERR << "Error trying to get " << property << " property";
         return false;
      }
 
@@ -35,7 +37,7 @@ inline bool property_get<int64_t>(const ::emodel &model, const std::string &prop
    ::efl::eina::value property_value;
    if (!model.property_get(property, property_value.native_handle()))
      {
-        std::cout << "Error trying to get " << property << " property" << std::endl;
+        ERR << "Error trying to get " << property << " property";
         return false;
      }
 
@@ -46,7 +48,7 @@ inline bool property_get<int64_t>(const ::emodel &model, const std::string &prop
 template<class T>
 inline void property_set(::emodel model, const std::string &property, const T &raw_value)
 {
-   std::cout << "Setting value of " << property << " = " << raw_value << std::endl;
+   DBG << "Setting value of " << property << " = " << raw_value;
 
    ::efl::eina::value value(raw_value);
    model.property_set(property, *value.native_handle());
@@ -61,7 +63,7 @@ inline std::vector<T> children_get(::emodel model)
    model.children_slice_get(0, 0, &_ac);
    if (nullptr == _ac)
      {
-        std::cerr << "children_slice_get error" << std::endl;
+        ERR << "children_slice_get error";
         return children;
      }
 

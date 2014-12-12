@@ -7,10 +7,9 @@ namespace
    bool on_load(void *info, std::function<void()> disconnect, std::function<void(bool)> handler, Emodel_Load_Status status)
    {
        const Emodel_Load &st = *static_cast<Emodel_Load*>(info);
-       std::cout << __LINE__ << std::endl;
        if (st.status & EMODEL_LOAD_STATUS_ERROR)
          {
-            std::cout << "Error loading properties" << std::endl;
+            DBG << "Error loading properties";
             disconnect();
             handler(true);
             return false;
@@ -27,7 +26,7 @@ namespace
 
    bool on_properties_changed(void *info, std::function<void()> disconnect, std::function<void(bool)> handler)
    {
-      std::cout << "Properties changed" << std::endl;
+      DBG << "Properties changed";
       disconnect();
       handler(false);
       return false;
@@ -40,7 +39,7 @@ namespace
         return true;
 
       disconnect();
-      std::cerr << "Error" << std::endl;
+      ERR << "Error";
       handler(true);
       return false;
    }
@@ -52,7 +51,7 @@ namespace
       if (!(st.status & EMODEL_LOAD_STATUS_ERROR))
         return true;
 
-      std::cerr << "Error" << std::endl;
+      ERR << "Error";
       if (!handler(true))
         {
            disconnect();

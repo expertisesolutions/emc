@@ -13,7 +13,8 @@ SOURCES= \
   file_scanner.cc \
   tag_processor.cc \
   emodel_helpers.cc \
-  database.cc
+  database.cc \
+  logger.cc
 OBJECTS=$(SOURCES:.cc=.o)
 
 emc_LIBADD = @EMC_LIBS@
@@ -44,7 +45,7 @@ emc: $(OBJECTS)
 	@echo "Compiling $<"
 	@$(CXX) -c -std=c++11 ${emc_LIBADD} ${emc_CFLAGS} ${DEFS} $< -o $@
 
-debug: emc_CFLAGS += -g -Og -DDEBUG
+debug: emc_CFLAGS += -g -Og -D_DEBUG
 debug: emc
 
 clean:

@@ -2,6 +2,7 @@
 
 #include "database.hh"
 #include "emodel_helpers.hh"
+#include "logger.hh"
 
 namespace {
    bool
@@ -26,25 +27,25 @@ tag_processor::tag_processor(std::unordered_map<std::string, esql::model_row> &m
    , process_next(process_next)
    , property_set(property_set)
 {
-    std::cout << "Tag processor ctor..." << std::endl;
+    DBG << "Tag processor ctor...";
 }
 
 tag_processor::~tag_processor()
 {
-   std::cout << "Tag processor dtor..." << std::endl;
+   DBG << "Tag processor dtor...";
 }
 
 void
 tag_processor::process()
 {
-   std::cout << "Tag processor: " << key_value << std::endl;
+   DBG << "Tag processor: " << key_value;
    if (exists(map, key_value))
      {
         process_next();
         return;
      }
 
-   std::cout << "Inserting: " << key_value << std::endl;
+   DBG << "Inserting: " << key_value;
    database::async_create_row(table, std::bind(&tag_processor::row_create_handler, this, std::placeholders::_1, std::placeholders::_2));
    return;
 }
@@ -54,12 +55,12 @@ tag_processor::row_create_handler(bool error, esql::model_row row)
 {
    if (error)
      {
-        std::cout << "Error creating row, continuing..." << std::endl;
+        ERR << "Error creating row, continuing...";
         process_next();
         return;
      }
 
-   std::cout << "Row created..." << std::endl;
+   DBG << "Row created...";
    auto callback = std::bind(&tag_processor::property_set_handler, this, std::placeholders::_1, row);
    emc::emodel_helpers::callback_properties_changed_once(row, callback);
    property_set(row);
@@ -69,10 +70,10 @@ void
 tag_processor::property_set_handler(bool error, esql::model_row row)
 {
    if (error)
-     std::cout << "Error setting properties, continuing..." << std::endl;
+     ERR << "Error setting properties, continuing...";
    else
      {
-        std::cout << "Properties have been set for '" << key_value << "', continuing..." << std::endl;
+        DBG << "Properties have been set for '" << key_value << "', continuing...";
         map.insert(std::make_pair(key_value, row));
      }
 

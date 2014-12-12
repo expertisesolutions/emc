@@ -1,15 +1,16 @@
 #include "file_scanner.hh"
 
-#include <cstdint>
-#include <cstdlib>
-#include <functional>
-#include <ostream>
+#include "logger.hh"
 
 #include <fileref.h>
 #include <tag.h>
 
 #include <Ecore.hh>
 #include <Ecore_File.h>
+
+#include <cstdint>
+#include <cstdlib>
+#include <functional>
 
 namespace emc {
 
@@ -43,7 +44,7 @@ std::vector<std::string> file_scanner::get_configured_paths() const
    if (!home_dir)
      home_dir = getenv("USERPROFILE");
 
-   std::cout << "Home directory: " << home_dir << std::endl;
+   DBG << "Home directory: " << home_dir;
 
    std::string music_dir = std::string(home_dir) + "/Music";
 
@@ -65,7 +66,7 @@ void file_scanner::process_paths()
    efl::eina::unique_lock<efl::eina::mutex> lock(pending_paths_mutex);
    while (!terminated)
      {
-        std::cout << "Waiting for new paths" << std::endl;
+        DBG << "Waiting for new paths";
         pending_path.wait(lock);
         if (terminated) return;
 
@@ -78,7 +79,7 @@ file_scanner::process_pending_paths()
 {
    while (!pending_paths.empty() && !terminated)
      {
-        std::cout << "Processing " << pending_paths.size() << " path(s)..." << std::endl;
+        DBG << "Processing " << pending_paths.size() << " path(s)...";
         auto path = pending_paths.front();
         pending_paths.pop();
         process_path(path);
@@ -88,17 +89,17 @@ file_scanner::process_pending_paths()
 void
 file_scanner::process_path(const std::string &path)
 {
-   std::cout << "Processing path: " << path << std::endl;
+   DBG << "Processing path: " << path;
    if (!ecore_file_is_dir(path.c_str()))
      {
-        std::cout << "Not valid path: " << path << std::endl;
+        WRN << "Not valid path: " << path;
         return;
      }
 
    auto it = eina_file_stat_ls(path.c_str());
    if (!it)
      {
-        std::cout << "Not valid path: " << path << std::endl;
+        WRN << "Not valid path: " << path;
         return;
      }
 
@@ -127,7 +128,7 @@ void file_scanner::process_files()
    efl::eina::unique_lock<efl::eina::mutex> lock(pending_files_mutex);
    while (!terminated)
      {
-        std::cout << "Waiting for new files" << std::endl;
+        DBG << "Waiting for new files";
         pending_file.wait(lock);
         if (terminated) return;
 
@@ -140,7 +141,7 @@ file_scanner::process_pending_files()
 {
    while (!pending_files.empty() && !terminated)
      {
-        std::cout << "Processing " << pending_files.size() << " file(s)..." << std::endl;
+        DBG << "Processing " << pending_files.size() << " file(s)...";
         auto path = pending_files.front();
         pending_files.pop();
         process_file(path);
@@ -150,7 +151,7 @@ file_scanner::process_pending_files()
 void
 file_scanner::process_file(const std::string &path)
 {
-   std::cout << "Checking if filename is a recognized media type: " << path << std::endl;
+   DBG << "Checking if filename is a recognized media type: " << path;
 
    TagLib::FileRef file(path.c_str());
    if (file.isNull() || !file.tag())
