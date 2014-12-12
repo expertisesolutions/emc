@@ -16,11 +16,9 @@ collections {
        image: "pause_icon_focused.png" LOSSY 80;
        image: "next_icon.png" LOSSY 80;
        image: "next_focused_icon.png" LOSSY 80;
-       image: "shuffle_icon_off.png" LOSSY 80;
-       image: "shuffle_icon_on.png" LOSSY 80;
-       image: "repeat_off_icon.png" LOSSY 80;
-       image: "repeat_all_icon.png" LOSSY 80;
+       image: "repeat_icon.png" LOSSY 80;
        image: "repeat_one_icon.png" LOSSY 80;
+       image: "shuffle_icon.png" LOSSY 80;
     }
    // min: 800 600;
    //  max: 1024 768;
@@ -376,30 +374,18 @@ collections {
                 to: "audioplayer";
                 offset: -60 -10;
           }
-          image.normal: "repeat_off_icon.png";
+          image.normal: "repeat_icon.png";
+          color: 230 230 230 100;
         }
         description {
-          state: "repeat_button_default_focused" 0.0;
+          state: "repeat_all" 0.0;
           inherit: "default" 0.0;
           color: 50 150 255 255;
         }
         description {
-          state: "repeat_all_unfocused" 0.0;
-          image.normal: "repeat_all_icon.png";
-        }
-        description {
-          state: "repeat_all_focused" 0.0;
-          inherit: "repeat_all_unfocused" 0.0;
-          color: 50 150 255 255;
-        }
-        description {
-          state: "repeat_one_unfocused" 0.0;
+          state: "repeat_one" 0.0;
           inherit: "default" 0.0;
           image.normal: "repeat_one_icon.png";
-        }
-        description {
-          state: "repeat_one_focused" 0.0;
-          inherit: "repeat_one_unfocused" 0.0;
           color: 50 150 255 255;
         }
        }
@@ -408,7 +394,7 @@ collections {
         type: IMAGE;
         mouse_events: 1;
         description {
-          state: "default" 0.0; //default is 'random off'
+          state: "default" 0.0; //default is 'shuffle off'
           rel1 {
                 relative: 1.0 1.0 ; 
                 to: "audioplayer";
@@ -419,23 +405,14 @@ collections {
                 to: "audioplayer";
                 offset: -10 -10;
           }
-          image.normal: "shuffle_icon_off.png";
-        }
-        description {
-          state: "shuffle_button_off_focused" 0.0;
-          inherit: "default";
-          color: 50 150 255 255;
+          image.normal: "shuffle_icon.png";
+          color: 230 230 230 100;
         }
         description {
           state: "shuffle_button_on" 0.0;
           inherit: "default";
-          image.normal: "shuffle_icon_on.png";
-        }
-        description {
-          state: "shuffle_button_on_focused" 0.0;
-          inherit: "shuffle_button_on";
+          image.normal: "shuffle_icon.png";
           color: 50 150 255 255;
-          image.normal: "shuffle_icon_on.png";
         }
        }
        part{
@@ -562,59 +539,42 @@ collections {
          source: "prev_button";
          action: SIGNAL_EMIT "audiolist.playlist.prev" "prev_button";
       }
-
       program {
-         name: "playpause_focused";
+         name: "playpause_play_focused";
          signal: "mouse,in";
          source: "playpause_bt";
-         script {
-           if (get_int(play_button_state) == 0) 
-             set_state(PART:"playpause_bt", "play_focused", 0.0);
-           else 
-             set_state(PART:"playpause_bt", "pause_focused", 0.0);
-         }
+         filter: "playpause_bt" "default";
+         action: STATE_SET "play_focused" 0.0;
+         target: "playpause_bt";
+         transition: LINEAR 0.1;
       }
       program {
-         name: "playpause_unfocused";
+         name: "playpause_play_unfocused";
          signal: "mouse,out";
          source: "playpause_bt";
-         script {
-           if (get_int(play_button_state) == 0) 
-             set_state(PART:"playpause_bt", "default", 0.0);
-           else 
-             set_state(PART:"playpause_bt", "pause_unfocused", 0.0);
-         }
-      }
-/*
-      program {
-        name: "play_mouse_in";
-        signal: "play.mouse.in";
-        action: STATE_SET "play_pause_button_focused" 0.0;
-        target: "play_pause_button";
-        transition: SINUSOIDAL 0.1;
+         filter: "playpause_bt" "play_focused";
+         action: STATE_SET "default" 0.0;
+         target: "playpause_bt";
+         transition: LINEAR 0.1;
       }
       program {
-        name: "pause_mouse_in";
-        signal: "pause.mouse.in";
-        action: STATE_SET "play_pause_button_pause_focused" 0.0;
-        target: "play_pause_button";
-        transition: SINUSOIDAL 0.1;
+         name: "playpause_pause_focused";
+         signal: "mouse,in";
+         source: "playpause_bt";
+         filter: "playpause_bt" "pause_unfocused";
+         action: STATE_SET "pause_focused" 0.0;
+         target: "playpause_bt";
+         transition: LINEAR 0.1;
       }
       program {
-        name: "play_mouse_out";
-        signal: "play.mouse.out";
-        action: STATE_SET "default" 0.0;
-        target: "play_pause_button";
-        transition: SINUSOIDAL 0.2;
-      }
-      program {
-        name: "pause_mouse_out";
-        signal: "pause.mouse.out";
-        action: STATE_SET "play_pause_button_pause" 0.0;
-        target: "play_pause_button";
-        transition: SINUSOIDAL 0.1;
-      }
-*/
+         name: "playpause_pause_unfocused";
+         signal: "mouse,out";
+         source: "playpause_bt";
+         filter: "playpause_bt" "pause_focused";
+         action: STATE_SET "pause_unfocused" 0.0;
+         target: "playpause_bt";
+         transition: LINEAR 0.1;
+      }   
       program {
          name: "play_pause_mouse_clicked";
          signal: "mouse,clicked,1";
@@ -662,92 +622,9 @@ collections {
          source: "next_button";
          action: SIGNAL_EMIT "audiolist.playlist.next" "next_button";
       }
-      /*program {
-         name: "repeat_focused";
-         signal: "mouse,in";
-         source: "repeat_button";
-         script {
-          if (get_int(repeat_state) == 1){
-             emit("repeat.all.focused", "");
-          }
-          else if (get_int(repeat_state) == 2){
-             emit("repeat.one.focused", "");
-          }
-          else (get_int(repeat_state) == 0){
-             emit("repeat.off.focused", "");
-          }
-        }
-      }*/
-      program {
-         name: "repeat_off_focused";
-         signal: "mouse,in";
-         source: "repeat_button";
-         filter: "repeat_button" "default";
-         action: STATE_SET "repeat_button_default_focused" 0.0;
-         target: "repeat_button";
-         transition: SINUSOIDAL 0.2;
-      }
-      program {
-         name: "repeat_all_focused";
-         signal: "mouse,in";
-         source: "repeat_button";
-         filter: "repeat_button" "repeat_all_unfocused";
-         action: STATE_SET "repeat_all_focused" 0.0;
-         target: "repeat_button";
-         transition: SINUSOIDAL 0.2;
-      }
-      program {
-         name: "repeat_one_focused";
-         signal: "mouse,in";
-         source: "repeat_button";
-         filter: "repeat_button" "";
-         action: STATE_SET "repeat_one" 0.0;
-         target: "repeat_button";
-         transition: SINUSOIDAL 0.2;
-      }
-      program {
-         name: "repeat_off_unfocused";
-         signal: "mouse,out";
-         source: "repeat_button";
-         filter: "repeat_button" "repeat_button_default_focused";
-         action: STATE_SET "default" 0.0;
-         target: "repeat_button";
-         transition: SINUSOIDAL 0.2;
-      }
-      program {
-         name: "repeat_all_unfocused";
-         signal: "mouse,out";
-         source: "repeat_button";
-         filter: "repeat_button" "repeat_all_focused";
-         action: STATE_SET "repeat_all_unfocused" 0.0;
-         target: "repeat_button";
-         transition: SINUSOIDAL 0.2;
-      }
-      program {
-         name: "repeat_one_unfocused";
-         signal: "mouse,out";
-         source: "repeat_button";
-         action: STATE_SET "repeat_one" 0.0;
-         target: "repeat_button";
-         transition: SINUSOIDAL 0.2;
-      }
-      /*program {
-         name: "repeat_mouse_out";
-         signal: "mouse,out";
-         source: "repeat_button";
-         script {
-          if (get_int(repeat_state) == 0){
-             set_state(PART:"repeat_button", "default", 0.0);
-          } else if (get_int(repeat_state) == 1){
-             set_state(PART:"repeat_button", "repeat_all", 0.0);
-          } else if (get_int(repeat_state) == 2){
-             set_state(PART:"repeat_button", "repeat_one", 0.0);
-          }
-        }
-      }*/
       program {
         name: "repeat_clicked";
-        signal: "mouse,clicked,*";
+        signal: "mouse,clicked,1";
         source: "repeat_button";
         action: SIGNAL_EMIT "audiolist.playlist.repeat" "repeat_button";
       }
@@ -778,50 +655,9 @@ collections {
           set_int(play_button_state, 0);
         }
       }
-      program {
-         name: "shuffle_focused";
-         signal: "mouse,in";
-         source: "shuffle_button";
-         script {
-          if (get_int(shuffle_state) == 1) 
-            emit("shuffle.button.on.focused", "");
-          
-          else if (get_int(shuffle_state) == 0) {
-            emit("shuffle.button.off.focused", "");
-          }
-         }
-       }
        program {
-         name: "shuffle_on_focused";
-         signal: "shuffle.button.on.focused";
-         source: "*";
-         action: STATE_SET "shuffle_button_on" 0.0;//_focused" 0.0;
-         target: "shuffle_button";
-         transition: LINEAR 0.2;
-       }
-       program {
-         name: "shuffle_off_focused";
-         signal: "shuffle.button.off.focused";
-         source: "*";
-         action: STATE_SET "shuffle_button_off_focused" 0.0;
-         target: "shuffle_button";
-         transition: LINEAR 0.2;
-       }
-       program {
-         name: "shuffle_mouse_out";
-         signal: "mouse,out";
-         source: "shuffle_button";
-         script {
-          if (get_int(shuffle_state) == 1) 
-            set_state(PART:"shuffle_button", "shuffle_button_on", 0.0);
-
-          else  (get_int(shuffle_state) == 0)
-            set_state(PART:"shuffle_button", "default", 0.0);
-         }
-      }
-      program {
         name: "shuffle_clicked";
-        signal: "mouse,clicked,*";
+        signal: "mouse,clicked,1";
         source: "shuffle_button";
         action: SIGNAL_EMIT "audiolist.playlist.random" "shuffle_button";
       }
@@ -876,7 +712,7 @@ collections {
       }
       program {
          name: "backbt_mouse_clicked";
-         signal: "mouse,clicked,*";
+         signal: "mouse,clicked,1";
          source: "backbt";
          action: SIGNAL_EMIT "audiolist.selected.back" "backbt";
       }
@@ -884,6 +720,5 @@ collections {
       BACK_PROG_ADD(audiolist);
 
     } /* end programs */
-   } 
- }/*end group "audiolist" */
-//}/* end collections */ 
+  }/*end group "audiolist" */
+}/* end collections */ 
