@@ -40,9 +40,10 @@ namespace {
 namespace emc {
 
 audiolistmodel::audiolistmodel()
-   : scanner(std::bind(&audiolistmodel::media_file_add_cb, this, std::placeholders::_1))
-   , maps_ready(false)
+   : maps_ready(false)
    , loading_rows_count(0)
+   , tag_reader(std::bind(&audiolistmodel::media_file_add_cb, this, std::placeholders::_1))
+   , scanner(std::bind(&tag_reader::tag_file, &tag_reader, std::placeholders::_1))
 {
    DBG << "Starting file scanner...";
    scanner.start();

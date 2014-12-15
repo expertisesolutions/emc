@@ -14,7 +14,8 @@ SOURCES= \
   tag_processor.cc \
   emodel_helpers.cc \
   database.cc \
-  logger.cc
+  logger.cc \
+  tag_reader.cc
 OBJECTS=$(SOURCES:.cc=.o)
 
 emc_LIBADD = @EMC_LIBS@

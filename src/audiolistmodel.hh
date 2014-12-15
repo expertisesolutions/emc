@@ -1,12 +1,9 @@
 #ifndef _AUDIOLIST_MODEL_HH
 #define _AUDIOLIST_MODEL_HH
 
-#include <cstdint>
-#include <iostream>
-#include <memory>
-#include <queue>
-#include <unordered_map>
-#include <vector>
+#include "database.hh"
+#include "file_scanner.hh"
+#include "tag_reader.hh"
 
 #include <eo_event.hh>
 #include <Emodel.h>
@@ -19,8 +16,12 @@ extern "C"
 }
 #include <Esql_Model.hh>
 
-#include "file_scanner.hh"
-#include "database.hh"
+#include <cstdint>
+#include <iostream>
+#include <memory>
+#include <queue>
+#include <unordered_map>
+#include <vector>
 
 namespace emc {
 
@@ -32,6 +33,7 @@ class audiolistmodel
    std::string video_dir;
    std::string audio_dir;
    ::emc::database database;
+   tag_reader tag_reader;
    file_scanner scanner;
    std::queue<tag> pending_tags;
 
