@@ -54,6 +54,15 @@ inline void property_set(::emodel model, const std::string &property, const T &r
    model.property_set(property, *value.native_handle());
 }
 
+template<>
+inline void property_set<int64_t>(::emodel model, const std::string &property, const int64_t &raw_value)
+{
+   DBG << "Setting value of " << property << " = " << raw_value;
+
+   ::efl::eina::value value(static_cast<uint64_t>(raw_value));
+   model.property_set(property, *value.native_handle());
+}
+
 template<class T>
 inline std::vector<T> children_get(::emodel model)
 {

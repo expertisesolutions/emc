@@ -43,7 +43,7 @@ emc: $(OBJECTS)
 
 .cc.o:
 	@echo "Compiling $<"
-	@$(CXX) -c -std=c++11 ${emc_LIBADD} ${emc_CFLAGS} ${DEFS} $< -o $@
+	@$(CXX) -c -std=c++11 ${emc_CFLAGS} ${DEFS} $< -o $@
 
 debug: emc_CFLAGS += -g -Og -D_DEBUG
 debug: emc

@@ -33,6 +33,7 @@ namespace {
       if (end(map) != it)
         emc::emodel_helpers::property_get(it->second, "id", id);
       return id;
+
    }
 }
 
@@ -54,17 +55,16 @@ audiolistmodel::~audiolistmodel()
 {
 }
 
-bool
+void
 audiolistmodel::on_database_loaded(bool error)
 {
    if (error)
      {
         ERR << "Error loading database";
-        return false;
+        return;
      }
 
    populate_maps();
-   return false;
 }
 
 esql::model_table&

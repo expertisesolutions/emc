@@ -43,7 +43,7 @@ class audiolistmodel
 
    int loading_rows_count;
 
-   bool on_database_loaded(bool error);
+   void on_database_loaded(bool error);
 
    void media_file_add_cb(const tag &tag);
    void populate_maps();
