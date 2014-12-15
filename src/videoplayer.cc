@@ -92,8 +92,7 @@ videoplayer::videoplayer(settingsmodel &settings, const std::function<void()> &d
 void
 videoplayer::play(emodel model)
 {
-   Eina_Value v;
-   v.type == NULL;
+   Eina_Value v = {};
 
    if (player.is_playing_get())
      player.stop();
@@ -106,7 +105,7 @@ videoplayer::play(emodel model)
       return;
    }
 
-   if (NULL == v.type) {
+   if (nullptr == v.type) {
       std::cout << "ERROR TYPE EINA VALUE IS NULL" << std::endl;
       return;
    }
