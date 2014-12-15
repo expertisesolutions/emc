@@ -276,6 +276,8 @@ audiolistmodel::process_tag(const tag &tag)
           emc::emodel_helpers::property_set(row, "id_album", album_id);
         emc::emodel_helpers::property_set(row, "name", tag.title);
         emc::emodel_helpers::property_set(row, "track", tag.track);
+        // TODO: Esql doesn't support blob yet
+        //emc::emodel_helpers::property_set(row, "artwork", tag.artwork);
      });
 
    processing_tags.push(move(artist_processor));

@@ -7,6 +7,9 @@
 #include <memory>
 #include <queue>
 #include <string>
+#include <vector>
+
+namespace TagLib { namespace MPEG { class File; }}
 
 namespace emc {
 
@@ -19,6 +22,7 @@ struct tag
    std::string album;
    std::string genre;
    int year;
+   std::vector<char> artwork;
 };
 
 class tag_reader
@@ -33,6 +37,8 @@ private:
    void process_files();
    void process_pending_files();
    void process_file(const std::string &path);
+   void process_mp3(TagLib::MPEG::File *file, tag& new_tag);
+   std::vector<char> get_mp3_artwork(TagLib::MPEG::File *file);
 
 private:
    std::function<void(const tag&)> media_file_add_cb;
