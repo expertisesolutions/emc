@@ -88,7 +88,7 @@ audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
         player(settings.player),
         view(nullptr),
         row_selected(nullptr),
-        model()
+        model(settings.database)
 {
     layout.signal_callback_add("audiolist.selected.artists", "*",
        std::bind([this]

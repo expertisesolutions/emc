@@ -89,6 +89,15 @@ const table tracks_table = {
    }
 };
 
+const table settings_table = {
+   "settings",
+   {
+      {"id", INTEGER, PRIMARY_KEY},
+      {"key", TEXT, NOT_NULL},
+      {"value", TEXT, DEFAULT_NULL},
+   }
+};
+
 using v1::artists_table;
 using v1::albums_table;
 
@@ -99,7 +108,7 @@ const table version_table = {
    }
 };
 
-const std::vector<const table*> tables = {&tracks_table, &artists_table, &albums_table, &version_table};
+const std::vector<const table*> tables = {&tracks_table, &artists_table, &albums_table, &settings_table, &version_table};
 
 
 } // v2

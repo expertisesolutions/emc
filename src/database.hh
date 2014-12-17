@@ -37,6 +37,7 @@ public:
    esql::model_table& artists_get();
    esql::model_table& albums_get();
    esql::model_table& tracks_get();
+   esql::model_table& settings_get();
 
 private:
    void success();
@@ -73,6 +74,7 @@ private:
    esql::model_table artists;
    esql::model_table albums;
    esql::model_table tracks;
+   esql::model_table settings;
 
    std::unordered_map<std::string, esql::model_table> tables;
    size_t loading_tables_count;

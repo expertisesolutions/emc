@@ -32,8 +32,8 @@ class audiolistmodel
 {
    std::string video_dir;
    std::string audio_dir;
-   ::emc::database database;
-   tag_reader tag_reader;
+   ::emc::database &database;
+   ::emc::tag_reader tag_reader;
    file_scanner scanner;
    std::queue<tag> pending_tags;
 
@@ -63,7 +63,7 @@ class audiolistmodel
 
 
    public:
-     audiolistmodel();
+     audiolistmodel(::emc::database &database);
      ~audiolistmodel();
      esql::model_table& artists_get();
      esql::model_table& albums_get();

@@ -8,14 +8,12 @@
 #include <elm_win.eo.hh>
 #include <elm_video.eo.hh>
 
+#include "database.hh"
+
 namespace emc {
 
 class settingsmodel
 {
-   std::string video_dir;
-   std::string audio_dir;
-   std::string theme_dir;
-
    public:
      settingsmodel(::elm_win &win, ::elm_layout &layout);
      ~settingsmodel() {}
@@ -32,7 +30,14 @@ class settingsmodel
      void group_set(const std::string groupname);
      ::elm_win &win;
      ::elm_layout &layout;
+     ::emc::database database;
      ::elm_video player;
+
+   private:
+     void on_row_loaded(esql::model_row row);
+
+   private:
+     std::unordered_map<std::string, esql::model_row> rows;
 };
 
 } //emc

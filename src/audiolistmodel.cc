@@ -39,11 +39,12 @@ namespace {
 
 namespace emc {
 
-audiolistmodel::audiolistmodel()
+audiolistmodel::audiolistmodel(::emc::database &_database)
    : maps_ready(false)
    , loading_rows_count(0)
    , tag_reader(std::bind(&audiolistmodel::media_file_add_cb, this, std::placeholders::_1))
    , scanner(std::bind(&tag_reader::tag_file, &tag_reader, std::placeholders::_1))
+   , database(_database)
 {
    DBG << "Starting file scanner...";
    scanner.start();
@@ -72,7 +73,7 @@ esql::model_table&
 audiolistmodel::artists_get()
 {
    auto &artists = database.artists_get();
-   artists.filter_set("");
+   artists.filter_set("1=1 ORDER BY name");
    artists.load();
    DBG << artists.name_get();
    return artists;

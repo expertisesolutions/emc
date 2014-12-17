@@ -11,25 +11,22 @@
 #include "elm_interface_atspi_widget_action.eo.h"
 #include <elm_layout.eo.hh>
 
+#include "Efreet.h"
 
 #include "settingsmodel.hh"
-
-#define VIDEODIR "/Videos"
-#define AUDIODIR "/Music"
-#define PICTUREDIR "/Pictures"
+#include "database_schema.hh"
+#include "emodel_helpers.hh"
 
 #define THEME_PATH "../themes/default"
-
 #define WIDTH 1280
 #define HEIGHT 720
 
 namespace emc {
 
 settingsmodel::settingsmodel(::elm_win &_win, ::elm_layout &_layout)
-   : win(_win),
-     layout(_layout),
-     player(efl::eo::parent = layout),
-     theme_dir(THEME_PATH)
+   : win(_win)
+   , layout(_layout)
+   , player(efl::eo::parent = layout)
 {
    layout.size_hint_weight_set(EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
    win.resize_object_add(layout);
@@ -37,28 +34,47 @@ settingsmodel::settingsmodel(::elm_win &_win, ::elm_layout &_layout)
    win.visibility_set(true);
    layout.visibility_set(true);
 
-   std::string homepath(".");
-   char *tmp = getenv("HOME");
-   std::cout << tmp << std::endl;
-
-   if(tmp) homepath = std::string(tmp);
-
-   video_dir = std::string(homepath + VIDEODIR);
-   audio_dir = std::string(homepath + AUDIODIR);
-
    elm_theme_overlay_add(NULL, THEME_PATH"/theme_overlay.edj");
+
+   database.async_load([this](bool err) {
+      auto &table = database.settings_get();
+      auto _rows = emc::emodel_helpers::children_get<esql::model_row>(table);
+      for (auto &row : _rows) {
+         emc::emodel_helpers::async_load(row, std::bind(&settingsmodel::on_row_loaded, this, row));
+      }
+   });
+}
+
+void
+settingsmodel::on_row_loaded(esql::model_row row)
+{
+   std::string property;
+   if (!emc::emodel_helpers::property_get(row, "key", property))
+   this->rows.insert(std::make_pair(property, row));
 }
 
 std::string
 settingsmodel::video_rootpath_get()
 {
-   return video_dir;
+   std::string path(efreet_videos_dir_get());
+      auto it = rows.find("video_path");
+      if (end(rows) != it) {
+         //std::cout << table.name_get() << std::endl;
+         emodel_helpers::property_get(it->second, "value", path);
+      }
+   return path;
 }
 
 std::string
 settingsmodel::audio_rootpath_get()
 {
-   return audio_dir;
+   std::string path(efreet_music_dir_get());
+      auto it = rows.find("music_path");
+      if (end(rows) != it) {
+         //std::cout << table.name_get() << std::endl;
+         emodel_helpers::property_get(it->second, "value", path);
+      }
+   return path;
 }
 
 bool
@@ -78,19 +94,40 @@ settingsmodel::fullscreen_set(bool fullscreen)
 void
 settingsmodel::video_rootpath_set(std::string path)
 {
-   video_dir = path;
+      auto it = rows.find("video_path");
+      if (end(rows) != it) {
+         emodel_helpers::property_set(it->second, "value", path);
+      } else {
+         auto &table = database.settings_get();
+         auto obj = table.child_add();
+         esql::model_row row(::eo_ref(obj._eo_ptr()));
+         std::string value("video_path");
+         emodel_helpers::property_set(row, "key", value);
+         emodel_helpers::property_set(row, "value", path);
+      }
 }
 
 void
 settingsmodel::audio_rootpath_set(std::string path)
 {
-   audio_dir = path;
+   auto it = rows.find("music_path");
+   if (end(rows) != it) {
+      emodel_helpers::property_set(it->second, "value", path);
+   } else {
+      auto &table = database.settings_get();
+      auto obj = table.child_add();
+      esql::model_row row(::eo_ref(obj._eo_ptr()));
+      std::string value("music_path");
+      emodel_helpers::property_set(row, "key", value);
+      emodel_helpers::property_set(row, "value", path);
+   }
 }
 
 
 void
 settingsmodel::group_set(const std::string groupname)
 {
+   std::string theme_dir(THEME_PATH);
    layout.file_set(theme_dir + "/default.edj", groupname);
 }
 

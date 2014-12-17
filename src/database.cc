@@ -14,6 +14,7 @@ database::database()
    , artists(nullptr)
    , albums(nullptr)
    , tracks(nullptr)
+   , settings(nullptr)
    , loading_tables_count(0)
 {}
 
@@ -422,6 +423,18 @@ esql::model_table& database::tracks_get()
    return tracks;
 }
 
+esql::model_table& database::settings_get()
+{
+   if (!settings)
+     {
+        auto it = tables.find(schema::settings_table.name);
+        if (end(tables) != it)
+          settings = it->second;
+        else
+          assert(false && "Settings table not found or not loaded yet");
+     }
 
+   return settings;
+}
 
 }
