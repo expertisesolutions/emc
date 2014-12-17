@@ -27,7 +27,7 @@ settingsctrl::settingsctrl(settingsmodel &_settings, const std::function<void()>
        std::bind([this]
           {
             std::string path = v_fentry.path_get();
-            std::cout << "music path changed to " << path << std::endl;
+            std::cout << "video path changed to " << path << std::endl;
             if (path == "")
               v_fentry.path_set(settings.video_rootpath_get());
             else

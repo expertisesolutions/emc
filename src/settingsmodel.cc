@@ -35,12 +35,16 @@ settingsmodel::settingsmodel(::elm_win &_win, ::elm_layout &_layout)
    layout.visibility_set(true);
 
    elm_theme_overlay_add(NULL, THEME_PATH"/theme_overlay.edj");
+   efreet_init();
 
-   database.async_load([this](bool err) {
-      auto &table = database.settings_get();
-      auto _rows = emc::emodel_helpers::children_get<esql::model_row>(table);
-      for (auto &row : _rows) {
-         emc::emodel_helpers::async_load(row, std::bind(&settingsmodel::on_row_loaded, this, row));
+   database.load_callback_add([this](bool err) {
+      if (!err) {
+         auto &table = database.settings_get();
+         std::cout << table.name_get() << std::endl;
+         auto _rows = emc::emodel_helpers::children_get<esql::model_row>(table);
+         for (auto &row : _rows) {
+            emc::emodel_helpers::async_load(row, std::bind(&settingsmodel::on_row_loaded, this, row));
+         }
       }
    });
 }
@@ -49,7 +53,7 @@ void
 settingsmodel::on_row_loaded(esql::model_row row)
 {
    std::string property;
-   if (!emc::emodel_helpers::property_get(row, "key", property))
+   if (emc::emodel_helpers::property_get(row, "key", property))
    this->rows.insert(std::make_pair(property, row));
 }
 
@@ -94,17 +98,19 @@ settingsmodel::fullscreen_set(bool fullscreen)
 void
 settingsmodel::video_rootpath_set(std::string path)
 {
-      auto it = rows.find("video_path");
-      if (end(rows) != it) {
-         emodel_helpers::property_set(it->second, "value", path);
-      } else {
-         auto &table = database.settings_get();
-         auto obj = table.child_add();
-         esql::model_row row(::eo_ref(obj._eo_ptr()));
-         std::string value("video_path");
-         emodel_helpers::property_set(row, "key", value);
-         emodel_helpers::property_set(row, "value", path);
-      }
+   auto it = rows.find("video_path");
+   if (end(rows) != it) {
+      emodel_helpers::property_set(it->second, "value", path);
+   } else {
+      auto &table = database.settings_get();
+      database.async_create_row(table, [this, path](bool err, esql::model_row row)
+          {
+              std::string value("video_path");
+              emodel_helpers::property_set(row, "key", value);
+              emodel_helpers::property_set(row, "value", path);
+              rows.insert(std::make_pair("video_path", row));
+          });
+   }
 }
 
 void
@@ -115,14 +121,15 @@ settingsmodel::audio_rootpath_set(std::string path)
       emodel_helpers::property_set(it->second, "value", path);
    } else {
       auto &table = database.settings_get();
-      auto obj = table.child_add();
-      esql::model_row row(::eo_ref(obj._eo_ptr()));
-      std::string value("music_path");
-      emodel_helpers::property_set(row, "key", value);
-      emodel_helpers::property_set(row, "value", path);
+      database.async_create_row(table, [this, path](bool err, esql::model_row row)
+          {
+              std::string value("music_path");
+              emodel_helpers::property_set(row, "key", value);
+              emodel_helpers::property_set(row, "value", path);
+              rows.insert(std::make_pair("music_path", row));
+          });
    }
 }
-
 
 void
 settingsmodel::group_set(const std::string groupname)

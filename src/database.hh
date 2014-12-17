@@ -31,6 +31,7 @@ public:
    ~database();
 
    void async_load(std::function<void(bool)> handler);
+   void load_callback_add(std::function<void(bool)> handler);
    static void async_create_row(esql::model_table &table,
                                 std::function<void(bool, esql::model_row)> callback);
 
@@ -69,7 +70,7 @@ private:
 
 
 private:
-   std::function<void(bool)> handler;
+   std::vector<std::function<void(bool)>> handlers;
    esql::model_database db;
    esql::model_table artists;
    esql::model_table albums;

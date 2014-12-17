@@ -92,8 +92,7 @@ const table tracks_table = {
 const table settings_table = {
    "settings",
    {
-      {"id", INTEGER, PRIMARY_KEY},
-      {"key", TEXT, NOT_NULL},
+      {"key", TEXT, PRIMARY_KEY},
       {"value", TEXT, DEFAULT_NULL},
    }
 };
