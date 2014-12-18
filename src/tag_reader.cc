@@ -124,7 +124,7 @@ tag_reader::process_file(const std::string &path)
 void
 tag_reader::process_mp3(TagLib::MPEG::File *file, tag& new_tag)
 {
-   new_tag.artwork = get_mp3_artwork(file);
+   //new_tag.artwork = get_mp3_artwork(file);
 }
 
 std::vector<char>
