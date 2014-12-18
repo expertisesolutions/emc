@@ -9,7 +9,7 @@
 #include "logger.hh"
 #include "tag_processor.hh"
 
-#include <eina_accessor.hh>
+#include <Ecore.hh>
 
 #include <functional>
 #include <utility>
@@ -42,8 +42,9 @@ namespace emc {
 audiolistmodel::audiolistmodel(::emc::database &_database)
    : maps_ready(false)
    , loading_rows_count(0)
-   , tag_reader(std::bind(&audiolistmodel::media_file_add_cb, this, std::placeholders::_1))
+   , tag_reader(std::bind(&audiolistmodel::tag_read_cb, this, std::placeholders::_1))
    , scanner(std::bind(&tag_reader::tag_file, &tag_reader, std::placeholders::_1))
+   , tag_pool(5)
    , database(_database)
 {
    DBG << "Starting file scanner...";
@@ -156,6 +157,13 @@ audiolistmodel::album_tracks_get(esql::model_row& album)
 }
 
 void
+audiolistmodel::tag_read_cb(const tag &tag)
+{
+   tag_pool.add(tag);
+   efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolistmodel::media_file_add_cb, this, tag));
+}
+
+void
 audiolistmodel::media_file_add_cb(const tag &tag)
 {
    pending_tags.push(tag);
@@ -243,7 +251,11 @@ audiolistmodel::process_tag(const tag &tag)
    auto &albums = database.albums_get();
    auto &tracks = database.tracks_get();
 
-   auto next_processor = std::bind(&audiolistmodel::next_processor, this);
+   auto next_processor =
+   [this, tag]()
+   {
+      efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolistmodel::next_processor, this, tag));
+   };
 
    auto artist_processor = make_unique<tag_processor>(artist_map, artists, tag.artist, next_processor,
      [tag](esql::model_row row)
@@ -283,7 +295,12 @@ audiolistmodel::process_tag(const tag &tag)
    processing_tags.push(move(artist_processor));
    processing_tags.push(move(album_processor));
    processing_tags.push(move(track_processor));
-   process();
+
+   bool is_processing_pending = process();
+   if (is_processing_pending) return;
+
+   DBG << "No more processors";
+   tag_pool.remove(tag);
 }
 
 bool
@@ -303,7 +320,7 @@ audiolistmodel::process()
 }
 
 void
-audiolistmodel::next_processor()
+audiolistmodel::next_processor(const tag &tag)
 {
    if (!processing_tags.empty())
      {
@@ -311,15 +328,12 @@ audiolistmodel::next_processor()
         processing_tags.pop();
      }
 
-   if (processing_tags.empty())
-     {
-        DBG << "No more processors";
-        process_pending_tags();
-        return;
-     }
-
    bool is_processing_pending = process();
    if (is_processing_pending) return;
+
+   DBG << "No more processors";
+   tag_pool.remove(tag);
+
    process_pending_tags();
 };
 

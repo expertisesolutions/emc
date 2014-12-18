@@ -3,6 +3,7 @@
 
 #include "database.hh"
 #include "file_scanner.hh"
+#include "tag_pool.hh"
 #include "tag_reader.hh"
 
 #include <eo_event.hh>
@@ -34,7 +35,8 @@ class audiolistmodel
    std::string audio_dir;
    ::emc::database &database;
    ::emc::tag_reader tag_reader;
-   file_scanner scanner;
+   ::emc::file_scanner scanner;
+   ::emc::tag_pool tag_pool;
    std::queue<tag> pending_tags;
 
    bool maps_ready;
@@ -47,6 +49,7 @@ class audiolistmodel
 
    void on_database_loaded(bool error);
 
+   void tag_read_cb(const tag &tag);
    void media_file_add_cb(const tag &tag);
    void populate_maps();
    void populate_map(esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map);
@@ -55,7 +58,7 @@ class audiolistmodel
 
    bool is_processing_tags() const;
    bool process();
-   void next_processor();
+   void next_processor(const tag &tag);
 
    int64_t artist_id_get(const std::string &artist_name) const;
    int64_t album_id_get(const std::string &album_name) const;

@@ -33,8 +33,8 @@ extract_file_extension(const std::string &path)
 
 namespace emc {
 
-tag_reader::tag_reader(std::function<void(const tag&)> media_file_add_cb)
-   : media_file_add_cb(media_file_add_cb)
+tag_reader::tag_reader(std::function<void(const tag&)> tag_read)
+   : tag_read(tag_read)
    , terminated(false)
    , worker(&tag_reader::process_files, this)
 {}
@@ -75,7 +75,6 @@ tag_reader::process_pending_files()
 {
    while (!pending_files.empty() && !terminated)
      {
-        DBG << "Processing " << pending_files.size() << " file(s)...";
         auto path = pending_files.front();
         pending_files.pop();
         process_file(path);
@@ -85,8 +84,6 @@ tag_reader::process_pending_files()
 void
 tag_reader::process_file(const std::string &path)
 {
-   DBG << "Checking if filename is a recognized media type: " << path;
-
    // TODO: ignore if its already read
 
    TagLib::FileRef file(path.c_str());
@@ -118,13 +115,13 @@ tag_reader::process_file(const std::string &path)
    if ("MP3" == ext)
      process_mp3(static_cast<TagLib::MPEG::File*>(file.file()), new_tag);
 
-   efl::ecore::main_loop_thread_safe_call_async(std::bind(media_file_add_cb, new_tag));
+   tag_read(new_tag);
 }
 
 void
 tag_reader::process_mp3(TagLib::MPEG::File *file, tag& new_tag)
 {
-   //new_tag.artwork = get_mp3_artwork(file);
+   new_tag.artwork = get_mp3_artwork(file);
 }
 
 std::vector<char>

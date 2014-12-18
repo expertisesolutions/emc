@@ -66,7 +66,7 @@ inline void property_set<int64_t>(::emodel model, const std::string &property, c
 template<>
 inline void property_set<std::vector<char>>(::emodel model, const std::string &property, const std::vector<char> &raw_value)
 {
-   DBG << "Setting value of " << property << " = <BLOB>";
+   DBG << "Setting value of " << property << " = <BLOB>(" << raw_value.size() << ")";
 
    Eina_Value value = {};
    eina_value_setup(&value, EINA_VALUE_TYPE_BLOB);

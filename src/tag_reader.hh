@@ -1,6 +1,8 @@
 #ifndef _TAG_READER_HH
 #define _TAG_READER_HH
 
+#include "tag.hh"
+
 #include <Eina.hh>
 
 #include <functional>
@@ -13,22 +15,10 @@ namespace TagLib { namespace MPEG { class File; }}
 
 namespace emc {
 
-struct tag
-{
-   std::string file;
-   std::string title;
-   int track;
-   std::string artist;
-   std::string album;
-   std::string genre;
-   int year;
-   std::vector<char> artwork;
-};
-
 class tag_reader
 {
 public:
-   tag_reader(std::function<void(const tag&)> media_file_add_cb);
+   tag_reader(std::function<void(const tag&)> tag_read);
    ~tag_reader();
 
    void tag_file(const std::string& file);
@@ -41,7 +31,7 @@ private:
    std::vector<char> get_mp3_artwork(TagLib::MPEG::File *file);
 
 private:
-   std::function<void(const tag&)> media_file_add_cb;
+   std::function<void(const tag&)> tag_read;
    bool terminated;
 
    ::efl::eina::condition_variable pending_file;
