@@ -25,7 +25,7 @@ database::async_load(std::function<void(bool)> handler)
 {
    DBG << "Loading database";
    this->handler = handler;
-   db = esql::model(db.esql_model_constructor("./emc.db", "", "", ""));
+   db = esql::model_database(db.esql_model_database_constructor("./emc.db", "", "", ""));
    emc::emodel_helpers::async_load(db, std::bind(&database::on_load, this, std::placeholders::_1));
 }
 

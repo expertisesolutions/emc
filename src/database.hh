@@ -69,7 +69,7 @@ private:
 
 private:
    std::function<void(bool)> handler;
-   esql::model db;
+   esql::model_database db;
    esql::model_table artists;
    esql::model_table albums;
    esql::model_table tracks;
