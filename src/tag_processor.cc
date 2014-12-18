@@ -35,19 +35,16 @@ tag_processor::~tag_processor()
    DBG << "Tag processor dtor...";
 }
 
-void
+bool
 tag_processor::process()
 {
    DBG << "Tag processor: " << key_value;
    if (exists(map, key_value))
-     {
-        process_next();
-        return;
-     }
+     return false;
 
    DBG << "Inserting: " << key_value;
    database::async_create_row(table, std::bind(&tag_processor::row_create_handler, this, std::placeholders::_1, std::placeholders::_2));
-   return;
+   return true;
 }
 
 void

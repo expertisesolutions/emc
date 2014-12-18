@@ -282,8 +282,23 @@ audiolistmodel::process_tag(const tag &tag)
    processing_tags.push(move(artist_processor));
    processing_tags.push(move(album_processor));
    processing_tags.push(move(track_processor));
+   process();
+}
+
+bool
+audiolistmodel::process()
+{
    DBG << "Processing " << processing_tags.size();
-   processing_tags.front()->process();
+   while (!processing_tags.empty())
+     {
+        bool is_processing_pending = processing_tags.front()->process();
+        if (is_processing_pending) return true;
+
+        DBG << "Going to next processor";
+        processing_tags.pop();
+     }
+
+   return false;
 }
 
 void
@@ -302,9 +317,9 @@ audiolistmodel::next_processor()
         return;
      }
 
-
-   DBG << "Processing " << processing_tags.size();
-   processing_tags.front()->process();
+   bool is_processing_pending = process();
+   if (is_processing_pending) return;
+   process_pending_tags();
 };
 
 int64_t

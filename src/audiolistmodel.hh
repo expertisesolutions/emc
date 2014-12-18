@@ -54,6 +54,7 @@ class audiolistmodel
    void process_tag(const tag &tag);
 
    bool is_processing_tags() const;
+   bool process();
    void next_processor();
 
    int64_t artist_id_get(const std::string &artist_name) const;

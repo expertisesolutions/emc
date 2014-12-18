@@ -29,8 +29,9 @@ public:
 
    /**
     * Starts the processing of key_value
+    * @return Returns if the processing is pending
     */
-   void process();
+   bool process();
 
 private:
    void row_create_handler(bool error, esql::model_row row);
