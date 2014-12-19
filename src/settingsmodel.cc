@@ -40,7 +40,6 @@ settingsmodel::settingsmodel(::elm_win &_win, ::elm_layout &_layout)
    database.load_callback_add([this](bool err) {
       if (!err) {
          auto &table = database.settings_get();
-         std::cout << table.name_get() << std::endl;
          auto _rows = emc::emodel_helpers::children_get<esql::model_row>(table);
          for (auto &row : _rows) {
             emc::emodel_helpers::async_load(row, std::bind(&settingsmodel::on_row_loaded, this, row));

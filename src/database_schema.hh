@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace esql { struct model; }
+namespace esql { struct model_database; }
 
 namespace emc { namespace schema {
 
