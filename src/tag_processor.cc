@@ -4,19 +4,9 @@
 #include "emodel_helpers.hh"
 #include "logger.hh"
 
-namespace {
-   bool
-   exists(const std::unordered_map<std::string, esql::model_row> &map,
-          const std::string &key)
-   {
-      auto it = map.find(key);
-      return end(map) != it;
-   }
-}
-
 namespace emc {
 
-tag_processor::tag_processor(std::unordered_map<std::string, esql::model_row> &map,
+tag_processor::tag_processor(row_map &map,
                              esql::model_table &table,
                              const std::string &key_value,
                              std::function<void()> process_next,
@@ -39,7 +29,7 @@ bool
 tag_processor::process()
 {
    DBG << "Tag processor: " << key_value;
-   if (exists(map, key_value))
+   if (map.exists(key_value))
      return false;
 
    DBG << "Inserting: " << key_value;
@@ -71,7 +61,7 @@ tag_processor::property_set_handler(bool error, esql::model_row row)
    else
      {
         DBG << "Properties have been set for '" << key_value << "', continuing...";
-        map.insert(std::make_pair(key_value, row));
+        map.add(key_value, row);
      }
 
    process_next();

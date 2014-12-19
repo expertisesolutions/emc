@@ -16,7 +16,9 @@ SOURCES= \
   database.cc \
   logger.cc \
   tag_reader.cc \
-  tag_pool.cc
+  tag_pool.cc \
+  row_map.cc \
+  database_map.cc
 OBJECTS=$(SOURCES:.cc=.o)
 
 emc_LIBADD = @EMC_LIBS@

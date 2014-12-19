@@ -1,15 +1,6 @@
 #ifndef _DATABASE_HH
 #define _DATABASE_HH
 
-
-#include <Emodel.h>
-#include <Emodel.hh>
-
-extern "C"
-{
-#include <Esskyuehl.h>
-#include <Esql_Model.h>
-}
 #include <Esql_Model.hh>
 
 #include <functional>

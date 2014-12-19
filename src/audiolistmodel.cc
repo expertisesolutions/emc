@@ -12,6 +12,7 @@
 #include <Ecore.hh>
 
 #include <functional>
+#include <sstream>
 #include <utility>
 
 namespace {
@@ -24,24 +25,27 @@ namespace {
    }
 
    int64_t
-   get_id(const std::unordered_map<std::string, esql::model_row> &map,
-          const std::string &key)
+   get_id(esql::model_row &row)
    {
       int64_t id = INVALID_ID;
-
-      auto it = map.find(key);
-      if (end(map) != it)
-        emc::emodel_helpers::property_get(it->second, "id", id);
+      if (row)
+        emc::emodel_helpers::property_get(row, "id", id);
       return id;
+   }
 
+   int64_t
+   get_id(const emc::row_map &map,
+          const std::string &key)
+   {
+      auto row = map.find(key);
+      return get_id(row);
    }
 }
 
 namespace emc {
 
 audiolistmodel::audiolistmodel(::emc::database &_database)
-   : maps_ready(false)
-   , loading_rows_count(0)
+   : database_map(database)
    , tag_reader(std::bind(&audiolistmodel::tag_read_cb, this, std::placeholders::_1))
    , scanner(std::bind(&tag_reader::tag_file, &tag_reader, std::placeholders::_1))
    , tag_pool(5)
@@ -67,7 +71,13 @@ audiolistmodel::on_database_loaded(bool error)
         return;
      }
 
-   populate_maps();
+   database_map.async_map(std::bind(&audiolistmodel::on_rows_mapped, this));
+}
+
+void
+audiolistmodel::on_rows_mapped()
+{
+   process_pending_tags();
 }
 
 esql::model_table&
@@ -103,17 +113,15 @@ audiolistmodel::artist_albums_get(esql::model_row& artist)
 {
    auto &albums = database.albums_get();
 
-   Eina_Value value;
-   char *id_artist = NULL;
-
-   artist.property_get("id", &value);
-   id_artist = eina_value_to_string(&value);
-   if (id_artist)
+   auto id_artist = get_id(artist);
+   if (INVALID_ID != id_artist)
      {
-        std::string f("id_artist=");
-        albums.filter_set(f += id_artist);
+        std::stringstream buffer;
+        buffer << "id_artist=" << id_artist;
+        albums.filter_set(buffer.str());
         return albums;
      }
+
    albums.load();
    return albums;
 }
@@ -123,16 +131,14 @@ audiolistmodel::artist_tracks_get(esql::model_row& artist)
 {
     auto &tracks = database.tracks_get();
 
-    Eina_Value value;
-    char *id_artist = NULL;
-
-    artist.property_get("id", &value);
-    id_artist = eina_value_to_string(&value);
-    if (id_artist)
+    auto id_artist = get_id(artist);
+    if (INVALID_ID != id_artist)
       {
-         std::string f("id_artist=");
-         tracks.filter_set( f + id_artist);
+         std::stringstream buffer;
+         buffer << "id_artist=" << id_artist;
+         tracks.filter_set(buffer.str());
       }
+
     tracks.load();
     return tracks;
 }
@@ -142,16 +148,16 @@ audiolistmodel::album_tracks_get(esql::model_row& album)
 {
     auto &tracks = database.tracks_get();
 
-    Eina_Value value;
-    char *id_album = NULL;
-
-    album.property_get("id", &value);
-    id_album = eina_value_to_string(&value);
-    if (id_album)
+    auto id_album = get_id(album);
+    if (INVALID_ID != id_album)
       {
-         std::string f("id_album=");
-         tracks.filter_set(f + id_album + " ORDER BY track");
+         std::stringstream buffer;
+         buffer << "id_album="
+             << id_album
+             << " ORDER BY track";
+         tracks.filter_set(buffer.str());
       }
+
     tracks.load();
     return tracks;
 }
@@ -168,64 +174,8 @@ audiolistmodel::media_file_add_cb(const tag &tag)
 {
    pending_tags.push(tag);
 
-   if (maps_ready)
+   if (database_map.is_mapped())
      process_pending_tags();
-}
-
-void
-audiolistmodel::populate_maps()
-{
-   auto &artists = database.artists_get();
-   auto &albums = database.albums_get();
-   auto &tracks = database.tracks_get();
-
-   populate_map(artists, "name", artist_map);
-   populate_map(albums, "name", album_map);
-   populate_map(tracks, "file", track_map);
-
-   if (!loading_rows_count)
-     {
-        maps_ready = true;
-        process_pending_tags();
-     }
-}
-
-void
-audiolistmodel::populate_map(esql::model_table &table, const std::string &key_field, std::unordered_map<std::string, esql::model_row> &map)
-{
-   DBG << "Populating map...";
-   auto rows = emc::emodel_helpers::children_get<esql::model_row>(table);
-
-   loading_rows_count += rows.size();
-
-   for (auto &row : rows)
-     {
-        emc::emodel_helpers::async_properties_load(row, [this, row, key_field, &map](bool error)
-          {
-             --loading_rows_count;
-
-             if (error)
-               {
-                  ERR << "Error loading row";
-                  return;
-               }
-
-             std::string value;
-             if (!emc::emodel_helpers::property_get(row, key_field, value))
-               {
-                  ERR << "Error property_get('" << key_field << "')";
-                  return;
-               }
-
-             map.insert(std::make_pair(value, row));
-
-             if (!loading_rows_count)
-               {
-                  maps_ready = true;
-                  process_pending_tags();
-               }
-          });
-     }
 }
 
 void
@@ -257,14 +207,14 @@ audiolistmodel::process_tag(const tag &tag)
       efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolistmodel::next_processor, this, tag));
    };
 
-   auto artist_processor = make_unique<tag_processor>(artist_map, artists, tag.artist, next_processor,
+   auto artist_processor = make_unique<tag_processor>(database_map.artists_map_get(), artists, tag.artist, next_processor,
      [tag](esql::model_row row)
      {
         DBG << "Setting artist properties: " << tag.artist;
         emc::emodel_helpers::property_set(row, "name", tag.artist);
      });
 
-   auto album_processor = make_unique<tag_processor>(album_map, albums, tag.album, next_processor,
+   auto album_processor = make_unique<tag_processor>(database_map.albums_map_get(), albums, tag.album, next_processor,
      [tag, this](esql::model_row row)
      {
         DBG << "Setting album properties: " << tag.album;
@@ -276,7 +226,7 @@ audiolistmodel::process_tag(const tag &tag)
         emc::emodel_helpers::property_set(row, "year", tag.year);
      });
 
-   auto track_processor = make_unique<tag_processor>(track_map, tracks, tag.file, next_processor,
+   auto track_processor = make_unique<tag_processor>(database_map.tracks_map_get(), tracks, tag.file, next_processor,
      [tag, this](esql::model_row row)
      {
         DBG << "Setting track properties: " << tag.file;
@@ -340,19 +290,19 @@ audiolistmodel::next_processor(const tag &tag)
 int64_t
 audiolistmodel::artist_id_get(const std::string &artist_name) const
 {
-   return get_id(artist_map, artist_name);
+   return get_id(database_map.artists_map_get(), artist_name);
 }
 
 int64_t
 audiolistmodel::album_id_get(const std::string &album_name) const
 {
-   return get_id(album_map, album_name);
+   return get_id(database_map.albums_map_get(), album_name);
 }
 
 int64_t
 audiolistmodel::track_id_get(const std::string &file_name) const
 {
-   return get_id(track_map, file_name);
+   return get_id(database_map.tracks_map_get(), file_name);
 }
 
 bool audiolistmodel::is_processing_tags() const

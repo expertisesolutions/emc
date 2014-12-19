@@ -1,11 +1,8 @@
 #ifndef _TAG_PROCESSOR_HH
 #define _TAG_PROCESSOR_HH
 
-extern "C"
-{
-#include <Esskyuehl.h>
-#include <Esql_Model.h>
-}
+#include "row_map.hh"
+
 #include <Esql_Model.hh>
 
 #include <functional>
@@ -20,7 +17,7 @@ namespace emc {
 class tag_processor
 {
 public:
-   tag_processor(std::unordered_map<std::string, esql::model_row> &map,
+   tag_processor(row_map &map,
                  esql::model_table &table,
                  const std::string &key_value,
                  std::function<void()> process_next,
@@ -38,7 +35,7 @@ private:
    void property_set_handler(bool error, esql::model_row row);
 
 private:
-   std::unordered_map<std::string, esql::model_row> &map;
+   row_map &map;
    esql::model_table &table;
    const std::string key_value;
    std::function<void()> process_next;

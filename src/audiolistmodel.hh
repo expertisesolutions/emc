@@ -2,19 +2,11 @@
 #define _AUDIOLIST_MODEL_HH
 
 #include "database.hh"
+#include "database_map.hh"
 #include "file_scanner.hh"
 #include "tag_pool.hh"
 #include "tag_reader.hh"
 
-#include <eo_event.hh>
-#include <Emodel.h>
-#include <Emodel.hh>
-
-extern "C"
-{
-#include <Esskyuehl.h>
-#include <Esql_Model.h>
-}
 #include <Esql_Model.hh>
 
 #include <cstdint>
@@ -34,20 +26,16 @@ class audiolistmodel
    std::string video_dir;
    std::string audio_dir;
    ::emc::database &database;
+   ::emc::database_map database_map;
    ::emc::tag_reader tag_reader;
    ::emc::file_scanner scanner;
    ::emc::tag_pool tag_pool;
    std::queue<tag> pending_tags;
 
-   bool maps_ready;
-   std::unordered_map<std::string, esql::model_row> track_map;
-   std::unordered_map<std::string, esql::model_row> artist_map;
-   std::unordered_map<std::string, esql::model_row> album_map;
    std::queue<std::unique_ptr<tag_processor>> processing_tags;
 
-   int loading_rows_count;
-
    void on_database_loaded(bool error);
+   void on_rows_mapped();
 
    void tag_read_cb(const tag &tag);
    void media_file_add_cb(const tag &tag);
