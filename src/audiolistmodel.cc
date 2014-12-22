@@ -16,29 +16,13 @@
 #include <utility>
 
 namespace {
-   const auto INVALID_ID = 0;
-
-   template<typename T, typename... Args>
-   std::unique_ptr<T> make_unique(Args&&... args)
-   {
-      return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-   }
-
    int64_t
    get_id(esql::model_row &row)
    {
-      int64_t id = INVALID_ID;
+      int64_t id = emc::database::INVALID_ID;
       if (row)
         emc::emodel_helpers::property_get(row, "id", id);
       return id;
-   }
-
-   int64_t
-   get_id(const emc::row_map &map,
-          const std::string &key)
-   {
-      auto row = map.find(key);
-      return get_id(row);
    }
 }
 
@@ -115,7 +99,7 @@ audiolistmodel::artist_albums_get(esql::model_row& artist)
    auto &albums = database.albums_get();
 
    auto id_artist = get_id(artist);
-   if (INVALID_ID != id_artist)
+   if (database::INVALID_ID != id_artist)
      {
         std::stringstream buffer;
         buffer << "id_artist=" << id_artist;
@@ -133,7 +117,7 @@ audiolistmodel::artist_tracks_get(esql::model_row& artist)
     auto &tracks = database.tracks_get();
 
     auto id_artist = get_id(artist);
-    if (INVALID_ID != id_artist)
+    if (database::INVALID_ID != id_artist)
       {
          std::stringstream buffer;
          buffer << "id_artist=" << id_artist;
@@ -150,7 +134,7 @@ audiolistmodel::album_tracks_get(esql::model_row& album)
     auto &tracks = database.tracks_get();
 
     auto id_album = get_id(album);
-    if (INVALID_ID != id_album)
+    if (database::INVALID_ID != id_album)
       {
          std::stringstream buffer;
          buffer << "id_album="
