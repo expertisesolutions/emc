@@ -3,6 +3,25 @@
 #include "database.hh"
 #include "emodel_helpers.hh"
 
+namespace {
+   int64_t
+   get_id(esql::model_row &row)
+   {
+      int64_t id = emc::database::INVALID_ID;
+      if (row)
+        emc::emodel_helpers::property_get(row, "id", id);
+      return id;
+   }
+
+   int64_t
+   get_id(const emc::row_map &map,
+          const std::string &key)
+   {
+      auto row = map.find(key);
+      return get_id(row);
+   }
+}
+
 namespace emc {
 
 database_map::database_map(database &db)
@@ -116,6 +135,24 @@ const row_map&
 database_map::tracks_map_get() const
 {
    return tracks_map;
+}
+
+int64_t
+database_map::artist_id_get(const std::string &artist_name) const
+{
+   return get_id(artists_map, artist_name);
+}
+
+int64_t
+database_map::album_id_get(const std::string &album_name) const
+{
+   return get_id(albums_map, album_name);
+}
+
+int64_t
+database_map::track_id_get(const std::string &file_name) const
+{
+   return get_id(tracks_map, file_name);
 }
 
 }

@@ -18,6 +18,8 @@ namespace schema {
 class database
 {
 public:
+   static const int INVALID_ID;
+
    database();
    ~database();
 

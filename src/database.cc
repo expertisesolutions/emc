@@ -3,11 +3,14 @@
 #include "database_schema.hh"
 #include "emodel_helpers.hh"
 #include "logger.hh"
+#include "row_map.hh"
 
 #include <cassert>
 #include <ostream>
 
 namespace emc {
+
+const int database::INVALID_ID = 0;
 
 database::database()
    : db(nullptr)

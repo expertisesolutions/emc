@@ -3,6 +3,7 @@
 
 #include "row_map.hh"
 
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -43,6 +44,10 @@ public:
    const row_map& albums_map_get() const;
    row_map& tracks_map_get();
    const row_map& tracks_map_get() const;
+
+   int64_t artist_id_get(const std::string &artist_name) const;
+   int64_t album_id_get(const std::string &album_name) const;
+   int64_t track_id_get(const std::string &file_name) const;
 
 private:
    void populate_map(esql::model_table &table, const std::string &key_field, row_map &map);

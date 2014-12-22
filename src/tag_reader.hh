@@ -32,7 +32,7 @@ private:
 
 private:
    std::function<void(const tag&)> tag_read;
-   bool terminated;
+   volatile bool terminated;
 
    ::efl::eina::condition_variable pending_file;
    ::efl::eina::mutex pending_files_mutex;

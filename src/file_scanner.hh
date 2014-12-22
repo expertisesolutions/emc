@@ -28,7 +28,7 @@ private:
 
 private:
    std::function<void(const std::string&)> file_found;
-   bool terminated;
+   volatile bool terminated;
 
    ::efl::eina::condition_variable pending_path;
    ::efl::eina::mutex pending_paths_mutex;
