@@ -9,8 +9,8 @@
 
 namespace emc {
 
-file_scanner::file_scanner(std::function<void(const std::string&)> file_found)
-   : file_found(file_found)
+file_scanner::file_scanner(bounded_buffer<std::string> &files)
+   : files(files)
    , terminated(false)
    , worker(&file_scanner::process, this)
 {}
@@ -106,7 +106,7 @@ file_scanner::process_path(const std::string &path)
         if (info->type == EINA_FILE_DIR)
           scan_path(info->path);
         else
-          file_found(info->path);
+          files.push_back(info->path);
      }
    eina_iterator_free(it);
 }

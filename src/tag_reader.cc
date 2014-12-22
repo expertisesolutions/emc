@@ -33,57 +33,25 @@ extract_file_extension(const std::string &path)
 
 namespace emc {
 
-tag_reader::tag_reader(std::function<void(const tag&)> tag_read)
-   : tag_read(tag_read)
-   , terminated(false)
+tag_reader::tag_reader(bounded_buffer<std::string> &files, bounded_buffer<tag> &tags)
+   : files(files)
+   , tags(tags)
    , worker(&tag_reader::process, this)
 {}
 
 tag_reader::~tag_reader()
 {
-   terminated = true;
-   pending_file.notify_one();
+   files.close();
+   tags.close();
    worker.join();
-}
-
-void
-tag_reader::tag_file(const std::string& file)
-{
-   {
-      efl::eina::unique_lock<efl::eina::mutex> lock(pending_files_mutex);
-      pending_files.push_back(file);
-   }
-   pending_file.notify_one();
 }
 
 void
 tag_reader::process()
 {
-   while (!terminated)
-     {
-        std::vector<std::string> files;
-
-        DBG << "Waiting for new files";
-        {
-           efl::eina::unique_lock<efl::eina::mutex> lock(pending_files_mutex);
-           if (pending_files.empty())
-             pending_file.wait(lock);
-           if (terminated) return;
-           files = move(pending_files);
-        }
-
-        process_files(files);
-     }
-}
-
-void
-tag_reader::process_files(const std::vector<std::string> &files)
-{
-   for (auto &file : files)
-     {
-        if (terminated) return;
-        process_file(file);
-     }
+   std::string file;
+   while (files.pop_front(file))
+     process_file(file);
 }
 
 void
@@ -120,7 +88,7 @@ tag_reader::process_file(const std::string &path)
    if ("MP3" == ext)
      process_mp3(static_cast<TagLib::MPEG::File*>(file.file()), new_tag);
 
-   tag_read(new_tag);
+   tags.push_back(std::move(new_tag));
 }
 
 void

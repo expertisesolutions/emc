@@ -1,6 +1,8 @@
 #ifndef _FILE_SCANNER_HH
 #define _FILE_SCANNER_HH
 
+#include "bounded_buffer.hh"
+
 #include <Eina.hh>
 
 #include <functional>
@@ -12,7 +14,7 @@ namespace emc {
 class file_scanner
 {
 public:
-   file_scanner(std::function<void(const std::string&)> file_found);
+   file_scanner(bounded_buffer<std::string> &files);
    ~file_scanner();
 
    void start();
@@ -26,7 +28,7 @@ private:
    void process_path(const std::string &path);
 
 private:
-   std::function<void(const std::string&)> file_found;
+   bounded_buffer<std::string> &files;
    volatile bool terminated;
 
    ::efl::eina::condition_variable pending_path;

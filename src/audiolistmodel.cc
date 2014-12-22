@@ -4,6 +4,7 @@
  */
 #include "audiolistmodel.hh"
 
+#include "database.hh"
 #include "database_schema.hh"
 #include "emodel_helpers.hh"
 #include "logger.hh"
@@ -16,9 +17,6 @@
 #include <utility>
 
 namespace {
-
-   auto MAX_TAG_POOL_COUNT = 5;
-
    int64_t
    get_id(esql::model_row &row)
    {
@@ -32,23 +30,15 @@ namespace {
 namespace emc {
 
 audiolistmodel::audiolistmodel(::emc::database &database)
-   : database_map(database)
-   , tag_reader(std::bind(&audiolistmodel::on_tag_read, this, std::placeholders::_1))
-   , scanner(std::bind(&tag_reader::tag_file, &tag_reader, std::placeholders::_1))
-   , tag_pool(MAX_TAG_POOL_COUNT)
-   , database(database)
-   , updater(database, database_map, std::bind(&audiolistmodel::on_tag_updated, this, std::placeholders::_1))
+   : database(database)
+   , tagging_service(database)
 {
-   DBG << "Starting file scanner...";
-   scanner.start();
-
    DBG << "Loading database...";
    database.async_load(std::bind(&audiolistmodel::on_database_loaded, this, std::placeholders::_1));
 }
 
 audiolistmodel::~audiolistmodel()
 {
-   tag_pool.close();
 }
 
 void
@@ -60,13 +50,7 @@ audiolistmodel::on_database_loaded(bool error)
         return;
      }
 
-   database_map.async_map(std::bind(&audiolistmodel::on_rows_mapped, this));
-}
-
-void
-audiolistmodel::on_rows_mapped()
-{
-   process_pending_tags();
+   tagging_service.start();
 }
 
 esql::model_table&
@@ -151,37 +135,4 @@ audiolistmodel::album_tracks_get(esql::model_row& album)
     return tracks;
 }
 
-void
-audiolistmodel::on_tag_read(const tag &tag)
-{
-   tag_pool.add(tag);
-   efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolistmodel::media_file_add_cb, this, tag));
 }
-
-void
-audiolistmodel::media_file_add_cb(const tag &tag)
-{
-   pending_tags.push(tag);
-
-   if (database_map.is_mapped())
-     process_pending_tags();
-}
-
-void
-audiolistmodel::process_pending_tags()
-{
-   while (!updater.is_updating() && !pending_tags.empty())
-     {
-        auto &tag = pending_tags.front();
-        updater.update(tag);
-     }
-}
-
-void
-audiolistmodel::on_tag_updated(const tag &tag)
-{
-   tag_pool.remove(tag);
-   pending_tags.pop();
-}
-
-} //emc
