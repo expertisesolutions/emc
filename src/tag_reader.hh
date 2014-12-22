@@ -7,7 +7,6 @@
 
 #include <functional>
 #include <memory>
-#include <queue>
 #include <string>
 #include <vector>
 
@@ -24,8 +23,8 @@ public:
    void tag_file(const std::string& file);
 
 private:
-   void process_files();
-   void process_pending_files();
+   void process();
+   void process_files(const std::vector<std::string> &files);
    void process_file(const std::string &path);
    void process_mp3(TagLib::MPEG::File *file, tag& new_tag);
    std::vector<char> get_mp3_artwork(TagLib::MPEG::File *file);
@@ -37,7 +36,7 @@ private:
    ::efl::eina::condition_variable pending_file;
    ::efl::eina::mutex pending_files_mutex;
    ::efl::eina::thread worker;
-   std::queue<std::string> pending_files;
+   std::vector<std::string> pending_files;
 };
 
 }

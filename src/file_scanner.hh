@@ -4,7 +4,6 @@
 #include <Eina.hh>
 
 #include <functional>
-#include <queue>
 #include <string>
 #include <vector>
 
@@ -22,8 +21,8 @@ private:
    std::vector<std::string> get_configured_paths() const;
    void scan_path(const std::string &path);
 
-   void process_paths();
-   void process_pending_paths();
+   void process();
+   void process_paths(const std::vector<std::string> &paths);
    void process_path(const std::string &path);
 
 private:
@@ -33,7 +32,7 @@ private:
    ::efl::eina::condition_variable pending_path;
    ::efl::eina::mutex pending_paths_mutex;
    ::efl::eina::thread worker;
-   std::queue<std::string> pending_paths;
+   std::vector<std::string> pending_paths;
 };
 
 }

@@ -12,7 +12,7 @@ namespace emc {
 file_scanner::file_scanner(std::function<void(const std::string&)> file_found)
    : file_found(file_found)
    , terminated(false)
-   , worker(&file_scanner::process_paths, this)
+   , worker(&file_scanner::process, this)
 {}
 
 file_scanner::~file_scanner()
@@ -47,33 +47,38 @@ void file_scanner::scan_path(const std::string &path)
 {
    {
       efl::eina::unique_lock<efl::eina::mutex> lock(pending_paths_mutex);
-      pending_paths.push(path);
+      pending_paths.push_back(path);
    }
    pending_path.notify_one();
 }
 
 
-void file_scanner::process_paths()
+void file_scanner::process()
 {
-   efl::eina::unique_lock<efl::eina::mutex> lock(pending_paths_mutex);
    while (!terminated)
      {
-        DBG << "Waiting for new paths";
-        pending_path.wait(lock);
-        if (terminated) return;
+        std::vector<std::string> paths;
 
-        process_pending_paths();
+        DBG << "Waiting for new paths";
+        {
+           efl::eina::unique_lock<efl::eina::mutex> lock(pending_paths_mutex);
+           if (pending_paths.empty())
+             pending_path.wait(lock);
+           if (terminated) return;
+           paths = move(pending_paths);
+        }
+
+        process_paths(paths);
      }
 }
 
 void
-file_scanner::process_pending_paths()
+file_scanner::process_paths(const std::vector<std::string> &paths)
 {
-   while (!pending_paths.empty() && !terminated)
+   DBG << "Processing " << paths.size() << " path(s)...";
+   for (auto &path : paths)
      {
-        DBG << "Processing " << pending_paths.size() << " path(s)...";
-        auto path = pending_paths.front();
-        pending_paths.pop();
+        if (terminated) return;
         process_path(path);
      }
 }
@@ -99,7 +104,7 @@ file_scanner::process_path(const std::string &path)
    EINA_ITERATOR_FOREACH(it, info)
      {
         if (info->type == EINA_FILE_DIR)
-          pending_paths.push(info->path);
+          scan_path(info->path);
         else
           file_found(info->path);
      }
