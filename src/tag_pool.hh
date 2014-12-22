@@ -20,12 +20,14 @@ public:
 
    void add(const tag &tag);
    void remove(const tag &tag);
+   bool empty() const;
+   void close();
 
 private:
    size_t size;
-   bool terminated;
+   volatile bool closed;
    ::efl::eina::condition_variable pool_full;
-   ::efl::eina::mutex pool_mutex;
+   mutable ::efl::eina::mutex pool_mutex;
    std::unordered_map<std::string, tag> pool;
 };
 

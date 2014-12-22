@@ -9,27 +9,26 @@ namespace emc
 
 tag_pool::tag_pool(size_t size)
    : size(size)
-   , terminated(false)
+   , closed(false)
 {}
 
 tag_pool::~tag_pool()
 {
-   terminated = true;
-   pool_full.notify_one();
+   assert(closed && "The pool must be closed");
    // TODO: Wait for
 }
 
 void
 tag_pool::add(const tag &tag)
 {
-   if (terminated) return;
+   if (closed) return;
 
    {
       efl::eina::unique_lock<efl::eina::mutex> lock(pool_mutex);
       if (pool.size() == size)
         {
            pool_full.wait(lock);
-           if (terminated) return;
+           if (closed) return;
         }
       pool.insert(std::make_pair(tag.file, tag));
    }
@@ -44,6 +43,20 @@ tag_pool::remove(const tag &tag)
       assert(end(pool) != it);
       pool.erase(it);
    }
+   pool_full.notify_one();
+}
+
+bool
+tag_pool::empty() const
+{
+   efl::eina::unique_lock<efl::eina::mutex> lock(pool_mutex);
+   return pool.empty();
+}
+
+void
+tag_pool::close()
+{
+   closed = true;
    pool_full.notify_one();
 }
 

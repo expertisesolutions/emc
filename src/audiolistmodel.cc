@@ -16,6 +16,9 @@
 #include <utility>
 
 namespace {
+
+   auto MAX_TAG_POOL_COUNT = 5;
+
    int64_t
    get_id(esql::model_row &row)
    {
@@ -32,7 +35,7 @@ audiolistmodel::audiolistmodel(::emc::database &database)
    : database_map(database)
    , tag_reader(std::bind(&audiolistmodel::on_tag_read, this, std::placeholders::_1))
    , scanner(std::bind(&tag_reader::tag_file, &tag_reader, std::placeholders::_1))
-   , tag_pool(5)
+   , tag_pool(MAX_TAG_POOL_COUNT)
    , database(database)
    , updater(database, database_map, std::bind(&audiolistmodel::on_tag_updated, this, std::placeholders::_1))
 {
@@ -45,6 +48,7 @@ audiolistmodel::audiolistmodel(::emc::database &database)
 
 audiolistmodel::~audiolistmodel()
 {
+   tag_pool.close();
 }
 
 void
