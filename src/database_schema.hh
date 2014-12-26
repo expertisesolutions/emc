@@ -72,7 +72,7 @@ const std::vector<const table*> tables = {&tracks_table, &artists_table, &albums
 
 } // v1
 
-inline namespace v2 {
+namespace v2 {
 
 const auto VERSION = 2;
 
@@ -109,8 +109,37 @@ const table version_table = {
 
 const std::vector<const table*> tables = {&tracks_table, &artists_table, &albums_table, &settings_table, &version_table};
 
-
 } // v2
+
+inline namespace v3 {
+
+const auto VERSION = 3;
+
+const table tracks_table = {
+   v2::tracks_table.name,
+   {
+      v2::tracks_table.fields[0],
+      v2::tracks_table.fields[1],
+      v2::tracks_table.fields[2],
+      v2::tracks_table.fields[3],
+      v2::tracks_table.fields[4],
+      v2::tracks_table.fields[5],
+      v2::tracks_table.fields[6],
+      {"length", INTEGER}, // length in seconds
+      {"bitrate", INTEGER}, // constant, average or nominal bitrate
+      {"samplerate", INTEGER}, // sample rate in Hz
+      {"channels", INTEGER} // audio channels
+   }
+};
+
+using v2::settings_table;
+using v2::artists_table;
+using v2::albums_table;
+using v2::version_table;
+
+const std::vector<const table*> tables = {&tracks_table, &artists_table, &albums_table, &settings_table, &version_table};
+
+} // v3
 
 const auto CURRENT_VERSION = VERSION;
 

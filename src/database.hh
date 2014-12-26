@@ -6,6 +6,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace emc {
@@ -61,6 +62,16 @@ private:
    void create_version_table();
    bool on_version_table_created(bool error);
 
+   void migrate_from_version_2();
+   void on_migration_completed(bool error, int version);
+
+   void async_create_table_fields(esql::model_table &table,
+                                  const schema::table &table_definition,
+                                  const std::vector<int> &field_ids,
+                                  std::function<void(bool)> handler);
+   void on_property_set(bool error,
+                        const std::vector<Emodel_Property_Pair*> &properties_changed,
+                        std::function<void(bool)> handler);
 
 private:
    std::vector<std::function<void(bool)>> handlers;
@@ -72,6 +83,7 @@ private:
 
    std::unordered_map<std::string, esql::model_table> tables;
    size_t loading_tables_count;
+   std::unordered_set<std::string> pending_properties;
 };
 
 }

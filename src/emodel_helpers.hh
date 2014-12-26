@@ -49,8 +49,13 @@ template<class T>
 inline void property_set(::emodel model, const std::string &property, const T &raw_value)
 {
    DBG << "Setting value of " << property << " = " << raw_value;
-
    ::efl::eina::value value(raw_value);
+   property_set(model, property, value);
+}
+
+template<>
+inline void property_set<::efl::eina::value>(::emodel model, const std::string &property, const ::efl::eina::value &value)
+{
    model.property_set(property, *value.native_handle());
 }
 
@@ -102,29 +107,45 @@ inline std::vector<T> children_get(::emodel model)
    return children;
 }
 
-
 /**
  * Asynchronously call handler once on load or error
- * @param emodel The emodel
+ * @param model The emodel
  * @param handler The callback
  */
 void async_load(::emodel model, std::function<void(bool)> handler);
 
 /**
  * Asynchronously call handler once on properties load or error
- * @param emodel The emodel
+ * @param model The emodel
  * @param handler The callback
  */
 void async_properties_load(::emodel model, std::function<void(bool)> handler);
 
 /**
+ * Asynchronously set a property givin the property name and its value
+ * @param model The model
+ * @param property The property name
+ * @param value The value to set
+ * @param handler The callback
+ */
+template<class T>
+void async_property_set(::emodel model, const std::string &property, const T &value, std::function<void(bool, const std::vector<Emodel_Property_Pair*> &)> handler)
+{
+   async_property_set(model, property, ::efl::eina::value(value), handler);
+}
+
+template<>
+void async_property_set<::efl::eina::value>(::emodel model, const std::string &property, const ::efl::eina::value &value, std::function<void(bool, const std::vector<Emodel_Property_Pair*> &)> handler);
+
+/**
  * Register a callback handler to be called just once on properties changed or error
- * @param emodel The emodel
+ * @param model The emodel
  * @param handler The callback
  */
 void callback_properties_changed_once(::emodel model, std::function<void(bool)> handler);
 
 void callback_children_count_changed_add(::emodel model, std::function<bool(bool, unsigned int)> handler);
+
 
 }}
 

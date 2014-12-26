@@ -83,6 +83,12 @@ tag_reader::process_file(const std::string &path)
    new_tag.genre = to_string(tag->genre());
    new_tag.year = tag->year();
 
+   auto audio = file.audioProperties();
+   new_tag.length = audio->length();
+   new_tag.bitrate = audio->bitrate();
+   new_tag.samplerate = audio->sampleRate();
+   new_tag.channels = audio->channels();
+
    const auto ext = extract_file_extension(path);
 
    if ("MP3" == ext)

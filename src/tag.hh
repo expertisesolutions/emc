@@ -16,6 +16,10 @@ struct tag
    std::string genre;
    int year;
    std::vector<char> artwork;
+   int length;
+   int bitrate;
+   int samplerate;
+   int channels;
 };
 
 }

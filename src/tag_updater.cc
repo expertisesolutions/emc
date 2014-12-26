@@ -69,6 +69,10 @@ tag_updater::update(const tag &tag)
         emc::emodel_helpers::property_set(row, "name", tag.title);
         emc::emodel_helpers::property_set(row, "track", tag.track);
         emc::emodel_helpers::property_set(row, "artwork", tag.artwork);
+        emc::emodel_helpers::property_set(row, "length", tag.length);
+        emc::emodel_helpers::property_set(row, "bitrate", tag.bitrate);
+        emc::emodel_helpers::property_set(row, "samplerate", tag.samplerate);
+        emc::emodel_helpers::property_set(row, "channels", tag.channels);
      });
 
    processing_tags.push(move(artist_processor));

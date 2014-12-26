@@ -32,6 +32,23 @@ namespace
       return false;
    }
 
+   bool on_properties_changed_event(void *info, std::function<void()> disconnect, std::function<void(bool, const std::vector<Emodel_Property_Pair*> &)> handler)
+   {
+      DBG << "Properties changed";
+      Emodel_Property_Event &event = *static_cast<Emodel_Property_Event*>(info);
+      disconnect();
+
+      std::vector<Emodel_Property_Pair*> properties;
+
+      Eina_List *it = nullptr;
+      void *pair = nullptr;
+      EINA_LIST_FOREACH(event.changed_properties, it, pair)
+        properties.push_back(static_cast<Emodel_Property_Pair*>(pair));
+
+      handler(false, properties);
+      return false;
+   }
+
    bool on_properties_changed_error(void *info, std::function<void()> disconnect, std::function<void(bool)> handler)
    {
       const Emodel_Load &st = *static_cast<Emodel_Load*>(info);
@@ -152,6 +169,30 @@ void callback_children_count_changed_add(::emodel model, std::function<bool(bool
         {
            return handler(error, 0u);
         }));
+}
+
+template<>
+void async_property_set<::efl::eina::value>(::emodel model, const std::string &property, const ::efl::eina::value &value, std::function<void(bool, const std::vector<Emodel_Property_Pair*> &)> handler)
+{
+   auto properties_changed_connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
+   auto load_status_connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
+   auto disconnect = [properties_changed_connection, load_status_connection]
+     {
+        properties_changed_connection->disconnect();
+        load_status_connection->disconnect();
+     };
+
+   *properties_changed_connection = model.callback_properties_changed_add(
+     std::bind(on_properties_changed_event, std::placeholders::_3, disconnect, handler));
+
+   *load_status_connection = model.callback_load_status_add(
+     std::bind(on_properties_changed_error, std::placeholders::_3, disconnect,
+       [handler](bool error)
+       {
+          handler(error, std::vector<Emodel_Property_Pair*>());
+       }));
+
+   property_set(model, property, value);
 }
 
 }}

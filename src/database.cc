@@ -132,6 +132,11 @@ database::migrate(int version)
            migrate_from_version_1();
            return;
         }
+      case emc::schema::v2::VERSION:
+        {
+           migrate_from_version_2();
+           return;
+        }
       case emc::schema::CURRENT_VERSION:
         {
            DBG << "Version " << version << " is the current one. Done!";
@@ -445,6 +450,77 @@ esql::model_table& database::settings_get()
      }
 
    return settings;
+}
+
+void
+database::migrate_from_version_2()
+{
+   auto it = tables.find(schema::v3::tracks_table.name);
+   assert(end(tables) != it);
+   auto &tracks_table = it->second;
+
+   DBG << "Migrating from version 2 to 3";
+   auto callback = std::bind(&database::on_migration_completed, this, std::placeholders::_1, schema::v3::VERSION);
+   async_create_table_fields(tracks_table, schema::v3::tracks_table, {7, 8, 9, 10}, callback);
+}
+
+void
+database::on_migration_completed(bool error, int version)
+{
+   if (error)
+     {
+        ERR << "Error migrating to version " << version;
+        failure();
+        return;
+     }
+
+   set_version(version);
+}
+
+void
+database::async_create_table_fields(esql::model_table &table,
+                                    const schema::table &table_definition,
+                                    const std::vector<int> &field_ids,
+                                    std::function<void(bool)> handler)
+{
+   assert(table);
+   assert(pending_properties.empty());
+   auto on_property_set = std::bind(&database::on_property_set, this, std::placeholders::_1, std::placeholders::_2, handler);
+
+   for (auto &field_id : field_ids)
+     {
+        auto field_definition = table_definition.fields[field_id];
+        DBG << "Creating field: " << table_definition.name << "." << field_definition.name;
+        auto field_type = field_definition.type + " " + field_definition.constraint;
+        ::emc::emodel_helpers::async_property_set(table, field_definition.name, field_type, on_property_set);
+        pending_properties.insert(field_definition.name);
+     }
+}
+
+void
+database::on_property_set(bool error,
+                          const std::vector<Emodel_Property_Pair*> &properties_changed,
+                          std::function<void(bool)> handler)
+{
+   if (error)
+     {
+        handler(error);
+        return;
+     }
+
+   assert(!properties_changed.empty());
+
+   for (auto &property_pair : properties_changed)
+     {
+        assert(property_pair && property_pair->property);
+        auto it = pending_properties.find(property_pair->property);
+        assert(end(pending_properties) != it);
+        pending_properties.erase(it);
+        DBG << "Field " << property_pair->property << " created";
+     }
+
+   if (pending_properties.empty())
+     handler(error);
 }
 
 }
