@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+struct _Eina_Iterator;
+
 namespace emc {
 
 class file_scanner
@@ -33,8 +35,8 @@ private:
 
    ::efl::eina::condition_variable pending_path;
    ::efl::eina::mutex pending_paths_mutex;
-   ::efl::eina::thread worker;
    std::vector<std::string> pending_paths;
+   ::efl::eina::thread worker;
 };
 
 }
