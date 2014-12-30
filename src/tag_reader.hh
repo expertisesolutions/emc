@@ -2,6 +2,7 @@
 #define _TAG_READER_HH
 
 #include "bounded_buffer.hh"
+#include "picture_resizer.hh"
 #include "tag.hh"
 
 #include <Eina.hh>
@@ -26,9 +27,10 @@ private:
    void process();
    void process_file(const std::string &path);
    void process_mp3(TagLib::MPEG::File *file, tag& new_tag);
-   std::vector<char> get_mp3_artwork(TagLib::MPEG::File *file);
+   std::vector<unsigned char> get_mp3_artwork(TagLib::MPEG::File *file);
 
 private:
+   picture_resizer resizer;
    bounded_buffer<std::string> &files;
    bounded_buffer<tag> &tags;
    ::efl::eina::thread worker;

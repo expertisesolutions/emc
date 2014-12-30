@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-struct _Eina_Iterator;
-
 namespace emc {
 
 class file_scanner

@@ -40,6 +40,9 @@ PKG_CHECK_MODULES([EMC],
  taglib >= 1.9.1
 ])
 
+AC_CHECK_HEADER(jpeglib.h,, AC_MSG_ERROR([no jpeglib.h. Please install libjpeg >= 8.0]))
+AC_CHECK_LIB([jpeg], jpeg_mem_dest,, AC_MSG_ERROR([no libjpeg. Please install libjpeg >= 8.0]))
+
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.

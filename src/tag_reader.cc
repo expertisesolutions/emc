@@ -100,15 +100,22 @@ tag_reader::process_file(const std::string &path)
 void
 tag_reader::process_mp3(TagLib::MPEG::File *file, tag& new_tag)
 {
-   new_tag.artwork = get_mp3_artwork(file);
+   auto artwork = get_mp3_artwork(file);
+
+   efl::ecore::main_loop_thread_safe_call_sync([this, &artwork]() mutable
+     {
+        artwork = resizer.resize(artwork, 128, 128);
+     });
+
+   new_tag.artwork = move(artwork);
 }
 
-std::vector<char>
+std::vector<unsigned char>
 tag_reader::get_mp3_artwork(TagLib::MPEG::File *file)
 {
    auto tag = file->ID3v2Tag();
    if (nullptr == tag)
-     return std::vector<char>();
+     return std::vector<unsigned char>();
 
    using TagLib::ID3v2::AttachedPictureFrame;
 
@@ -140,10 +147,10 @@ tag_reader::get_mp3_artwork(TagLib::MPEG::File *file)
    if (!artwork_frame || artwork_frame->picture().isEmpty())
      artwork_frame = find_apic_frame(AttachedPictureFrame::Other);
    if (!artwork_frame || artwork_frame->picture().isEmpty())
-     return std::vector<char>();
+     return std::vector<unsigned char>();
 
    auto picture = artwork_frame->picture();
-   std::vector<char> artwork;
+   std::vector<unsigned char> artwork;
    artwork.reserve(picture.size());
    std::copy(std::begin(picture), std::end(picture), back_inserter(artwork));
    return artwork;

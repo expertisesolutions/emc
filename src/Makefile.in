@@ -20,10 +20,11 @@ SOURCES= \
   database_map.cc \
   tag_updater.cc \
   tagging_service.cc \
-  tag_consumer.cc
+  tag_consumer.cc \
+  picture_resizer.cc
 OBJECTS=$(SOURCES:.cc=.o)
 
-emc_LIBADD = @EMC_LIBS@
+emc_LIBADD = @EMC_LIBS@ @LIBS@
 emc_CFLAGS = @EMC_CFLAGS@
 
 DEFS = -DEFL_BETA_API_SUPPORT \

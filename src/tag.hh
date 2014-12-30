@@ -15,7 +15,7 @@ struct tag
    std::string album;
    std::string genre;
    int year;
-   std::vector<char> artwork;
+   std::vector<unsigned char> artwork;
    int length;
    int bitrate;
    int samplerate;
