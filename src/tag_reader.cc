@@ -101,12 +101,6 @@ void
 tag_reader::process_mp3(TagLib::MPEG::File *file, tag& new_tag)
 {
    auto artwork = get_mp3_artwork(file);
-
-   efl::ecore::main_loop_thread_safe_call_sync([this, &artwork]() mutable
-     {
-        artwork = resizer.resize(artwork, 128, 128);
-     });
-
    new_tag.artwork = move(artwork);
 }
 

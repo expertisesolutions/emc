@@ -2,6 +2,7 @@
 #define _TAG_CONSUMER_HH
 
 #include "bounded_buffer.hh"
+#include "picture_resizer.hh"
 #include "tag.hh"
 #include "tag_updater.hh"
 
@@ -21,11 +22,12 @@ public:
 
 private:
    void process();
-   void update_tag(const tag &tag);
+   void update_tag(tag &tag);
    void on_tag_updated(const tag &tag);
 
 private:
    bounded_buffer<tag> &tags;
+   picture_resizer resizer;
    tag_updater updater;
    volatile bool terminated;
    volatile bool updating_tag;
