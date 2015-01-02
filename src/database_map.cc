@@ -40,10 +40,12 @@ void database_map::async_map(std::function<void()> handler)
    auto &artists = db.artists_get();
    auto &albums = db.albums_get();
    auto &tracks = db.tracks_get();
+   auto &settings = db.settings_get();
 
    populate_map(artists, "name", artists_map);
    populate_map(albums, "name", albums_map);
    populate_map(tracks, "file", tracks_map);
+   populate_map(settings, "key", settings_map);
 
    notify_if_finished();
 }
@@ -153,6 +155,38 @@ int64_t
 database_map::track_id_get(const std::string &file_name) const
 {
    return get_id(tracks_map, file_name);
+}
+
+std::string
+database_map::setting_get(const std::string &key) const
+{
+   std::string value;
+
+   auto row = settings_map.find(key);
+   if (row)
+     emc::emodel_helpers::property_get(row, "key", value);
+
+   return value;
+}
+
+void
+database_map::setting_set(const std::string &key, const std::string &value)
+{
+   auto row = settings_map.find(key);
+   if (row)
+     {
+        emodel_helpers::property_set(row, "value", value);
+        return;
+     }
+
+   auto &table = db.settings_get();
+   db.async_create_row(table,
+     [this, key, value](bool err, esql::model_row row)
+     {
+        emodel_helpers::property_set(row, "key", key);
+        emodel_helpers::property_set(row, "value", value);
+        settings_map.add(key, row);
+     });
 }
 
 }

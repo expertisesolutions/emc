@@ -12,6 +12,7 @@
 namespace emc {
 
 class database;
+class database_map;
 class tag_consumer;
 
 /**
@@ -20,17 +21,14 @@ class tag_consumer;
 class tagging_service
 {
 public:
-   tagging_service(::emc::database &database);
+   tagging_service(::emc::database &database, ::emc::database_map &database_map);
    ~tagging_service();
 
    void start();
 
 private:
-   void on_database_mapped();
-
-private:
    ::emc::database &database;
-   ::emc::database_map database_map;
+   ::emc::database_map &database_map;
    ::emc::bounded_buffer<std::string> files;
    ::emc::bounded_buffer<tag> tags;
 

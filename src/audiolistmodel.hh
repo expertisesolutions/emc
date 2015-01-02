@@ -1,8 +1,6 @@
 #ifndef _AUDIOLIST_MODEL_HH
 #define _AUDIOLIST_MODEL_HH
 
-#include "tagging_service.hh"
-
 #include <Esql_Model.hh>
 
 namespace emc {
@@ -14,9 +12,6 @@ class audiolistmodel
    std::string video_dir;
    std::string audio_dir;
    ::emc::database &database;
-   ::emc::tagging_service tagging_service;
-
-   void on_database_loaded(bool error);
 
    public:
      audiolistmodel(::emc::database &database);

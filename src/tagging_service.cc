@@ -14,9 +14,9 @@ namespace {
 
 namespace emc {
 
-tagging_service::tagging_service(::emc::database &database)
+tagging_service::tagging_service(::emc::database &database, ::emc::database_map &database_map)
    : database(database)
-   , database_map(database)
+   , database_map(database_map)
    , files(MAX_FILES_QUEUE_COUNT)
    , tags(MAX_READ_TAGS_QUEUE_COUNT)
    , scanner(files)
@@ -34,15 +34,6 @@ tagging_service::start()
 {
    DBG << "Starting file scanner...";
    scanner.start();
-
-   DBG << "Mapping database...";
-   database_map.async_map(std::bind(&tagging_service::on_database_mapped, this));
-}
-
-void
-tagging_service::on_database_mapped()
-{
-   DBG << "Starting one tag consumer...";
    consumer = std::make_shared<tag_consumer>(database, database_map, tags);
 }
 

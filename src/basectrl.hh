@@ -1,10 +1,11 @@
 #ifndef _BASECTRL_HH
 #define _BASECTRL_HH
 
-#include <iostream>
-
-#include <elm_layout.eo.hh>
 #include "settingsmodel.hh"
+
+#include <eo_event.hh>
+
+struct elm_layout;
 
 namespace emc {
 
@@ -27,5 +28,6 @@ class basectrl
      void push(basectrl &ctrl);
 };
 
-} //emc
+}
+
 #endif

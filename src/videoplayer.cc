@@ -2,17 +2,19 @@
  * EMC - Enlightenment Media Center
  *    Audio/Video Player
  */
-
-#include <Evas.h>
-#include <Elementary.h>
-#include <elm_widget.h>
-#include "elm_interface_atspi_accessible.h"
-#include "elm_interface_atspi_accessible.eo.h"
-#include "elm_interface_atspi_widget_action.h"
-#include "elm_interface_atspi_widget_action.eo.h"
+#include "videoplayer.hh"
 
 #include <Ecore.hh>
-#include "videoplayer.hh"
+#include <Elementary.h>
+#include <elm_widget.h>
+#include <elm_interface_atspi_accessible.h>
+#include <elm_interface_atspi_accessible.eo.h>
+#include <elm_interface_atspi_widget_action.h>
+#include <elm_interface_atspi_widget_action.eo.h>
+#include <elm_layout.eo.hh>
+#include <elm_win.eo.hh>
+#include <Evas.h>
+
 #include <iomanip>
 
 namespace emc {

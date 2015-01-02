@@ -32,7 +32,7 @@ class audiolist
    void playlists_show(esql::model_table& model);
 
    public:
-     audiolist(settingsmodel &settings, const std::function<void()> &deactive_cb);
+     audiolist(::emc::database &database, settingsmodel &settings, const std::function<void()> &deactive_cb);
      ~audiolist() {}
      void active();
      void deactive();

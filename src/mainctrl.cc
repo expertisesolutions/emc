@@ -3,7 +3,9 @@
  *    Audio/Video Player
  */
 
-#include <iostream>
+#include "mainctrl.hh"
+
+#include "settingsmodel.hh"
 
 #include <Evas.h>
 #include <Elementary.h>
@@ -14,7 +16,7 @@
 #include "elm_interface_atspi_widget_action.eo.h"
 #include <elm_layout.eo.hh>
 
-#include "mainctrl.hh"
+#include <iostream>
 
 namespace emc {
 
@@ -33,10 +35,10 @@ mainctrl::on_key_down(std::string key)
 }
 
 //Constructor
-mainctrl::mainctrl(settingsmodel &_settings)
+mainctrl::mainctrl(::emc::database &database, settingsmodel &_settings)
    : basectrl(_settings, "main", []{elm_exit();}),
      settctrl(settings, [this]{active();}),
-     audio(settings, [this]{active();}),
+     audio(database, settings, [this]{active();}),
      video(settings, [this]{active();})
 {
    //add signal callbacks

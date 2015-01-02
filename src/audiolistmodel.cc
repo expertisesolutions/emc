@@ -31,27 +31,10 @@ namespace emc {
 
 audiolistmodel::audiolistmodel(::emc::database &database)
    : database(database)
-   , tagging_service(database)
-{
-   DBG << "Loading database...";
-   database.async_load(std::bind(&audiolistmodel::on_database_loaded, this, std::placeholders::_1));
-}
+{}
 
 audiolistmodel::~audiolistmodel()
-{
-}
-
-void
-audiolistmodel::on_database_loaded(bool error)
-{
-   if (error)
-     {
-        ERR << "Error loading database";
-        return;
-     }
-
-   tagging_service.start();
-}
+{}
 
 esql::model_table&
 audiolistmodel::artists_get()

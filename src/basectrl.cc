@@ -2,6 +2,7 @@
  * EMC - Enlightenment Media Center
  *    Audio/Video Player
  */
+#include "basectrl.hh"
 
 #include <Evas.h>
 #include <Elementary.h>
@@ -11,8 +12,7 @@
 #include "elm_interface_atspi_widget_action.h"
 #include "elm_interface_atspi_widget_action.eo.h"
 #include <elm_layout.eo.hh>
-
-#include "basectrl.hh"
+#include <elm_win.eo.hh>
 
 namespace emc {
 

@@ -48,6 +48,8 @@ public:
    int64_t artist_id_get(const std::string &artist_name) const;
    int64_t album_id_get(const std::string &album_name) const;
    int64_t track_id_get(const std::string &file_name) const;
+   std::string setting_get(const std::string &key) const;
+   void setting_set(const std::string &key, const std::string &value);
 
 private:
    void populate_map(esql::model_table &table, const std::string &key_field, row_map &map);
@@ -63,6 +65,7 @@ private:
    row_map artists_map;
    row_map albums_map;
    row_map tracks_map;
+   row_map settings_map;
 };
 
 }

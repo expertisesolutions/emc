@@ -2,18 +2,18 @@
  * EMC - Enlightenment Media Center
  *    Audio/Video Player
  */
+#include "audiolist.hh"
 
-#include <Evas.h>
+#include <Ecore.hh>
 #include <Elementary.h>
 #include <elm_widget.h>
-#include "elm_interface_atspi_accessible.h"
-#include "elm_interface_atspi_accessible.eo.h"
-#include "elm_interface_atspi_widget_action.h"
-#include "elm_interface_atspi_widget_action.eo.h"
+#include <elm_interface_atspi_accessible.h>
+#include <elm_interface_atspi_accessible.eo.h>
+#include <elm_interface_atspi_widget_action.h>
+#include <elm_interface_atspi_widget_action.eo.h>
 #include <elm_layout.eo.hh>
+#include <Evas.h>
 
-#include "audiolist.hh"
-#include <Ecore.hh>
 #include <thread>
 #include <iomanip>
 
@@ -81,14 +81,14 @@ audio_open_done_cb(void *data, Evas_Object *obj, void *event_info)
    efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::opened_done_cb, t));
 }
 
-audiolist::audiolist(settingsmodel &_settings, const std::function<void()> &_cb)
+audiolist::audiolist(::emc::database &database, settingsmodel &_settings, const std::function<void()> &_cb)
    : basectrl(_settings, "audiolist", _cb),
         list(efl::eo::parent = layout),
         progslider(efl::eo::parent = layout),
         player(settings.player),
         view(nullptr),
         row_selected(nullptr),
-        model(settings.database)
+        model(database)
 {
     layout.signal_callback_add("audiolist.selected.artists", "*",
        std::bind([this]

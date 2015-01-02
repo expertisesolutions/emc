@@ -1,29 +1,28 @@
 #ifndef _MAINCTRL_HH
 #define _MAINCTRL_HH
 
-#include <iostream>
-#include <Elementary.h>
-
-#include "basectrl.hh"
 #include "audiolist.hh"
-#include "videolist.hh"
+#include "basectrl.hh"
 #include "settingsctrl.hh"
-#include "settingsmodel.hh"
+#include "videolist.hh"
 
 namespace emc {
 
-class mainctrl
- : public basectrl
+class database;
+class settingsmodel;
+
+class mainctrl : public basectrl
 {
    audiolist audio;
    videolist video;
    settingsctrl settctrl;
 
    public:
-     mainctrl(settingsmodel &settings);
+     mainctrl(::emc::database &database, settingsmodel &settings);
      ~mainctrl() {}
      void on_key_down(std::string key);
 };
 
-} //emc
+}
+
 #endif

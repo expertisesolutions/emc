@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 PROJ=emc
 SOURCES= \
+  application_controller.cc \
   basectrl.cc \
   audiolistmodel.cc \
   audiolist.cc \
