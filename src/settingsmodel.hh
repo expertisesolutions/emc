@@ -1,14 +1,16 @@
 #ifndef _SETTINGS_MODEL_HH
 #define _SETTINGS_MODEL_HH
 
-#include <iostream>
-#include "Emodel.h"
-#include "Emodel.hh"
-#include <elm_layout.eo.hh>
-#include <elm_win.eo.hh>
+#include "database.hh"
+
+#include <Emodel.h>
+#include <Emodel.hh>
+#include <Elementary.h>
+#include <elm_widget.h>
 #include <elm_video.eo.hh>
 
-#include "database.hh"
+struct elm_layout;
+struct elm_win;
 
 namespace emc {
 
@@ -26,7 +28,11 @@ class settingsmodel
      void audio_rootpath_set(std::string path);
      void fullscreen_set(bool fullscreen);
 
-//     ::elm_video player_get();
+     /**
+      * @brief Updates all media files
+      */
+     void update_media();
+
      void group_set(const std::string groupname);
      ::elm_win &win;
      ::elm_layout &layout;
@@ -40,5 +46,6 @@ class settingsmodel
      std::unordered_map<std::string, esql::model_row> rows;
 };
 
-} //emc
+}
+
 #endif

@@ -2,20 +2,21 @@
  * EMC - Enlightenment Media Center
  *    Audio/Video Player
  */
-
-#include <Elementary.h>
-#include <elm_widget.h>
-#include "elm_interface_atspi_accessible.h"
-#include "elm_interface_atspi_accessible.eo.h"
-#include "elm_interface_atspi_widget_action.h"
-#include "elm_interface_atspi_widget_action.eo.h"
-#include <elm_layout.eo.hh>
-
-#include "Efreet.h"
-
 #include "settingsmodel.hh"
+
 #include "database_schema.hh"
 #include "emodel_helpers.hh"
+#include "logger.hh"
+
+#include <Efreet.h>
+#include <Elementary.h>
+#include <elm_widget.h>
+#include <elm_interface_atspi_accessible.h>
+#include <elm_interface_atspi_accessible.eo.h>
+#include <elm_interface_atspi_widget_action.h>
+#include <elm_interface_atspi_widget_action.eo.h>
+#include <elm_layout.eo.hh>
+#include <elm_win.eo.hh>
 
 #define THEME_PATH "../themes/default"
 #define WIDTH 1280
@@ -137,4 +138,20 @@ settingsmodel::group_set(const std::string groupname)
    layout.file_set(theme_dir + "/default.edj", groupname);
 }
 
-} //emc
+void
+settingsmodel::update_media()
+{
+   database.async_reset_media_tables(
+     [](bool error)
+     {
+        if (error)
+          {
+             ERR << "Error updating media files";
+             return;
+          }
+
+        // TODO: Restart tagging service
+     });
+}
+
+}

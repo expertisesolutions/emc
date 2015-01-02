@@ -149,6 +149,71 @@ database::on_child_added(const Emodel_Children_Event &event)
    tables.insert(std::make_pair(tablename, table));
 }
 
+void
+database::async_reset_media_tables(std::function<void(bool)> handler)
+{
+   DBG << "Reseting media tables";
+   emodel_helpers::async_child_del(db, {artists_get(), albums_get(), tracks_get()},
+     [this, handler](bool error)
+     {
+        if (error)
+          {
+             ERR << "Error deleting media tables";
+             handler(true);
+             return;
+          }
+
+        async_create_tables({&schema::artists_table, &schema::albums_table, &schema::tracks_table}, handler);
+     });
+}
+
+void
+database::async_create_tables(const std::vector<const schema::table*> &table_definitions, std::function<void(bool)> handler)
+{
+   auto count = std::make_shared<size_t>(table_definitions.size());
+
+   emc::emodel_helpers::callback_children_count_changed_add(db,
+     [count, handler](bool error, unsigned int actual_count) -> bool
+     {
+        if (error)
+          {
+             ERR << "Error creating table";
+             handler(true);
+             return false;
+          }
+
+        --(*count);
+        if (*count)
+          return true;
+
+        handler(false);
+        return false;
+     });
+
+   for (auto &table : table_definitions)
+     create_table(*table);
+}
+
+void
+database::create_table(const schema::table &table_definition)
+{
+   DBG << "Creating table: " << table_definition.name;
+   efl::eo::base obj = db.child_add();
+   esql::model_table table(::eo_ref(obj._eo_ptr()));
+   table.name_set(table_definition.name);
+
+   for (auto &field : table_definition.fields)
+     create_table_field(table, table_definition, field);
+}
+
+void
+database::create_table_field(esql::model_table table, const schema::table &table_definition, const schema::field &field_definition)
+{
+   DBG << "Creating field: " << table_definition.name << "." << field_definition.name;
+   ::efl::eina::value field_type(field_definition.type + " " + field_definition.constraint);
+   table.property_set(field_definition.name, *field_type.native_handle());
+}
+
 esql::model_database&
 database::database_get() const
 {

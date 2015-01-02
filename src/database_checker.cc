@@ -97,25 +97,18 @@ database_checker::migrate_from_version_0()
 {
    DBG << "Migrating from version 0";
 
-   std::function<void()> migration_done = std::bind(&database_checker::set_version, this, schema::CURRENT_VERSION);
+   database.async_create_tables(schema::tables,
+     [this](bool error)
+     {
+        if (error)
+          {
+             ERR << "Error creating table";
+             failure();
+             return;
+          }
 
-   emc::emodel_helpers::callback_children_count_changed_add(db,
-     std::bind(&database_checker::on_table_created, this, std::placeholders::_1, std::placeholders::_2, schema::tables.size(), migration_done));
-
-   for (auto &table : schema::tables)
-     create_table(*table);
-}
-
-void
-database_checker::create_table(const schema::table &table_definition)
-{
-   DBG << "Creating table: " << table_definition.name;
-   efl::eo::base obj = db.child_add();
-   esql::model_table table(::eo_ref(obj._eo_ptr()));
-   table.name_set(table_definition.name);
-
-   for (auto &field : table_definition.fields)
-     create_table_field(table, table_definition, field);
+        set_version(schema::CURRENT_VERSION);
+     });
 }
 
 void
@@ -124,23 +117,6 @@ database_checker::create_table_field(esql::model_table table, const schema::tabl
    DBG << "Creating field: " << table_definition.name << "." << field_definition.name;
    ::efl::eina::value field_type(field_definition.type + " " + field_definition.constraint);
    table.property_set(field_definition.name, *field_type.native_handle());
-}
-
-bool
-database_checker::on_table_created(bool error, unsigned int actual_count, size_t expected_count, std::function<void()> migration_done)
-{
-   if (error)
-     {
-        ERR << "Error creating table";
-        failure();
-        return false;
-     }
-
-   if (actual_count != expected_count)
-     return true;
-
-   migration_done();
-   return false;
 }
 
 void
@@ -275,25 +251,22 @@ void
 database_checker::create_v2_tables()
 {
    DBG << "Creating version/settings table";
-
-   emc::emodel_helpers::callback_children_count_changed_add(db,
+   database.async_create_tables({&schema::v2::version_table, &schema::v2::settings_table},
      std::bind(&database_checker::on_v2_tables_created, this, std::placeholders::_1));
-   create_table(schema::v2::version_table);
-   create_table(schema::v2::settings_table);
 }
 
-bool
+void
 database_checker::on_v2_tables_created(bool error)
 {
    if (error)
      {
         ERR << "Error creating version table";
         failure();
-        return false;
+        return;
      }
 
    set_version(schema::v2::VERSION);
-   return false;
+   return;
 }
 
 void

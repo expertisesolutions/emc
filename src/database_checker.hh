@@ -39,9 +39,7 @@ private:
    void on_version_row_loaded(bool error, esql::model_row row);
 
    void migrate_from_version_0();
-   void create_table(const schema::table &table_definition);
    void create_table_field(esql::model_table table, const schema::table &table_definition, const schema::field &field_definition);
-   bool on_table_created(bool error, unsigned int actual_count, size_t expected_count, std::function<void()> migration_done);
    void set_version(int version);
    void on_version_table_loaded(bool error, esql::model_table version_table, int version);
    void load_version_row(bool error, esql::model_row row, int version);
@@ -50,7 +48,7 @@ private:
 
    void migrate_from_version_1();
    void create_v2_tables();
-   bool on_v2_tables_created(bool error);
+   void on_v2_tables_created(bool error);
 
    void migrate_from_version_2();
    void on_migration_completed(bool error, int version);

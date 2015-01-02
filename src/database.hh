@@ -41,6 +41,19 @@ public:
    esql::model_table table_get(const std::string &table) const;
    bool is_empty() const;
 
+   /**
+    * Creates tables by definitions
+    * @param handler The callback function to call once on success or error
+    */
+   void async_create_tables(const std::vector<const schema::table*> &table_definitions,
+                            std::function<void(bool)> handler);
+
+   /**
+    * Reset artist, album and track tables
+    * @param handler The callback function to call once on success or error
+    */
+   void async_reset_media_tables(std::function<void(bool)> handler);
+
 private:
    void success();
    void failure();
@@ -52,6 +65,9 @@ private:
    void map_tables();
    void check_tables();
    void on_child_added(const Emodel_Children_Event &event);
+
+   void create_table(const schema::table &table_definition);
+   void create_table_field(esql::model_table table, const schema::table &table_definition, const schema::field &field_definition);
 
 private:
    std::vector<std::function<void(bool)>> handlers;

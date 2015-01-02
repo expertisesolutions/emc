@@ -51,6 +51,12 @@ settingsctrl::settingsctrl(settingsmodel &_settings, const std::function<void()>
             bool f = fullscreen_check.state_get();
             settings.fullscreen_set(f);
           }));
+
+   mupdate_bt.callback_clicked_add(
+     std::bind([this]
+       {
+         settings.update_media();
+       }));
 }
 
 void

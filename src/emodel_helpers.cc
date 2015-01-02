@@ -49,7 +49,7 @@ namespace
       return false;
    }
 
-   bool on_properties_changed_error(void *info, std::function<void()> disconnect, std::function<void(bool)> handler)
+   bool on_load_status_error(void *info, std::function<void()> disconnect, std::function<void(bool)> handler)
    {
       const Emodel_Load &st = *static_cast<Emodel_Load*>(info);
       if (!(st.status & EMODEL_LOAD_STATUS_ERROR))
@@ -111,6 +111,19 @@ namespace
       const Emodel_Children_Event &event = *static_cast<Emodel_Children_Event*>(info);
       handler(event);
    }
+
+   void
+   on_child_removed(void *info, std::function<void()> disconnect, std::shared_ptr<int> count, std::function<void(bool)> handler)
+   {
+      DBG << "Child removed: " << *count;
+      --(*count);
+
+      if (!(*count))
+        {
+           disconnect();
+           handler(false);
+        }
+   }
 }
 
 namespace emc { namespace emodel_helpers {
@@ -156,6 +169,30 @@ void async_children_load(::emodel model, std::function<void(bool)> handler)
      emc::emodel_helpers::async_load(child, std::bind(&on_child_loaded, std::placeholders::_1, count, handler));
 }
 
+void async_child_del(::emodel model, const std::vector<::emodel> &children, std::function<void(bool)> handler)
+{
+   assert(!children.empty());
+
+   auto count = std::make_shared<int>(children.size());
+
+   auto child_removed_connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
+   auto load_status_connection = std::make_shared<::efl::eo::signal_connection>(nullptr);
+   auto disconnect = [child_removed_connection, load_status_connection]
+     {
+        child_removed_connection->disconnect();
+        load_status_connection->disconnect();
+     };
+
+   *child_removed_connection = model.callback_child_removed_add(
+      std::bind(on_child_removed, std::placeholders::_3, disconnect, count, handler));
+
+   *load_status_connection = model.callback_load_status_add(
+      std::bind(on_load_status_error, std::placeholders::_3, disconnect, handler));
+
+   for (auto &child : children)
+     model.child_del(child);
+}
+
 void async_properties_load(::emodel model, std::function<void(bool)> handler)
 {
    if ((model.load_status_get() & EMODEL_LOAD_STATUS_LOADED_PROPERTIES) == EMODEL_LOAD_STATUS_LOADED_PROPERTIES)
@@ -185,7 +222,7 @@ void callback_properties_changed_once(::emodel model, std::function<void(bool)> 
       std::bind(on_properties_changed, std::placeholders::_3, disconnect, handler));
 
    *load_status_connection = model.callback_load_status_add(
-      std::bind(on_properties_changed_error, std::placeholders::_3, disconnect, handler));
+      std::bind(on_load_status_error, std::placeholders::_3, disconnect, handler));
 }
 
 void callback_children_count_changed_add(::emodel model, std::function<bool(bool, unsigned int)> handler)
@@ -224,7 +261,7 @@ void async_property_set<::efl::eina::value>(::emodel model, const std::string &p
      std::bind(on_properties_changed_event, std::placeholders::_3, disconnect, handler));
 
    *load_status_connection = model.callback_load_status_add(
-     std::bind(on_properties_changed_error, std::placeholders::_3, disconnect,
+     std::bind(on_load_status_error, std::placeholders::_3, disconnect,
        [handler](bool error)
        {
           handler(error, std::vector<Emodel_Property_Pair*>());

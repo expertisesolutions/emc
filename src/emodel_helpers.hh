@@ -129,6 +129,13 @@ void async_properties_load(::emodel model, std::function<void(bool)> handler);
 void async_children_load(::emodel model, std::function<void(bool)> handler);
 
 /**
+ * Deletes all children and calls handler assynchronously once on success or error
+ * @param model [description]
+ * @param handler [description]
+ */
+void async_child_del(::emodel model, const std::vector<::emodel> &children, std::function<void(bool)> handler);
+
+/**
  * Asynchronously set a property givin the property name and its value
  * @param model The model
  * @param property The property name
