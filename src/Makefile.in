@@ -21,7 +21,8 @@ SOURCES= \
   tag_updater.cc \
   tagging_service.cc \
   tag_consumer.cc \
-  picture_resizer.cc
+  picture_resizer.cc \
+  database_checker.cc
 OBJECTS=$(SOURCES:.cc=.o)
 
 emc_LIBADD = @EMC_LIBS@ @LIBS@

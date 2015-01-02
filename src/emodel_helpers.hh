@@ -122,6 +122,13 @@ void async_load(::emodel model, std::function<void(bool)> handler);
 void async_properties_load(::emodel model, std::function<void(bool)> handler);
 
 /**
+ * Loads all children and calls handler asynchronously once on load or error
+ * @param model The emodel
+ * @param handler The callback
+ */
+void async_children_load(::emodel model, std::function<void(bool)> handler);
+
+/**
  * Asynchronously set a property givin the property name and its value
  * @param model The model
  * @param property The property name
@@ -146,6 +153,13 @@ void callback_properties_changed_once(::emodel model, std::function<void(bool)> 
 
 void callback_children_count_changed_add(::emodel model, std::function<bool(bool, unsigned int)> handler);
 
+/**
+ * Connects to the child_added event
+ * @param model The model
+ * @param handler The callback handler
+ * @return Returns the connection
+ */
+::efl::eo::signal_connection child_added_event_connect(::emodel model, std::function<void(const Emodel_Children_Event&)> handler);
 
 }}
 

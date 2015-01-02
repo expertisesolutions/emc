@@ -87,6 +87,30 @@ namespace
         }
       return true;
    }
+
+   void
+   on_child_loaded(bool error, std::shared_ptr<int> count, std::function<void(bool)> handler)
+   {
+      --(*count);
+
+      if (error)
+        {
+           ERR << "Error loading child";
+           handler(true);
+           return;
+        }
+
+      if (*count) return;
+
+      handler(false);
+   }
+
+   void
+   on_child_added(void *info, std::function<void(const Emodel_Children_Event&)> handler)
+   {
+      const Emodel_Children_Event &event = *static_cast<Emodel_Children_Event*>(info);
+      handler(event);
+   }
 }
 
 namespace emc { namespace emodel_helpers {
@@ -116,6 +140,20 @@ void async_load(::emodel model, std::function<void(bool)> handler)
      model.properties_load();
    else
      model.load();
+}
+
+void async_children_load(::emodel model, std::function<void(bool)> handler)
+{
+   auto children = emc::emodel_helpers::children_get<::emodel>(model);
+   if (children.empty())
+     {
+        handler(false);
+        return;
+     }
+
+   auto count = std::make_shared<int>(children.size());
+   for (auto &child : children)
+     emc::emodel_helpers::async_load(child, std::bind(&on_child_loaded, std::placeholders::_1, count, handler));
 }
 
 void async_properties_load(::emodel model, std::function<void(bool)> handler)
@@ -193,6 +231,14 @@ void async_property_set<::efl::eina::value>(::emodel model, const std::string &p
        }));
 
    property_set(model, property, value);
+}
+
+
+::efl::eo::signal_connection
+child_added_event_connect(::emodel model, std::function<void(const Emodel_Children_Event&)> handler)
+{
+   return model.callback_child_added_add(
+     std::bind(on_child_added, std::placeholders::_3, handler));
 }
 
 }}

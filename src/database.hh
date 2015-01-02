@@ -1,6 +1,8 @@
 #ifndef _DATABASE_HH
 #define _DATABASE_HH
 
+#include "database_checker.hh"
+
 #include <Esql_Model.hh>
 
 #include <functional>
@@ -29,61 +31,40 @@ public:
    static void async_create_row(esql::model_table &table,
                                 std::function<void(bool, esql::model_row)> callback);
 
-   esql::model_table& artists_get();
-   esql::model_table& albums_get();
-   esql::model_table& tracks_get();
-   esql::model_table& settings_get();
+   esql::model_database& database_get() const;
+   esql::model_table& artists_get() const;
+   esql::model_table& albums_get() const;
+   esql::model_table& tracks_get() const;
+   esql::model_table& settings_get() const;
+   esql::model_table& version_get() const;
+
+   esql::model_table table_get(const std::string &table) const;
+   bool is_empty() const;
 
 private:
    void success();
    void failure();
    void notify(bool error);
 
-   void on_load(bool error);
+   void on_database_loaded(bool error);
+   void on_tables_loaded(bool error);
+   void on_database_checked(bool error);
    void map_tables();
    void check_tables();
-   void migrate(int version);
-   void load_tables();
-   void on_table_loaded(bool error);
-   void get_version();
-   void on_version_row_loaded(bool error, esql::model_row row);
-
-   void migrate_from_version_0();
-   void create_table(const schema::table &table_definition);
-   void create_table_field(esql::model_table table, const schema::table &table_definition, const schema::field &field_definition);
-   bool on_table_created(bool error, unsigned int actual_count, size_t expected_count, std::function<void()> migration_done);
-   void set_version(int version);
-   void on_version_table_loaded(bool error, esql::model_table version_table, int version);
-   void load_version_row(bool error, esql::model_row row, int version);
-   void on_version_table_row_loaded(bool error, esql::model_row row, int version);
-   void on_version_table_row_setted(bool error, esql::model_row row, int version);
-
-   void migrate_from_version_1();
-   void create_version_table();
-   bool on_version_table_created(bool error);
-
-   void migrate_from_version_2();
-   void on_migration_completed(bool error, int version);
-
-   void async_create_table_fields(esql::model_table &table,
-                                  const schema::table &table_definition,
-                                  const std::vector<int> &field_ids,
-                                  std::function<void(bool)> handler);
-   void on_property_set(bool error,
-                        const std::vector<Emodel_Property_Pair*> &properties_changed,
-                        std::function<void(bool)> handler);
+   void on_child_added(const Emodel_Children_Event &event);
 
 private:
    std::vector<std::function<void(bool)>> handlers;
-   esql::model_database db;
-   esql::model_table artists;
-   esql::model_table albums;
-   esql::model_table tracks;
-   esql::model_table settings;
-
+   mutable esql::model_database db;
+   mutable esql::model_table artists;
+   mutable esql::model_table albums;
+   mutable esql::model_table tracks;
+   mutable esql::model_table settings;
+   mutable esql::model_table version;
    std::unordered_map<std::string, esql::model_table> tables;
-   size_t loading_tables_count;
-   std::unordered_set<std::string> pending_properties;
+
+   database_checker checker;
+   ::efl::eo::signal_connection child_added_connection;
 };
 
 }
