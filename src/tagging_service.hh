@@ -1,40 +1,37 @@
 #ifndef _TAGGING_SERVICE_HH
 #define _TAGGING_SERVICE_HH
 
-#include "bounded_buffer.hh"
-#include "database_map.hh"
-#include "file_scanner.hh"
-#include "tag.hh"
-#include "tag_reader.hh"
-
-#include <Eina.hh>
+#include <memory>
 
 namespace emc {
 
 class database;
 class database_map;
-class tag_consumer;
+class tagging_context;
 
 /**
- * Scans for media files and inserts/updates database media information
+ * Managers the tagging context to scan paths for media files
  */
 class tagging_service
 {
 public:
-   tagging_service(::emc::database &database, ::emc::database_map &database_map);
+   tagging_service(::emc::database &database,
+                   ::emc::database_map &database_map);
    ~tagging_service();
 
-   void start();
+   /**
+    * Scans the provided path for media files
+    * @param path The path to scan for
+    */
+   void scan(const std::string &path);
+
+private:
+   void create_context(const std::string &path);
 
 private:
    ::emc::database &database;
    ::emc::database_map &database_map;
-   ::emc::bounded_buffer<std::string> files;
-   ::emc::bounded_buffer<tag> tags;
-
-   ::emc::file_scanner scanner;
-   ::emc::tag_reader reader;
-   std::shared_ptr<::emc::tag_consumer> consumer;
+   std::unique_ptr<tagging_context> context;
 };
 
 }

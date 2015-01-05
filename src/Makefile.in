@@ -23,7 +23,8 @@ SOURCES= \
   tagging_service.cc \
   tag_consumer.cc \
   picture_resizer.cc \
-  database_checker.cc
+  database_checker.cc \
+  tagging_context.cc
 OBJECTS=$(SOURCES:.cc=.o)
 
 emc_LIBADD = @EMC_LIBS@ @LIBS@

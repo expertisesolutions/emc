@@ -2,10 +2,7 @@
 
 #include "logger.hh"
 #include "tag_consumer.hh"
-
-#include <Ecore.hh>
-
-#include <memory>
+#include "tagging_context.hh"
 
 namespace {
    auto MAX_FILES_QUEUE_COUNT = 100;
@@ -14,27 +11,34 @@ namespace {
 
 namespace emc {
 
-tagging_service::tagging_service(::emc::database &database, ::emc::database_map &database_map)
+tagging_service::tagging_service(::emc::database &database,
+                                 ::emc::database_map &database_map)
    : database(database)
    , database_map(database_map)
-   , files(MAX_FILES_QUEUE_COUNT)
-   , tags(MAX_READ_TAGS_QUEUE_COUNT)
-   , scanner(files)
-   , reader(files, tags)
 {}
 
 tagging_service::~tagging_service()
 {
-   tags.close();
-   files.close();
+   if (context)
+     context->stop();
 }
 
 void
-tagging_service::start()
+tagging_service::scan(const std::string &path)
 {
-   DBG << "Starting file scanner...";
-   scanner.start();
-   consumer = std::make_shared<tag_consumer>(database, database_map, tags);
+   DBG << "Scanning for media files in: " << path;
+   create_context(path);
+   context->start();
+}
+
+void
+tagging_service::create_context(const std::string &path)
+{
+   context.reset(new tagging_context(database,
+                                     database_map,
+                                     MAX_FILES_QUEUE_COUNT,
+                                     MAX_READ_TAGS_QUEUE_COUNT,
+                                     path));
 }
 
 }

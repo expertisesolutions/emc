@@ -34,21 +34,29 @@ application_controller::run()
         return EXIT_FAILURE;
      }
 
+   // initialize gui
+   ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
+   ::elm_layout layout(efl::eo::parent = win);
+   win.callback_delete_request_add(std::bind([]{elm_exit();}));
+
    // initialize services
    ::emc::database database;
    ::emc::database_map database_map(database);
    ::emc::tagging_service tagging_service(database, database_map);
 
+   emc::settingsmodel settings(database, database_map, win, layout);
+
    // start services and connect event handlers
-   auto on_database_mapped =
-     [&tagging_service]()
+   auto start_tagging =
+     [&tagging_service, &settings]()
      {
-        tagging_service.start();
+        auto audio_path = settings.audio_rootpath_get();
+        tagging_service.scan(audio_path);
      };
 
    DBG << "Loading database...";
    database.async_load(
-     [&database_map, on_database_mapped](bool error)
+     [&database_map, start_tagging](bool error)
      {
         if (error)
           {
@@ -58,16 +66,10 @@ application_controller::run()
           }
 
         DBG << "Mapping database rows";
-        database_map.async_map(on_database_mapped);
+        database_map.async_map(start_tagging);
      });
 
-   // initialize gui
-   ::elm_win win(elm_win_util_standard_add("emc-window","Enlightenment Media Center - EMC"));
-   ::elm_layout layout(efl::eo::parent = win);
-   win.callback_delete_request_add(std::bind([]{elm_exit();}));
-
-   emc::settingsmodel settings(database, database_map, win, layout);
-   emc::mainctrl mctrl(database, settings);
+   emc::mainctrl mctrl(database, settings, start_tagging);
    mctrl.active();
 
    elm_run();

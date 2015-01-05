@@ -20,6 +20,8 @@ public:
    tag_consumer(database &db, database_map &db_map, bounded_buffer<tag> &tags);
    ~tag_consumer();
 
+   void stop();
+
 private:
    void process();
    void update_tag(tag &tag);

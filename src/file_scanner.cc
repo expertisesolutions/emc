@@ -22,28 +22,7 @@ file_scanner::~file_scanner()
    worker.join();
 }
 
-void file_scanner::start()
-{
-   const auto paths = get_configured_paths();
-   for (auto &path : paths)
-     scan_path(path);
-}
-
-std::vector<std::string> file_scanner::get_configured_paths() const
-{
-   // TODO: The path must be configurable
-   const char *home_dir = getenv("HOME");
-   if (!home_dir)
-     home_dir = getenv("USERPROFILE");
-
-   DBG << "Home directory: " << home_dir;
-
-   std::string music_dir = std::string(home_dir) + "/Music";
-
-   return std::vector<std::string>(1, music_dir);
-}
-
-void file_scanner::scan_path(const std::string &path)
+void file_scanner::scan(const std::string &path)
 {
    {
       efl::eina::unique_lock<efl::eina::mutex> lock(pending_paths_mutex);
@@ -104,7 +83,7 @@ file_scanner::process_path(const std::string &path)
    EINA_ITERATOR_FOREACH(it, info)
      {
         if (info->type == EINA_FILE_DIR)
-          scan_path(info->path);
+          scan(info->path);
         else
           files.push_back(info->path);
      }

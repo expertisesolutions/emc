@@ -17,12 +17,9 @@ public:
    file_scanner(bounded_buffer<std::string> &files);
    ~file_scanner();
 
-   void start();
+   void scan(const std::string &path);
 
 private:
-   std::vector<std::string> get_configured_paths() const;
-   void scan_path(const std::string &path);
-
    void process();
    void process_paths(const std::vector<std::string> &paths);
    void process_path(const std::string &path);

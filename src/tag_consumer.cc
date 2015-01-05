@@ -15,6 +15,10 @@ tag_consumer::tag_consumer(database &db, database_map &db_map, bounded_buffer<ta
 {}
 
 tag_consumer::~tag_consumer()
+{}
+
+void
+tag_consumer::stop()
 {
    tags.close();
    terminated = true;

@@ -6,6 +6,8 @@
 #include "settingsctrl.hh"
 #include "videolist.hh"
 
+#include <functional>
+
 namespace emc {
 
 class database;
@@ -18,7 +20,9 @@ class mainctrl : public basectrl
    settingsctrl settctrl;
 
    public:
-     mainctrl(::emc::database &database, settingsmodel &settings);
+     mainctrl(::emc::database &database,
+              settingsmodel &settings,
+              std::function<void()> start_tagging);
      ~mainctrl() {}
      void on_key_down(std::string key);
 };

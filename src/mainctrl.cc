@@ -34,12 +34,13 @@ mainctrl::on_key_down(std::string key)
      basectrl::on_key_down(key);
 }
 
-//Constructor
-mainctrl::mainctrl(::emc::database &database, settingsmodel &_settings)
-   : basectrl(_settings, "main", []{elm_exit();}),
-     settctrl(settings, [this]{active();}),
-     audio(database, settings, [this]{active();}),
-     video(settings, [this]{active();})
+mainctrl::mainctrl(::emc::database &database,
+                   settingsmodel &_settings,
+                   std::function<void()> start_tagging)
+   : basectrl(_settings, "main", []{elm_exit();})
+   , settctrl(database, settings, start_tagging, [this]{active();})
+   , audio(database, settings, [this]{active();})
+   , video(settings, [this]{active();})
 {
    //add signal callbacks
    layout.signal_callback_add("main.selected.audio", "*",

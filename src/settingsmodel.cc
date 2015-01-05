@@ -33,7 +33,10 @@ namespace {
 
 namespace emc {
 
-settingsmodel::settingsmodel(::emc::database &database, ::emc::database_map &database_map, ::elm_win &_win, ::elm_layout &_layout)
+settingsmodel::settingsmodel(::emc::database &database,
+                             ::emc::database_map &database_map,
+                             ::elm_win &_win,
+                             ::elm_layout &_layout)
    : database(database)
    , database_map(database_map)
    , win(_win)
@@ -54,7 +57,7 @@ settingsmodel::~settingsmodel()
 {}
 
 std::string
-settingsmodel::video_rootpath_get()
+settingsmodel::video_rootpath_get() const
 {
    std::string path = database_map.setting_get(VIDEO_PATH_KEY);
 
@@ -65,7 +68,7 @@ settingsmodel::video_rootpath_get()
 }
 
 std::string
-settingsmodel::audio_rootpath_get()
+settingsmodel::audio_rootpath_get() const
 {
    std::string path = database_map.setting_get(MUSIC_PATH_KEY);
 
@@ -76,7 +79,7 @@ settingsmodel::audio_rootpath_get()
 }
 
 bool
-settingsmodel::fullscreen_get()
+settingsmodel::fullscreen_get() const
 {
    //TODO: get from database
    return win.fullscreen_get();
@@ -105,22 +108,6 @@ void
 settingsmodel::group_set(const std::string groupname)
 {
    layout.file_set(THEME_DEFAULT_PATH, groupname);
-}
-
-void
-settingsmodel::update_media()
-{
-   database.async_reset_media_tables(
-     [](bool error)
-     {
-        if (error)
-          {
-             ERR << "Error updating media files";
-             return;
-          }
-
-        // TODO: Restart tagging service
-     });
 }
 
 }

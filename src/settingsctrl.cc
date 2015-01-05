@@ -3,25 +3,33 @@
  *    Audio/Video Player
  */
 
+#include "settingsctrl.hh"
+
+#include "database.hh"
+#include "logger.hh"
+
 #include <Evas.h>
 #include <Elementary.h>
 #include <elm_widget.h>
-#include "elm_interface_atspi_accessible.h"
-#include "elm_interface_atspi_accessible.eo.h"
-#include "elm_interface_atspi_widget_action.h"
-#include "elm_interface_atspi_widget_action.eo.h"
+#include <elm_interface_atspi_accessible.h>
+#include <elm_interface_atspi_accessible.eo.h>
+#include <elm_interface_atspi_widget_action.h>
+#include <elm_interface_atspi_widget_action.eo.h>
 #include <elm_layout.eo.hh>
-
-#include "settingsctrl.hh"
 
 namespace emc {
 
-settingsctrl::settingsctrl(settingsmodel &_settings, const std::function<void()> &_cb)
-   : basectrl(_settings, "settings", _cb),
-   m_fentry(efl::eo::parent = layout),
-   v_fentry(efl::eo::parent = layout),
-   fullscreen_check(efl::eo::parent = layout),
-   mupdate_bt(efl::eo::parent = layout)
+settingsctrl::settingsctrl(::emc::database &database,
+                           settingsmodel &_settings,
+                           std::function<void()> start_tagging,
+                           const std::function<void()> &_cb)
+   : basectrl(_settings, "settings", _cb)
+   , database(database)
+   , start_tagging(start_tagging)
+   , m_fentry(efl::eo::parent = layout)
+   , v_fentry(efl::eo::parent = layout)
+   , fullscreen_check(efl::eo::parent = layout)
+   , mupdate_bt(efl::eo::parent = layout)
 {
    v_fentry.callback_changed_add(
        std::bind([this]
@@ -55,7 +63,7 @@ settingsctrl::settingsctrl(settingsmodel &_settings, const std::function<void()>
    mupdate_bt.callback_clicked_add(
      std::bind([this]
        {
-         settings.update_media();
+          update_media();
        }));
 }
 
@@ -96,4 +104,20 @@ settingsctrl::deactive()
    basectrl::deactive();
 }
 
-} //emc
+void
+settingsctrl::update_media()
+{
+   database.async_reset_media_tables(
+     [this](bool error)
+     {
+        if (error)
+          {
+             ERR << "Error updating media files";
+             return;
+          }
+
+        start_tagging();
+     });
+}
+
+}
