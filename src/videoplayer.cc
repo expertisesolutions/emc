@@ -116,7 +116,7 @@ videoplayer::play(emodel model)
    char *path = eina_value_to_string(&v);
    if (path) {
       evas_object_smart_callback_add(emotion._eo_ptr(), "open_done", _video_open_done_cb, this); //FIXME
-      player.efl::eo::detail::extension_inheritance<efl::file>::template type< ::elm_video>::file_set(path, "");
+      player.file_set(path, "");
       free(path);
    }
 

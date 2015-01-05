@@ -5,6 +5,8 @@
 #include "audiolist.hh"
 
 #include <Ecore.hh>
+#include <Evas.h>
+#include <Evas.hh>
 #include <Elementary.h>
 #include <elm_widget.h>
 #include <elm_interface_atspi_accessible.h>
@@ -14,8 +16,14 @@
 #include <elm_layout.eo.hh>
 #include <Evas.h>
 
+#include "emodel_helpers.hh"
+#include "logger.hh"
+#include "audiolist.hh"
+#include <Ecore.hh>
 #include <thread>
 #include <iomanip>
+
+#include <string.h>
 
 namespace emc {
 
@@ -23,20 +31,8 @@ void
 audiolist::_on_key_down(std::string key)
 {
 }
- //FIXME
-static void
-playback_finished_cb(void *data, Evas_Object *obj, void *event_info)
-{
-   audiolist *t = static_cast<audiolist*>(data);
-   if(!t)
-     {
-        std::string errmsg("Invalid Data\n");
-        std::cerr << "Error: " << errmsg;
-        return;
-     }
-   efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::player_playback_finished_cb, t));
-}
- //FIXME
+
+//FIXME
 static void
 frame_decode_cb(void *data, Evas_Object *obj, void *event_info)
 {
@@ -50,7 +46,21 @@ frame_decode_cb(void *data, Evas_Object *obj, void *event_info)
 
    efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::player_fame_decode_cb, t));
 }
- //FIXME
+//FIXME
+static void
+playback_started_cb(void *data, Evas_Object *obj, void *event_info)
+{
+   audiolist *t = static_cast<audiolist*>(data);
+   if(!t)
+     {
+        std::string errmsg("Invalid Data\n");
+        std::cerr << "Error: " << errmsg;
+        return;
+     }
+
+   efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::playback_update, t));
+}
+//FIXME
 static void
 activated_cb(void *data, Evas_Object *obj, void *event_info)
 {
@@ -63,32 +73,16 @@ activated_cb(void *data, Evas_Object *obj, void *event_info)
      }
 
    efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::list_activated_cb, t));
-
-}
-
- //FIXME
-static void
-audio_open_done_cb(void *data, Evas_Object *obj, void *event_info)
-{
-   audiolist *t = static_cast<audiolist*>(data);
-   if(!t)
-     {
-        std::string errmsg("Invalid Data\n");
-        std::cerr << "Error: " << errmsg;
-        return;
-     }
-
-   efl::ecore::main_loop_thread_safe_call_async(std::bind(&audiolist::opened_done_cb, t));
 }
 
 audiolist::audiolist(::emc::database &database, settingsmodel &_settings, const std::function<void()> &_cb)
    : basectrl(_settings, "audiolist", _cb),
         list(efl::eo::parent = layout),
         progslider(efl::eo::parent = layout),
-        player(settings.player),
         view(nullptr),
         row_selected(nullptr),
         model(database)
+        playlist(settings)
 {
     layout.signal_callback_add("audiolist.selected.artists", "*",
        std::bind([this]
@@ -110,6 +104,8 @@ audiolist::audiolist(::emc::database &database, settingsmodel &_settings, const 
        std::bind([this]
           {
             std::cout << "playlist selected cb" << std::endl;
+            emodel em(eo_ref(playlist._eo_ptr()));
+            view.model_set(em);
           }
        ));
 
@@ -117,42 +113,17 @@ audiolist::audiolist(::emc::database &database, settingsmodel &_settings, const 
        std::bind([this]
           {
             std::cout << "playpause selected cb" << std::endl;
-            if (player.is_playing_get()) {
-              player.pause();
+            if (settings.player.is_playing_get()) {
+              playlist.pause();
               layout.signal_emit("audiolist.playlist.paused", "");
-            } else if (player.play_position_get() > 0) {
-              player.play();
-              layout.signal_emit("audiolist.playlist.playing", "");
             } else
-              list_activated_cb();
+              playlist.play();
           }
        ));
 
-    layout.signal_callback_add("audiolist.playlist.next", "*",
-       std::bind([this]
-          {
-            std::cout << "next selected cb" << std::endl;
-            Elm_Object_Item* i = list.selected_item_get();
-            if (!i) return;
-            Elm_Object_Item* next = elm_genlist_item_next_get(i);
-            if (!next) return;
-            elm_genlist_item_selected_set(next, EINA_TRUE);
-            list_activated_cb();
-          }
-       ));
+    layout.signal_callback_add("audiolist.playlist.next", "*", std::bind([this]{playlist.play_next();}));
+    layout.signal_callback_add("audiolist.playlist.prev", "*", std::bind([this]{playlist.play_prev();}));
 
-    layout.signal_callback_add("audiolist.playlist.prev", "*",
-       std::bind([this]
-          {
-            std::cout << "prev selected cb" << std::endl;
-            Elm_Object_Item* i = list.selected_item_get();
-            if (!i) return;
-            Elm_Object_Item* prev = elm_genlist_item_prev_get(i);
-            if (!prev) return;
-            elm_genlist_item_selected_set(prev, EINA_TRUE);
-            list_activated_cb();
-          }
-       ));
     layout.signal_callback_add("audiolist.playlist.repeat", "*",
        std::bind([this]
           {
@@ -170,25 +141,9 @@ audiolist::audiolist(::emc::database &database, settingsmodel &_settings, const 
       std::bind([this]
           {
               // Update video position. Progress slider is updated as side effect.
-              player.play_position_set(progslider.value_get());
+              settings.player.play_position_set(progslider.value_get());
           }
       ));
-
-    evas::object emotion = player.emotion_get();
-    evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", playback_finished_cb, this); //FIXME
-}
-
-void
-audiolist::player_playback_finished_cb()
-{
-    Elm_Object_Item* i = list.selected_item_get();
-    if (!i) return;
-
-    Elm_Object_Item* next = elm_genlist_item_next_get(i);
-    if (!next) return;
-
-    elm_genlist_item_selected_set(next, EINA_TRUE);
-    list_activated_cb();
 }
 
 void
@@ -197,8 +152,8 @@ audiolist::player_fame_decode_cb()
     std::ostringstream label_total, label_pos;
     int h, m, s;
 
-    double pos = player.play_position_get();
-    double len = player.play_length_get();
+    double pos = settings.player.play_position_get();
+    double len = settings.player.play_length_get();
 
     h = pos / 3600;
     m = pos / 60 - (h * 60);
@@ -220,6 +175,37 @@ audiolist::player_fame_decode_cb()
 }
 
 void
+audiolist::playback_update()
+{
+    if (!settings.player.is_playing_get())
+      return;
+
+    layout.signal_emit("audiolist.playlist.playing", "");
+    std::string name;
+    auto track = playlist.curr();
+    if (emc::emodel_helpers::property_get(track, "name", name)) {
+       layout.text_set("audiolist/track", name);
+    }
+
+    Eina_Value value = {};
+    if (track.property_get("artwork", &value)) {
+       Eina_Value_Blob blob = {};
+       eina_value_get(&value, &blob);
+       if (blob.memory && blob.size > 0) {
+          evas::image img(efl::eo::parent = layout);
+          evas_object_image_memfile_set(img._eo_ptr(), const_cast<void*>(blob.memory), blob.size, nullptr, nullptr);
+          img.filled_set(true);
+          img.visibility_set(true);
+          layout.content_set("audiolist/artwork", img);
+       } else {
+          auto c = layout.content_get("audiolist/artwork");
+          c.visibility_set(false);
+          layout.content_unset("audiolist/artwork");
+       }
+    }
+}
+
+void
 audiolist::list_activated_cb()
 {
     if (row_selected._eo_ptr() == NULL)
@@ -232,28 +218,14 @@ audiolist::list_activated_cb()
     else if (tablename == "albums")
        view.model_set(model.album_tracks_get(row_selected));
     else if (tablename == "tracks") {
-       Eina_Value v;
-       row_selected.property_get("file", &v);
-       char *path = eina_value_to_string(&v);
-       if (path) {
-         evas::object emotion = player.emotion_get();
-         evas_object_smart_callback_add(emotion._eo_ptr(), "open_done", audio_open_done_cb, this); //FIXME
-         player.efl::eo::detail::extension_inheritance<efl::file>::template type< ::elm_video>::file_set(path, "");
-         free(path);
-       }
+       emodel m(nullptr);
+       view.model_get(&m);
+       auto l = emc::emodel_helpers::children_get<esql::model_row>(m);
+       m._release();
+       playlist.list_set(l);
+       playlist.play(row_selected);
     }
 }
-
-
-void
-audiolist::opened_done_cb()
-{
-   player.play();
-   evas::object emotion = player.emotion_get();
-   evas_object_smart_callback_del(emotion._eo_ptr(), "open_done", audio_open_done_cb); //FIXME
-   layout.signal_emit("audiolist.playlist.playing", "");
-}
-
 
 void
 audiolist::active()
@@ -279,26 +251,24 @@ audiolist::active()
 
    list.show();
    progslider.show();
+   playback_update();
 
-   evas::object emotion = player.emotion_get();
+   evas::object emotion = settings.player.emotion_get();
    evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", frame_decode_cb, this); //FIXME
+   evas_object_smart_callback_add(emotion._eo_ptr(), "playback_started", playback_started_cb, this); //FIXME
    evas_object_smart_callback_add(list._eo_ptr(), "activated", activated_cb, this); //FIXME
-
-   if (player.is_playing_get()) {
-     layout.signal_emit("audiolist.playlist.playing", "");
-     std::cout << "playing" << std::endl;
-   }
 
    view.model_set(model.artists_get());
    view.property_connect("name", "elm.text");
-  // view.property_connect("name", "elm.text.sub");
+   view.property_connect("artwork", "elm.swallon.icon");
 }
 
 void
 audiolist::deactive()
 {
-   evas::object emotion = player.emotion_get();
+   evas::object emotion = settings.player.emotion_get();
    evas_object_smart_callback_del(emotion._eo_ptr(), "frame_decode", frame_decode_cb); //FIXME
+   evas_object_smart_callback_del(emotion._eo_ptr(), "playback_started", playback_started_cb); //FIXME
    evas_object_smart_callback_del(list._eo_ptr(), "activated", activated_cb); //FIXME
 
    layout.content_unset(groupname+"/list");

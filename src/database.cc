@@ -198,7 +198,7 @@ void
 database::create_table(const schema::table &table_definition)
 {
    DBG << "Creating table: " << table_definition.name;
-   efl::eo::base obj = db.child_add();
+   ::efl::eo::concrete obj = db.child_add();
    esql::model_table table(::eo_ref(obj._eo_ptr()));
    table.name_set(table_definition.name);
    tables.insert(std::make_pair(table_definition.name, table));

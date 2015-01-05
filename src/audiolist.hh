@@ -14,6 +14,9 @@
 #include <elm_video.eo.hh>
 #include "elm_view_list.eo.hh"
 
+
+#include "playlistmodel.hh"
+
 namespace emc {
 
 class audiolist
@@ -23,10 +26,10 @@ class audiolist
    std::function<void(esql::model_table&)> _model_set;
    ::elm_genlist list;
    ::elm_view_list view;
-   ::elm_video player;
    ::elm_slider progslider;
    esql::model_row row_selected;
    audiolistmodel model;
+   playlistmodel playlist;
    void artists_show(esql::model_table& model);
    void albums_show(esql::model_table& model);
    void playlists_show(esql::model_table& model);
@@ -36,10 +39,9 @@ class audiolist
      ~audiolist() {}
      void active();
      void deactive();
-     void player_playback_finished_cb();
      void player_fame_decode_cb();
      void list_activated_cb();
-     void opened_done_cb();
+     void playback_update();
 };
 
 } //emc
