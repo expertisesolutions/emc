@@ -22,6 +22,8 @@ class audiolistmodel
      esql::model_table& artist_albums_get(esql::model_row& artist);
      esql::model_table& artist_tracks_get(esql::model_row& artist);
      esql::model_table& album_tracks_get(esql::model_row& album);
+
+     void artist_get(esql::model_row& row, std::function<void(esql::model_row&)> handler);
 };
 
 } //emc

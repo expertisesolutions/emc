@@ -81,7 +81,7 @@ audiolist::audiolist(::emc::database &database, settingsmodel &_settings, const 
         progslider(efl::eo::parent = layout),
         view(nullptr),
         row_selected(nullptr),
-        model(database)
+        model(database),
         playlist(settings)
 {
     layout.signal_callback_add("audiolist.selected.artists", "*",
@@ -185,6 +185,12 @@ audiolist::playback_update()
     auto track = playlist.curr();
     if (emc::emodel_helpers::property_get(track, "name", name)) {
        layout.text_set("audiolist/track", name);
+       model.artist_get(track, [this, name](esql::model_row& artist)
+          {
+             std::string artist_name;
+             if (emc::emodel_helpers::property_get(artist, "name", artist_name))
+                layout.text_set("audiolist/track", name+" by "+artist_name);
+          });
     }
 
     Eina_Value value = {};
@@ -260,7 +266,7 @@ audiolist::active()
 
    view.model_set(model.artists_get());
    view.property_connect("name", "elm.text");
-   view.property_connect("artwork", "elm.swallon.icon");
+   view.property_connect("artwork", "elm.swallow.icon");
 }
 
 void
@@ -277,6 +283,10 @@ audiolist::deactive()
    basectrl::deactive();
    list.hide();
    progslider.hide();
+
+   auto c = layout.content_get(groupname+"/artwork");
+   c.visibility_set(false);
+   layout.content_unset(groupname+"/artwork");
 }
 
 void

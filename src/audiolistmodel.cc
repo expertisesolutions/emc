@@ -118,4 +118,36 @@ audiolistmodel::album_tracks_get(esql::model_row& album)
     return tracks;
 }
 
+void
+audiolistmodel::artist_get(esql::model_row& row, std::function<void(esql::model_row&)> handler)
+{
+   auto &artists = database.artists_get();
+   int64_t id_artist = emc::database::INVALID_ID;
+
+   emodel_helpers::property_get(row, "id_artist", id_artist);
+
+   if (database::INVALID_ID != id_artist)
+     {
+         std::stringstream buffer;
+         buffer << "id="
+             << id_artist;
+         auto connection = std::make_shared<::efl::eo::signal_connection>([]{});
+         artists.filter_set(buffer.str());
+         *connection = artists.callback_load_status_add(
+               std::bind([connection, handler, &artists](void *info)
+                 {
+                     const Emodel_Load &st = *static_cast<Emodel_Load*>(info);
+                     if (st.status & EMODEL_LOAD_STATUS_LOADED)
+                       {
+                            connection->disconnect();
+                            auto children = emodel_helpers::children_get<esql::model_row>(artists);
+                            if (children.empty())
+                                return;
+
+                            emodel_helpers::async_properties_load(children[0], std::bind(handler, children[0]));
+                       }
+                 }, std::placeholders::_3));
+     }
+}
+
 }
