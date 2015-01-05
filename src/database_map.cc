@@ -164,7 +164,7 @@ database_map::setting_get(const std::string &key) const
 
    auto row = settings_map.find(key);
    if (row)
-     emc::emodel_helpers::property_get(row, "key", value);
+     emc::emodel_helpers::property_get(row, "value", value);
 
    return value;
 }
