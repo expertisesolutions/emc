@@ -104,8 +104,7 @@ audiolist::audiolist(::emc::database &database, settingsmodel &_settings, const 
        std::bind([this]
           {
             std::cout << "playlist selected cb" << std::endl;
-            emodel em(eo_ref(playlist._eo_ptr()));
-            view.model_set(em);
+            view.model_set(playlist);
           }
        ));
 
@@ -181,17 +180,14 @@ audiolist::playback_update()
       return;
 
     layout.signal_emit("audiolist.playlist.playing", "");
-    std::string name;
     auto track = playlist.curr();
-    if (emc::emodel_helpers::property_get(track, "name", name)) {
-       layout.text_set("audiolist/track", name);
-       model.artist_get(track, [this, name](esql::model_row& artist)
-          {
-             std::string artist_name;
-             if (emc::emodel_helpers::property_get(artist, "name", artist_name))
-                layout.text_set("audiolist/track", name+" by "+artist_name);
-          });
-    }
+    model.artist_get(track, [this, track](esql::model_row& artist)
+       {
+          std::string artist_name, name;
+          emc::emodel_helpers::property_get(track, "name", name);
+          emc::emodel_helpers::property_get(artist, "name", artist_name);
+          layout.text_set("audiolist/track", name+" by "+artist_name);
+       });
 
     Eina_Value value = {};
     if (track.property_get("artwork", &value)) {
@@ -205,7 +201,8 @@ audiolist::playback_update()
           layout.content_set("audiolist/artwork", img);
        } else {
           auto c = layout.content_get("audiolist/artwork");
-          c.visibility_set(false);
+          if (c)
+            c->visibility_set(false);
           layout.content_unset("audiolist/artwork");
        }
     }
@@ -259,9 +256,12 @@ audiolist::active()
    progslider.show();
    playback_update();
 
-   evas::object emotion = settings.player.emotion_get();
-   evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", frame_decode_cb, this); //FIXME
-   evas_object_smart_callback_add(emotion._eo_ptr(), "playback_started", playback_started_cb, this); //FIXME
+   auto emotion = settings.player.emotion_get();
+   if (emotion)
+     {
+        evas_object_smart_callback_add(emotion->_eo_ptr(), "frame_decode", frame_decode_cb, this); //FIXME
+        evas_object_smart_callback_add(emotion->_eo_ptr(), "playback_started", playback_started_cb, this); //FIXME
+     }
    evas_object_smart_callback_add(list._eo_ptr(), "activated", activated_cb, this); //FIXME
 
    view.model_set(model.artists_get());
@@ -272,9 +272,12 @@ audiolist::active()
 void
 audiolist::deactive()
 {
-   evas::object emotion = settings.player.emotion_get();
-   evas_object_smart_callback_del(emotion._eo_ptr(), "frame_decode", frame_decode_cb); //FIXME
-   evas_object_smart_callback_del(emotion._eo_ptr(), "playback_started", playback_started_cb); //FIXME
+   auto emotion = settings.player.emotion_get();
+   if (emotion)
+     {
+        evas_object_smart_callback_del(emotion->_eo_ptr(), "frame_decode", frame_decode_cb); //FIXME
+        evas_object_smart_callback_del(emotion->_eo_ptr(), "playback_started", playback_started_cb); //FIXME
+     }
    evas_object_smart_callback_del(list._eo_ptr(), "activated", activated_cb); //FIXME
 
    layout.content_unset(groupname+"/list");
@@ -285,7 +288,9 @@ audiolist::deactive()
    progslider.hide();
 
    auto c = layout.content_get(groupname+"/artwork");
-   c.visibility_set(false);
+   if (c)
+     c->visibility_set(false);
+
    layout.content_unset(groupname+"/artwork");
 }
 

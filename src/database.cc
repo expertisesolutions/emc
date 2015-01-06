@@ -50,8 +50,11 @@ void
 database::async_create_row(esql::model_table &table, std::function<void(bool, esql::model_row)> callback)
 {
    auto obj = table.child_add();
-   DBG << "Row created: " << obj._eo_ptr();
-   esql::model_row row(::eo_ref(obj._eo_ptr()));
+   if (!obj)
+      return;
+
+   DBG << "Row created: " << obj->_eo_ptr();
+   esql::model_row row(::eo_ref(obj->_eo_ptr()));
    emc::emodel_helpers::async_properties_load(row, std::bind(callback, std::placeholders::_1, row));
 }
 
@@ -198,8 +201,11 @@ void
 database::create_table(const schema::table &table_definition)
 {
    DBG << "Creating table: " << table_definition.name;
-   ::efl::eo::concrete obj = db.child_add();
-   esql::model_table table(::eo_ref(obj._eo_ptr()));
+   auto obj = db.child_add();
+   if (!obj)
+     return;
+
+   esql::model_table table(::eo_ref(obj->_eo_ptr()));
    table.name_set(table_definition.name);
    tables.insert(std::make_pair(table_definition.name, table));
 

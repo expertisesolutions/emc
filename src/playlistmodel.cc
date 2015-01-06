@@ -3,12 +3,6 @@
  *    Audio/Video Player
  */
 
-//#include "database_schema.hh"
-//#include "emodel_helpers.hh"
-//#include "logger.hh"
-
-//#include <functional>
-//#include <utility>
 #include <Evas.h>
 #include <Elementary.h>
 #include <elm_widget.h>
@@ -17,11 +11,12 @@
 #include "elm_interface_atspi_widget_action.h"
 #include "elm_interface_atspi_widget_action.eo.h"
 
-#include "playlistmodel.hh"
 #include "emodel_helpers.hh"
 #include <eina_accessor.hh>
 #include <Ecore.hh>
 #include <thread>
+
+#include "playlistmodel.hh"
 
 namespace emc {
 
@@ -55,12 +50,13 @@ playlist_open_done_cb(void *data, Evas_Object *obj, void *event_info)
 }
 
 playlistmodel::playlistmodel(settingsmodel &_settings)
-        : inherit_base(efl::eo::parent = nullptr),
+        : inherit_base(efl::eo::args< ::emodel>(efl::eo::parent = nullptr)),
         settings (_settings),
         player(settings.player)
 {
-    evas::object emotion = player.emotion_get();
-    evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", playback_finished_cb, this); //FIXME
+    auto emotion = player.emotion_get();
+    if (emotion)
+      evas_object_smart_callback_add(emotion->_eo_ptr(), "playback_finished", playback_finished_cb, this); //FIXME
 }
 
 void
@@ -83,6 +79,7 @@ Emodel_Load_Status
 playlistmodel::children_slice_get(unsigned start, unsigned count, Eina_Accessor ** children_accessor)
 {
    *children_accessor = eina_list_accessor_new(tracks.native_handle());
+   //*children_accessor = NULL;
    return EMODEL_LOAD_STATUS_LOADED;
 }
 
@@ -100,12 +97,13 @@ playlistmodel::play(esql::model_row track)
 }
 
 esql::model_row
-playlistmodel::play(efl::eina::ptr_list<esql::model_row>::iterator track)
+playlistmodel::play(efl::eina::list<esql::model_row>::iterator track)
 {
    std::string path;
    if (emc::emodel_helpers::property_get(*track, "file", path)) {
-     evas::object emotion = player.emotion_get();
-     evas_object_smart_callback_add(emotion._eo_ptr(), "open_done", playlist_open_done_cb, this); //FIXME
+     auto emotion = player.emotion_get();
+     if (emotion)
+       evas_object_smart_callback_add(emotion->_eo_ptr(), "open_done", playlist_open_done_cb, this); //FIXME
      player.file_set(path, "");
      current_track = track;
    }
@@ -157,8 +155,9 @@ void
 playlistmodel::opened_done_cb()
 {
    player.play();
-   evas::object emotion = player.emotion_get();
-   evas_object_smart_callback_del(emotion._eo_ptr(), "open_done", playlist_open_done_cb); //FIXME
+   auto emotion = player.emotion_get();
+   if (emotion)
+   evas_object_smart_callback_del(emotion->_eo_ptr(), "open_done", playlist_open_done_cb); //FIXME
 }
 
 } //emc

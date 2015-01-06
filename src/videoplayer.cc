@@ -112,10 +112,11 @@ videoplayer::play(emodel model)
       return;
    }
 
-   evas::object emotion = player.emotion_get();
+   auto emotion = player.emotion_get();
    char *path = eina_value_to_string(&v);
    if (path) {
-      evas_object_smart_callback_add(emotion._eo_ptr(), "open_done", _video_open_done_cb, this); //FIXME
+      if (emotion)
+        evas_object_smart_callback_add(emotion->_eo_ptr(), "open_done", _video_open_done_cb, this); //FIXME
       player.file_set(path, "");
       free(path);
    }
@@ -129,8 +130,11 @@ videoplayer::play(emodel model)
 
    layout.content_set(groupname+"/progressbar", progslider);
 
-   evas_object_smart_callback_add(emotion._eo_ptr(), "playback_finished", _video_playback_finished_cb, this); //FIXME
-   evas_object_smart_callback_add(emotion._eo_ptr(), "frame_decode", _video_frame_decode_cb, this); //FIXME
+   if (emotion)
+   {
+     evas_object_smart_callback_add(emotion->_eo_ptr(), "playback_finished", _video_playback_finished_cb, this); //FIXME
+     evas_object_smart_callback_add(emotion->_eo_ptr(), "frame_decode", _video_frame_decode_cb, this); //FIXME
+   }
 
    progslider.show();
    settings.win.activate();
@@ -140,17 +144,22 @@ void
 videoplayer::opened_done_cb()
 {
    player.play();
-   evas::object emotion = player.emotion_get();
-   evas_object_smart_callback_del(emotion._eo_ptr(), "open_done", _video_open_done_cb); //FIXME
+   auto emotion = player.emotion_get();
+   if (emotion)
+     evas_object_smart_callback_del(emotion->_eo_ptr(), "open_done", _video_open_done_cb); //FIXME
+
    layout.signal_emit("videoplayer.video.playing", "");
 }
 
 void
 videoplayer::deactive()
 {
-   evas::object emotion = player.emotion_get();
-   evas_object_smart_callback_del(emotion._eo_ptr(), "playback_finished", _video_playback_finished_cb); //FIXME
-   evas_object_smart_callback_del(emotion._eo_ptr(), "frame_decode", _video_frame_decode_cb); //FIXME
+   auto emotion = player.emotion_get();
+   if (emotion)
+     {
+        evas_object_smart_callback_del(emotion->_eo_ptr(), "playback_finished", _video_playback_finished_cb); //FIXME
+        evas_object_smart_callback_del(emotion->_eo_ptr(), "frame_decode", _video_frame_decode_cb); //FIXME
+     }
 
    if (player.is_playing_get()) {
      player.stop();

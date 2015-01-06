@@ -34,22 +34,22 @@ settingsctrl::settingsctrl(::emc::database &database,
    v_fentry.callback_changed_add(
        std::bind([this]
           {
-            std::string path = v_fentry.path_get();
-            if (path == "")
-              v_fentry.path_set(settings.video_rootpath_get());
+            auto path = v_fentry.path_get();
+            if (path)
+              settings.video_rootpath_set(*path);
             else
-              settings.video_rootpath_set(path);
+              v_fentry.path_set(settings.video_rootpath_get());
 
           }));
 
    m_fentry.callback_changed_add(
        std::bind([this]
           {
-            std::string path = m_fentry.path_get();
-            if (path == "")
-              m_fentry.path_set(settings.audio_rootpath_get());
+            auto path = m_fentry.path_get();
+            if (path)
+              settings.audio_rootpath_set(*path);
             else
-              settings.audio_rootpath_set(path);
+              m_fentry.path_set(settings.audio_rootpath_get());
           }));
 
 
